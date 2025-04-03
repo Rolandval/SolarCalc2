@@ -23,7 +23,7 @@ class Panels(models.Model):
         return f"{self.brand} {self.model}"
     
     def get_datasheet_url(self):
-        return os.path.join('/media/datasheets/', os.path.basename(self.datasheet))
+        return '/media/datasheets/' + os.path.basename(self.datasheet)
 
 
 class Inverters(models.Model):
@@ -38,7 +38,7 @@ class Inverters(models.Model):
         return f"{self.brand} {self.model}"
 
     def get_datasheet_url(self):
-        return os.path.join('/media/datasheets/', os.path.basename(self.datasheet))
+        return '/media/datasheets/' + os.path.basename(self.datasheet)
 
 
 class Batteries(models.Model):
@@ -54,4 +54,4 @@ class Batteries(models.Model):
         return f"{self.brand} {self.model}"
 
     def get_datasheet_url(self):
-        return os.path.join('/media/datasheets/', os.path.basename(self.datasheet))
+        return '/media/datasheets/' + os.path.basename(self.datasheet)

@@ -18,6 +18,12 @@ import requests
 from datetime import datetime
 register = template.Library()
 
+# Функція для нормалізації шляхів (заміна зворотних слешів на прямі)
+def normalize_path(path):
+    if path is None:
+        return None
+    return path.replace('\\', '/')
+
 # Функція для отримання курсу долара
 def get_usd_rate():
     try:
@@ -535,8 +541,11 @@ def download_datasheet(request, panel_id):
         # Отримуємо панель за id
         panel = Panels.objects.get(id=panel_id)
         
+        # Нормалізуємо шлях до файлу
+        panel_datasheet = normalize_path(panel.datasheet)
+        
         # Формуємо повний шлях до файлу
-        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + panel.datasheet
+        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + panel_datasheet
         
         if os.path.exists(datasheet_path):
             # Відкриваємо файл для читання в бінарному режимі
@@ -565,8 +574,11 @@ def download_inverter_datasheet(request, inverter_id):
         # Отримуємо інвертор за id
         inverter = Inverters.objects.get(id=inverter_id)
         
+        # Нормалізуємо шлях до файлу
+        inverter_datasheet = normalize_path(inverter.datasheet)
+        
         # Формуємо повний шлях до файлу
-        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + inverter.datasheet
+        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + inverter_datasheet
         
         if os.path.exists(datasheet_path):
             # Відкриваємо файл для читання в бінарному режимі
@@ -595,8 +607,11 @@ def download_battery_datasheet(request, battery_id):
         # Отримуємо батарею за id
         battery = Batteries.objects.get(id=battery_id)
         
+        # Нормалізуємо шлях до файлу
+        battery_datasheet = normalize_path(battery.datasheet)
+        
         # Формуємо повний шлях до файлу
-        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + battery.datasheet
+        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + battery_datasheet
         
         if os.path.exists(datasheet_path):
             # Відкриваємо файл для читання в бінарному режимі
