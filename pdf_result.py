@@ -1,5 +1,6 @@
 from fpdf import FPDF
 import os
+import sys
 
 # Отримуємо абсолютний шлях до директорії проекту
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -10,9 +11,35 @@ def normalize_path(path):
         return None
     return path.replace('\\', '/')
 
-# Шлях до шрифту
-font_path = normalize_path(os.path.join(BASE_DIR, "static", "fonts", "DejaVuSans.ttf"))
-bold_font_path = normalize_path(os.path.join(BASE_DIR, "static", "fonts", "DejaVuSans-Bold.ttf"))
+# Функція для пошуку файлу в різних можливих директоріях
+def find_file(filename, possible_dirs):
+    for directory in possible_dirs:
+        path = os.path.join(directory, filename)
+        normalized_path = normalize_path(path)
+        if os.path.exists(normalized_path):
+            return normalized_path
+    return None
+
+# Можливі директорії, де можуть знаходитися шрифти
+possible_font_dirs = [
+    os.path.join(BASE_DIR, "static", "fonts"),
+    os.path.join(BASE_DIR, "static/fonts"),
+    "/opt/render/project/src/static/fonts",
+    os.path.join(os.path.dirname(BASE_DIR), "static", "fonts"),
+    os.path.join(os.path.dirname(BASE_DIR), "static/fonts"),
+    os.path.join(BASE_DIR, "fonts"),
+    "/opt/render/project/src/fonts",
+]
+
+# Шукаємо шрифти
+font_path = find_file("DejaVuSans.ttf", possible_font_dirs)
+bold_font_path = find_file("DejaVuSans-Bold.ttf", possible_font_dirs)
+
+# Виводимо діагностичну інформацію
+print(f"BASE_DIR: {BASE_DIR}")
+print(f"Шукаємо шрифти в директоріях: {possible_font_dirs}")
+print(f"Знайдений шлях до звичайного шрифту: {font_path}")
+print(f"Знайдений шлях до жирного шрифту: {bold_font_path}")
 
 # Ініціалізуємо PDF з підтримкою UTF-8
 def generate(
@@ -44,7 +71,7 @@ def generate(
     total_sum = 0
 
     # Додаємо шрифти, якщо вони доступні
-    if os.path.exists(font_path) and os.path.exists(bold_font_path):
+    if font_path and bold_font_path:
         try:
             pdf.add_font('DejaVu', '', font_path, uni=True)
             pdf.add_font('DejaVu', 'B', bold_font_path, uni=True)
@@ -54,7 +81,8 @@ def generate(
             print("Використовуємо стандартний шрифт")
             pdf.set_font('Arial', size=12)
     else:
-        print("Шрифти не знайдено. Використовуємо стандартний шрифт")
+        print(f"Шрифти не знайдено. Шукали в: {possible_font_dirs}")
+        print("Використовуємо стандартний шрифт")
         pdf.set_font('Arial', size=12)
 
     # Функція для створення таблиці
