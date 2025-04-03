@@ -3,3 +3,4 @@ venv
 calculator/__pycache__
 calculator/migrations/__pycache__
 .env
+temp_fonts

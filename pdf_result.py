@@ -1,6 +1,7 @@
 from fpdf import FPDF
 import os
 import sys
+import shutil
 
 # Отримуємо абсолютний шлях до директорії проекту
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,16 +32,6 @@ possible_font_dirs = [
     "/opt/render/project/src/fonts",
 ]
 
-# Шукаємо шрифти
-font_path = find_file("DejaVuSans.ttf", possible_font_dirs)
-bold_font_path = find_file("DejaVuSans-Bold.ttf", possible_font_dirs)
-
-# Виводимо діагностичну інформацію
-print(f"BASE_DIR: {BASE_DIR}")
-print(f"Шукаємо шрифти в директоріях: {possible_font_dirs}")
-print(f"Знайдений шлях до звичайного шрифту: {font_path}")
-print(f"Знайдений шлях до жирного шрифту: {bold_font_path}")
-
 # Ініціалізуємо PDF з підтримкою UTF-8
 def generate(
         O: bool = False, K: bool = False, E: bool = False, R: bool = False,
@@ -64,6 +55,33 @@ def generate(
         usd_rate: float = 0.0,  # Додаємо курс долара
         total_usd: float = 0.0,  # Додаємо суму в доларах
         ):
+    # Створюємо тимчасову директорію для шрифтів
+    temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
+    os.makedirs(temp_font_dir, exist_ok=True)
+    
+    # Шукаємо шрифти
+    font_path = find_file("DejaVuSans.ttf", possible_font_dirs)
+    bold_font_path = find_file("DejaVuSans-Bold.ttf", possible_font_dirs)
+    
+    # Виводимо діагностичну інформацію
+    print(f"BASE_DIR: {BASE_DIR}")
+    print(f"Шукаємо шрифти в директоріях: {possible_font_dirs}")
+    print(f"Знайдений шлях до звичайного шрифту: {font_path}")
+    print(f"Знайдений шлях до жирного шрифту: {bold_font_path}")
+    
+    # Копіюємо шрифти в тимчасову директорію, якщо вони знайдені
+    temp_font_path = None
+    temp_bold_font_path = None
+    
+    if font_path:
+        temp_font_path = os.path.join(temp_font_dir, "DejaVuSans.ttf")
+        shutil.copy2(font_path, temp_font_path)
+    
+    if bold_font_path:
+        temp_bold_font_path = os.path.join(temp_font_dir, "DejaVuSans-Bold.ttf")
+        shutil.copy2(bold_font_path, temp_bold_font_path)
+    
+    # Ініціалізуємо PDF
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -71,18 +89,17 @@ def generate(
     total_sum = 0
 
     # Додаємо шрифти, якщо вони доступні
-    if font_path and bold_font_path:
+    if temp_font_path and temp_bold_font_path:
         try:
-            pdf.add_font('DejaVu', '', font_path, uni=True)
-            pdf.add_font('DejaVu', 'B', bold_font_path, uni=True)
+            pdf.add_font('DejaVu', '', temp_font_path, uni=True)
+            pdf.add_font('DejaVu', 'B', temp_bold_font_path, uni=True)
             pdf.set_font('DejaVu', size=12)
         except Exception as e:
             print(f"Помилка при додаванні шрифту: {e}")
             print("Використовуємо стандартний шрифт")
             pdf.set_font('Arial', size=12)
     else:
-        print(f"Шрифти не знайдено. Шукали в: {possible_font_dirs}")
-        print("Використовуємо стандартний шрифт")
+        print(f"Шрифти не знайдено або не скопійовано. Використовуємо стандартний шрифт")
         pdf.set_font('Arial', size=12)
 
     # Функція для створення таблиці

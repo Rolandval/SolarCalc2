@@ -3,6 +3,36 @@ import base64
 from PIL import Image, ImageDraw, ImageFont
 import math
 import os
+import sys
+
+# Функція для нормалізації шляхів (заміна зворотних слешів на прямі)
+def normalize_path(path):
+    if path is None:
+        return None
+    return path.replace('\\', '/')
+
+# Функція для пошуку файлу в різних можливих директоріях
+def find_file(filename, possible_dirs):
+    for directory in possible_dirs:
+        path = os.path.join(directory, filename)
+        normalized_path = normalize_path(path)
+        if os.path.exists(normalized_path):
+            return normalized_path
+    return None
+
+# Отримуємо абсолютний шлях до директорії проекту
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Можливі директорії, де можуть знаходитися шрифти
+possible_font_dirs = [
+    os.path.join(BASE_DIR, "static", "fonts"),
+    os.path.join(BASE_DIR, "static/fonts"),
+    "/opt/render/project/src/static/fonts",
+    os.path.join(os.path.dirname(BASE_DIR), "static", "fonts"),
+    os.path.join(os.path.dirname(BASE_DIR), "static/fonts"),
+    os.path.join(BASE_DIR, "fonts"),
+    "/opt/render/project/src/fonts",
+]
 
 def generate_panel_scheme(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, available_profiles, save_path=None):
     # Розміри зображення - збільшуємо для кращої видимості
@@ -14,11 +44,25 @@ def generate_panel_scheme(panel_length, panel_width, panel_height, rows, panels_
     
     # Намагаємося завантажити шрифт
     try:
-        font_path = os.path.join('static', 'fonts', 'arial.ttf')
-        font_small = ImageFont.truetype(font_path, 12)
-        font_medium = ImageFont.truetype(font_path, 14)
-        font_large = ImageFont.truetype(font_path, 16)
-    except:
+        # Шукаємо шрифт Arial в різних можливих директоріях
+        font_path = find_file("arial.ttf", possible_font_dirs)
+        
+        # Якщо Arial не знайдено, спробуємо DejaVuSans
+        if not font_path:
+            font_path = find_file("DejaVuSans.ttf", possible_font_dirs)
+            
+        # Якщо знайдено шрифт, використовуємо його
+        if font_path:
+            font_small = ImageFont.truetype(font_path, 12)
+            font_medium = ImageFont.truetype(font_path, 14)
+            font_large = ImageFont.truetype(font_path, 16)
+        else:
+            # Якщо не знайдено жодного шрифту, використовуємо шрифт за замовчуванням
+            font_small = ImageFont.load_default()
+            font_medium = ImageFont.load_default()
+            font_large = ImageFont.load_default()
+    except Exception as e:
+        print(f"Помилка при завантаженні шрифту: {e}")
         # Якщо не вдається, використовуємо шрифт за замовчуванням
         font_small = ImageFont.load_default()
         font_medium = ImageFont.load_default()
@@ -439,7 +483,10 @@ def save_panel_scheme(panel_length, panel_width, panel_height, rows, panels_per_
     
     # Формуємо шлях для збереження схеми
     file_name = f"panel_scheme_{panels_per_row}x{rows}.png"
-    save_path = os.path.join(base_dir, "static", "images", file_name)
+    save_path = normalize_path(os.path.join(base_dir, "static", "images", file_name))
+    
+    # Створюємо директорію, якщо вона не існує
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     
     # Генеруємо і зберігаємо схему
     generate_panel_scheme(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, 
