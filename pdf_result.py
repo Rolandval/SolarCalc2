@@ -189,7 +189,7 @@ def generate(
     if usd_rate > 0:
         pdf.set_font('DejaVu', 'B', 12)
         pdf.cell(0, 10, f'Курс долара: {usd_rate} грн', ln=True, align='R')
-        pdf.cell(0, 10, f'Сума в доларах: {total_usd} $', ln=True, align='R')
+        pdf.cell(0, 10, f'Сума в доларах: {total_sum / usd_rate} $', ln=True, align='R')
     
     # Додаємо схему, якщо вона передана
     if scheme_image and os.path.exists(scheme_image):
