@@ -1,0 +1,448 @@
+from io import BytesIO
+import base64
+from PIL import Image, ImageDraw, ImageFont
+import math
+import os
+
+def generate_panel_scheme(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, available_profiles, save_path=None):
+    # Розміри зображення - збільшуємо для кращої видимості
+    width, height = 1600, 1000
+    
+    # Створюємо зображення
+    image = Image.new('RGB', (width, height), color='white')
+    draw = ImageDraw.Draw(image)
+    
+    # Намагаємося завантажити шрифт
+    try:
+        font_path = os.path.join('static', 'fonts', 'arial.ttf')
+        font_small = ImageFont.truetype(font_path, 12)
+        font_medium = ImageFont.truetype(font_path, 14)
+        font_large = ImageFont.truetype(font_path, 16)
+    except:
+        # Якщо не вдається, використовуємо шрифт за замовчуванням
+        font_small = ImageFont.load_default()
+        font_medium = ImageFont.load_default()
+        font_large = ImageFont.load_default()
+    
+    # Визначаємо розміри панелі для малювання
+    if orientation == 'альбомна':
+        actual_panel_width = panel_length
+        actual_panel_height = panel_width
+    else:
+        actual_panel_width = panel_width
+        actual_panel_height = panel_length
+    
+    # Відступ для профілів (10см з кожного боку)
+    profile_extension = 0.1
+    # Відступ між панелями (2см)
+    panel_gap = 0.02
+    
+    # Загальні розміри системи
+    total_row_width = (actual_panel_width * panels_per_row) + (panel_gap * (panels_per_row - 1))
+    total_height = (actual_panel_height * rows) + (panel_gap * (rows - 1))
+    
+    # Розраховуємо реальне розташування профілів
+    profile_layout = calculate_profiles_layout(total_row_width, available_profiles)
+    total_profile_length = profile_layout['total_length']
+    
+    # Визначаємо виступ профілів
+    panel_area_width = total_row_width + (profile_extension * 2)
+    protrusion_length = max(0, total_profile_length - panel_area_width)
+    
+    # Розраховуємо розмір схеми з урахуванням виступаючих профілів
+    total_scheme_width = max(panel_area_width, total_profile_length)
+    
+    # Розрахунок масштабу - збільшуємо відступи для кращого центрування
+    margin = 120  # Збільшуємо відступ для кращої видимості
+    scale = min(
+        (width - margin * 2) / total_scheme_width,
+        (height - margin * 2) / total_height
+    ) * 0.75  # Зменшуємо масштаб для кращого відображення
+    
+    # Відступи для центрування - перераховуємо з урахуванням нового масштабу
+    offset_x = (width - (total_scheme_width * scale)) / 2
+    offset_y = (height - (total_height * scale)) / 2
+    
+    # Малюємо рамку для схеми, розширюємо її трохи для кращого вигляду
+    draw.rectangle(
+        [offset_x - 20, offset_y - 50, 
+         offset_x + total_scheme_width * scale + 200, 
+         offset_y + total_height * scale + 50],
+        outline=(59, 130, 246), width=2
+    )
+    
+    # Малюємо кожен ряд панелей та профілів
+    for row in range(rows):
+        row_y = offset_y + row * (actual_panel_height * scale + panel_gap * scale)
+        
+        # Малюємо профілі в масштабі для цього ряду
+        draw_real_profiles(draw, offset_x, row_y, total_profile_length, actual_panel_height, 
+                           profile_layout['profiles'], scale, font_small)
+        
+        # Малюємо панелі
+        for panel in range(panels_per_row):
+            panel_x = offset_x + profile_extension * scale + panel * (actual_panel_width * scale + panel_gap * scale)
+            
+            # Малюємо панель
+            draw_panel(draw, panel_x, row_y, actual_panel_width * scale, actual_panel_height * scale)
+            
+            # Малюємо зажими
+            draw_clamps(draw, panel_x, row_y, actual_panel_width * scale, actual_panel_height * scale,
+                       panel == 0, panel == panels_per_row - 1)
+    
+    # Додаємо підписи розмірів
+    rotated_text = add_dimensions(draw, offset_x, offset_y, panel_area_width * scale, total_height * scale,
+                  total_row_width, total_height, panels_per_row, rows, font_medium)
+    
+    # Вставляємо повернений текст на зображення, зміщуємо трохи вліво для більшої відстані від схеми
+    if rotated_text:
+        image_width, image_height = rotated_text.size
+        image.paste(rotated_text, (int(offset_x - 70), int(offset_y + total_height/2 * scale - image_height/2)), rotated_text)
+    
+    # Додаємо інформацію про виступ профілів
+    if protrusion_length > 0:
+        # Визначаємо, який профіль виступає
+        profiles = profile_layout['profiles']
+        last_profile = profiles[len(profiles) - 1]
+        cut_length = min(last_profile['length'], protrusion_length)
+        
+        # Додаємо надписи про виступ
+        add_protrusion_info(draw, offset_x, offset_y, panel_area_width * scale, total_scheme_width * scale,
+                           protrusion_length, cut_length, font_large)
+    
+    # Додаємо легенду в нижню частину зображення
+    add_legend(draw, width/2, height - 40, font_small)
+    
+    # Якщо вказано шлях для збереження, зберігаємо зображення
+    if save_path:
+        # Переконуємося, що директорія існує
+        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+        # Зберігаємо зображення
+        image.save(save_path)
+    
+    return image
+
+def calculate_profiles_layout(row_width, available_profiles):
+    if not available_profiles or len(available_profiles) == 0:
+        available_profiles = [6, 4, 3, 2]
+    
+    # Упорядковуємо профілі за спаданням довжини
+    sorted_profiles = sorted(available_profiles, reverse=True)
+    
+    # Розрахунок потрібної довжини (ширина ряду панелей + відступи по 10см з кожного боку)
+    required_length = row_width + 0.2
+    
+    # Результат
+    profiles = []
+    current_pos = 0
+    remaining_length = required_length
+    
+    while remaining_length > 0.01:
+        # Знаходимо найдовший профіль, який можна використати
+        selected_length = None
+        for length in sorted_profiles:
+            if length <= remaining_length + 0.01:
+                selected_length = length
+                break
+        
+        # Якщо не знайшли підходящий профіль, беремо найкоротший
+        if selected_length is None:
+            selected_length = sorted_profiles[-1]
+        
+        # Додаємо профіль до масиву
+        profiles.append({
+            'start': current_pos,
+            'length': selected_length,
+            'end': current_pos + selected_length
+        })
+        
+        current_pos += selected_length
+        remaining_length -= selected_length
+        
+        # Запобігання нескінченному циклу
+        if len(profiles) > 100:
+            break
+    
+    return {
+        'profiles': profiles,
+        'total_length': current_pos
+    }
+
+def draw_panel(draw, x, y, width, height):
+    # Фон панелі - робимо прозорим, але не повністю (змінюємо значення alpha з 0 на 40)
+    draw.rectangle([x, y, x + width, y + height], fill=(100, 100, 100, 40))
+    
+    # Рамка панелі - робимо темною для кращої видимості
+    draw.rectangle([x, y, x + width, y + height], outline=(20, 20, 20), width=2)
+    
+    # Внутрішня структура панелі - підвищуємо контрастність ліній
+    line_color = (40, 40, 40)
+    
+    # Горизонтальні лінії
+    for i in range(1, 6):
+        y_pos = y + (height / 6) * i
+        draw.line([x, y_pos, x + width, y_pos], fill=line_color, width=1)
+    
+    # Вертикальні лінії
+    for i in range(1, 3):
+        x_pos = x + (width / 3) * i
+        draw.line([x_pos, y, x_pos, y + height], fill=line_color, width=1)
+
+def draw_clamps(draw, x, y, width, height, is_first, is_last):
+    # Позиції по золотому перетину
+    upper_y = y + height * 0.382
+    lower_y = y + height * 0.618
+    
+    # Розмір зажиму
+    clamp_size = 8
+    
+    # Крайні зажими (зелені)
+    if is_first:
+        # Лівий край
+        draw.rectangle(
+            [x - clamp_size/2, upper_y - clamp_size/2, 
+             x + clamp_size/2, upper_y + clamp_size/2],
+            fill=(0, 128, 0)
+        )
+        draw.rectangle(
+            [x - clamp_size/2, lower_y - clamp_size/2, 
+             x + clamp_size/2, lower_y + clamp_size/2],
+            fill=(0, 128, 0)
+        )
+    
+    if is_last:
+        # Правий край
+        draw.rectangle(
+            [x + width - clamp_size/2, upper_y - clamp_size/2, 
+             x + width + clamp_size/2, upper_y + clamp_size/2],
+            fill=(0, 128, 0)
+        )
+        draw.rectangle(
+            [x + width - clamp_size/2, lower_y - clamp_size/2, 
+             x + width + clamp_size/2, lower_y + clamp_size/2],
+            fill=(0, 128, 0)
+        )
+    
+    # Міжпанельні зажими (червоні)
+    if not is_last:
+        draw.rectangle(
+            [x + width - clamp_size/2, upper_y - clamp_size/2, 
+             x + width + clamp_size/2, upper_y + clamp_size/2],
+            fill=(204, 0, 0)
+        )
+        draw.rectangle(
+            [x + width - clamp_size/2, lower_y - clamp_size/2, 
+             x + width + clamp_size/2, lower_y + clamp_size/2],
+            fill=(204, 0, 0)
+        )
+
+def draw_real_profiles(draw, offset_x, row_y, total_length, panel_height, profiles, scale, font):
+    # Висоти для верхнього і нижнього профілів (золотий перетин)
+    upper_rail_y = row_y + panel_height * scale * 0.382
+    lower_rail_y = row_y + panel_height * scale * 0.618
+    
+    # Товщина профілю
+    rail_height = 8
+    
+    # Малюємо кожен профіль
+    for i, profile in enumerate(profiles):
+        # Розраховуємо позицію профілю з урахуванням реальної довжини
+        start_x = offset_x + profile['start'] * scale
+        rail_length = profile['length'] * scale
+        
+        # Верхній профіль
+        draw.rectangle(
+            [start_x, upper_rail_y - rail_height/2, 
+             start_x + rail_length, upper_rail_y + rail_height/2],
+            fill=(96, 165, 250)
+        )
+        
+        # Нижній профіль
+        draw.rectangle(
+            [start_x, lower_rail_y - rail_height/2, 
+             start_x + rail_length, lower_rail_y + rail_height/2],
+            fill=(96, 165, 250)
+        )
+        
+        # Додаємо підпис з довжиною профілю
+        display_length = round(profile['length'] * 100)
+        draw.text(
+            (start_x + rail_length/2, upper_rail_y - rail_height - 15),
+            f"{display_length} см",
+            fill=(0, 0, 0),
+            font=font,
+            anchor="mm"
+        )
+        
+        # Якщо це не останній профіль, додаємо з'єднання
+        if i < len(profiles) - 1:
+            draw_profile_connection(draw, start_x + rail_length, upper_rail_y)
+            draw_profile_connection(draw, start_x + rail_length, lower_rail_y)
+            
+        # Якщо це не перший профіль, додаємо з'єднання зліва (на початку цього профілю)
+        if i > 0:
+            draw_profile_connection(draw, start_x, upper_rail_y)
+            draw_profile_connection(draw, start_x, lower_rail_y)
+
+def draw_profile_connection(draw, x, y):
+    # Малюємо хрестик для з'єднання профілів
+    conn_size = 6
+    line_color = (30, 64, 175)
+    line_width = 3
+    
+    # Додаємо більш помітний хрестик зі світлішим кольором фону
+    # Спочатку малюємо фоновий круг
+    background_size = conn_size + 4
+    draw.ellipse([x - background_size, y - background_size, x + background_size, y + background_size], 
+                 fill=(173, 216, 230))
+    
+    # Потім малюємо хрестик поверх кола
+    draw.line([x - conn_size, y - conn_size, x + conn_size, y + conn_size], fill=line_color, width=line_width)
+    draw.line([x + conn_size, y - conn_size, x - conn_size, y + conn_size], fill=line_color, width=line_width)
+
+def add_dimensions(draw, offset_x, offset_y, total_width, total_height, row_width, height, panels_per_row, rows, font):
+    # Ширина (зверху)
+    draw.text(
+        (offset_x + total_width/2, offset_y - 15),
+        f"Довжина ряду: {row_width:.2f}м ({panels_per_row} панелей)",
+        fill=(0, 0, 0),
+        font=font,
+        anchor="mm"
+    )
+    
+    # Функція для правильного відмінювання слова "ряд"
+    def get_rows_text(count):
+        if count == 1:
+            return "ряд"
+        elif 2 <= count <= 4:
+            return "ряди"
+        else:
+            return "рядів"
+    
+    # Висота (зліва) - повертаємо текст
+    text = f"Ширина: {height:.2f}м ({rows} {get_rows_text(rows)})"
+    
+    # У PIL не можна просто повернути текст, тому створюємо окреме зображення для тексту
+    # Замінюємо застарілі методи на textbbox для нових версій Pillow
+    if hasattr(font, 'getbbox'):
+        bbox = font.getbbox(text)
+        text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    else:
+        # Для старіших версій Pillow
+        text_width, text_height = font.getsize(text) if hasattr(font, 'getsize') else draw.textsize(text, font=font)
+    
+    text_img = Image.new('RGBA', (text_width, text_height), (255, 255, 255, 0))
+    text_draw = ImageDraw.Draw(text_img)
+    text_draw.text((0, 0), text, fill=(0, 0, 0), font=font)
+    
+    # Повертаємо зображення з текстом
+    rotated_text = text_img.rotate(90, expand=True)
+    
+    # Повертаємо повернене зображення для вставки в основне зображення
+    return rotated_text
+
+def add_protrusion_info(draw, offset_x, offset_y, panel_width, total_width, protrusion_length, cut_length, font):
+    # Верхній надпис - інформація про виступ (чорним справа вверху)
+    protrusion_cm = round(protrusion_length * 100)
+    draw.text(
+        (offset_x + panel_width + 10, offset_y - 40),
+        f"стирчить +{protrusion_cm} см",
+        fill=(0, 0, 0),
+        font=font,
+        anchor="la"
+    )
+    
+    # Нижній надпис - скільки потрібно обрізати (червоним справа)
+    cut_length_cm = round(cut_length * 100)
+    draw.text(
+        (offset_x + panel_width + 10, offset_y - 15),
+        f"обрізати {cut_length_cm} см",
+        fill=(204, 0, 0),
+        font=font,
+        anchor="la"
+    )
+    
+    # Візуальна позначка для виступаючої частини
+    panel_end_x = offset_x + panel_width
+    draw.line(
+        [panel_end_x, offset_y - 50, panel_end_x, offset_y + 10],
+        fill=(204, 0, 0),
+        width=2,
+        joint="curve"
+    )
+    
+    # Імітація пунктирної лінії (PIL не має прямого методу для пунктирних ліній)
+    dash_length = 5
+    gap_length = 3
+    current_y = offset_y - 50
+    end_y = offset_y + 10
+    
+    while current_y < end_y:
+        dash_end_y = min(current_y + dash_length, end_y)
+        draw.line([panel_end_x, current_y, panel_end_x, dash_end_y], fill=(204, 0, 0), width=2)
+        current_y = dash_end_y + gap_length
+
+def add_legend(draw, center_x, y, font):
+    """Додає легенду з поясненнями до схеми"""
+    
+    # Відступи між елементами легенди
+    spacing = 100
+    item_height = 20
+    
+    # Початкова позиція X для першого елемента (центруємо групу елементів)
+    start_x = center_x - spacing * 2
+    
+    # Профілі (синій прямокутник)
+    draw.rectangle([start_x, y - item_height/2, start_x + 30, y + item_height/2], fill=(96, 165, 250))
+    draw.text((start_x + 40, y), "Профілі", fill=(0, 0, 0), font=font, anchor="lm")
+    
+    # З'єднання профілів (синій хрестик)
+    start_x += spacing
+    conn_size = 5
+    line_color = (30, 64, 175)
+    
+    # Малюємо фоновий круг
+    background_size = conn_size + 3
+    draw.ellipse(
+        [start_x + 15 - background_size, y - background_size, 
+         start_x + 15 + background_size, y + background_size], 
+        fill=(173, 216, 230)
+    )
+    
+    # Малюємо хрестик з'єднання
+    draw.line([start_x + 15 - conn_size, y - conn_size, start_x + 15 + conn_size, y + conn_size], fill=line_color, width=2)
+    draw.line([start_x + 15 + conn_size, y - conn_size, start_x + 15 - conn_size, y + conn_size], fill=line_color, width=2)
+    draw.text((start_x + 40, y), "З'єднання профілів", fill=(0, 0, 0), font=font, anchor="lm")
+    
+    # Крайні зажими (зелений квадрат)
+    start_x += spacing + 30
+    clamp_size = 8
+    draw.rectangle([start_x + 15 - clamp_size/2, y - clamp_size/2, start_x + 15 + clamp_size/2, y + clamp_size/2], fill=(0, 128, 0))
+    draw.text((start_x + 40, y), "Крайні зажими", fill=(0, 0, 0), font=font, anchor="lm")
+    
+    # Міжпанельні зажими (червоний квадрат)
+    start_x += spacing + 20
+    draw.rectangle([start_x + 15 - clamp_size/2, y - clamp_size/2, start_x + 15 + clamp_size/2, y + clamp_size/2], fill=(204, 0, 0))
+    draw.text((start_x + 40, y), "Міжпанельні зажими", fill=(0, 0, 0), font=font, anchor="lm")
+    
+    # Панелі (сірий прямокутник з прозорістю)
+    start_x += spacing + 50
+    draw.rectangle([start_x, y - item_height/2, start_x + 30, y + item_height/2], fill=(100, 100, 100, 40))
+    # Додаємо рамку для кращої видимості
+    draw.rectangle([start_x, y - item_height/2, start_x + 30, y + item_height/2], outline=(20, 20, 20), width=1)
+    draw.text((start_x + 40, y), "Панелі", fill=(0, 0, 0), font=font, anchor="lm")
+
+# Функція для збереження схеми у файл і повернення шляху для використання в PDF
+def save_panel_scheme(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, available_profiles):
+    # Отримуємо абсолютний шлях до директорії проекту
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Формуємо шлях для збереження схеми
+    file_name = f"panel_scheme_{panels_per_row}x{rows}.png"
+    save_path = os.path.join(base_dir, "static", "images", file_name)
+    
+    # Генеруємо і зберігаємо схему
+    generate_panel_scheme(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, 
+                          available_profiles, save_path=save_path)
+    
+    return save_path

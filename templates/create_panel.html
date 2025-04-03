@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Створення нової панелі</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Створення нової панелі</h1>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            Панель успішно створено!
+        </div>
+        {% endif %}
+        
+        {% if panel %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Панель успішно створена</h5>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ panel.brand }} {{ panel.model }}</h5>
+                <p class="card-text">ID: {{ panel.id }}</p>
+                <p class="card-text">Розміри: {{ panel.panel_length }} x {{ panel.panel_width }} м, висота: {{ panel.panel_height }} мм</p>
+                <p class="card-text">
+                    <a href="{{ panel.get_datasheet_url }}" target="_blank">Відкрити даташит</a>
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="brand">Бренд</label>
+                <input type="text" class="form-control" id="brand" name="brand" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="model">Модель</label>
+                <input type="text" class="form-control" id="model" name="model" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="panel_length">Довжина панелі (м)</label>
+                <input type="number" step="0.001" class="form-control" id="panel_length" name="panel_length" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="panel_width">Ширина панелі (м)</label>
+                <input type="number" step="0.001" class="form-control" id="panel_width" name="panel_width" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="panel_height">Висота панелі (мм)</label>
+                <input type="number" step="1" class="form-control" id="panel_height" name="panel_height" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="datasheet">Файл даташиту</label>
+                <input type="file" class="form-control" id="datasheet" name="datasheet" required>
+                <small class="form-text text-muted">Завантажте PDF або інший файл з технічними характеристиками панелі</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Створити панель</button>
+        </form>
+    </div>
+    
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
