@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Створення нового інвертора</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Створення нового інвертора</h1>
+        
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        {% if success %}
+        <div class="alert alert-success" role="alert">
+            Інвертор успішно створено!
+        </div>
+        {% endif %}
+        
+        {% if inverter %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Інвертор успішно створений</h5>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ inverter.brand }} {{ inverter.model }}</h5>
+                <p class="card-text">ID: {{ inverter.id }}</p>
+                <p class="card-text">Потужність: {{ inverter.power }} кВт</p>
+                <p class="card-text">Кількість фаз: {{ inverter.phases_count }}</p>
+                <p class="card-text">
+                    <a href="{{ inverter.get_datasheet_url }}" target="_blank">Відкрити даташит</a>
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="brand">Бренд</label>
+                <input type="text" class="form-control" id="brand" name="brand" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="model">Модель</label>
+                <input type="text" class="form-control" id="model" name="model" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="power">Потужність (кВт)</label>
+                <input type="number" step="0.001" class="form-control" id="power" name="power" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phases_count">Кількість фаз</label>
+                <select class="form-control" id="phases_count" name="phases_count" required>
+                    <option value="1">1 (однофазний)</option>
+                    <option value="3">3 (трифазний)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="datasheet">Файл даташиту</label>
+                <input type="file" class="form-control" id="datasheet" name="datasheet" required>
+                <small class="form-text text-muted">Завантажте PDF або інший файл з технічними характеристиками інвертора</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Створити інвертор</button>
+        </form>
+    </div>
+    
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

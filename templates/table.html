@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сонячний Калькулятор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2ecc71;
+            --secondary-dark: #27ae60;
+            --accent-color: #f39c12;
+            --text-color: #2c3e50;
+            --light-gray: #ecf0f1;
+            --border-color: #dfe6e9;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --radius: 10px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        #tables {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content-container {
+            padding: 0 2rem 2rem;
+        }
+
+        h2 {
+            color: var(--primary-dark);
+            margin: 2rem 0 1rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        th {
+            background-color: var(--light-gray);
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background-color: rgba(236, 240, 241, 0.3);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background-color: white;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .summary-container {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .summary-container p {
+            margin: 0.5rem 0;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .summary-container span {
+            font-weight: 600;
+            color: var(--primary-dark);
+            padding: 0.25rem 0.5rem;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 4px;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .summary-container span#profit {
+            color: var(--secondary-dark);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            background-color: white;
+            padding: 1.25rem;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            background-color: var(--light-gray);
+            border-radius: 50px;
+            transition: var(--transition);
+        }
+
+        .checkbox-group label:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        button {
+            background: linear-gradient(to right, var(--secondary-color), var(--secondary-dark));
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+        }
+
+        button i {
+            margin-right: 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        #panel-scheme-container {
+            margin-top: 2rem;
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        #panel-scheme {
+            width: 100%;
+            min-height: 300px;
+            position: relative;
+            border: 1px solid var(--primary-color);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            background-color: var(--light-gray);
+        }
+
+        #panel-scheme img {
+            width: 100%;
+            display: block;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .content-container {
+                padding: 0 1rem 1rem;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .checkbox-group {
+                gap: 1rem;
+                justify-content: center;
+            }
+            
+            .checkbox-group label {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+        
+        .parameters-container {
+            margin-bottom: 2rem;
+        }
+        
+        .parameters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .parameters-header h2 {
+            margin: 0;
+        }
+        
+        .toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+        
+        .toggle-btn:hover {
+            color: var(--primary-color);
+        }
+        
+        .parameters-content {
+            padding: 1rem;
+        }
+        
+        .parameters-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .parameter-section {
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .parameter-section h3 {
+            margin-top: 0;
+        }
+        
+        .parameter-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .parameter-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .parameter-value {
+            color: var(--text-color);
+        }
+        
+        .parameters-actions {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+        
+        .back-btn:hover {
+            color: var(--primary-color);
+        }
+
+        /* Стилі для кнопки додавання рядка */
+        .add-row-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            margin: 10px 0 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-row-btn:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .add-row-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .datasheet-btn-small {
+            margin-left: 0.5rem;
+            font-size: 1rem;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        .datasheet-btn-small:hover {
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+<div id="tables">
+    <div class="header">
+        <h1>Результати розрахунку</h1>
+        <p>Детальна інформація про необхідні матеріали та їх вартість</p>
+    </div>
+    
+    <!-- Секція з параметрами розрахунку -->
+    <div class="parameters-container">
+        <div class="parameters-header">
+            <h2><i class="fas fa-cogs"></i> Параметри розрахунку</h2>
+            <button type="button" id="toggle-parameters" class="toggle-btn" onclick="toggleParameters()">
+                <i class="fas fa-chevron-down"></i> Показати параметри
+            </button>
+        </div>
+        
+        <div class="parameters-content" id="parameters-content" style="display: none;">
+            <div class="parameters-grid">
+                <!-- Параметри панелей -->
+                <div class="parameter-section">
+                    <h3><i class="fas fa-solar-panel"></i> Параметри сонячних панелей</h3>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Бренд панелі:</div>
+                        <div class="parameter-value">{{ data.form_data.panel_brand }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Модель панелі:</div>
+                        <div class="parameter-value">
+                            {{ data.form_data.panelModelName }}
+                            {% if data.form_data.panelModelId %}
+                            <a href="{% url 'calculator:download_datasheet' data.form_data.panelModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Тип панелі:</div>
+                        <div class="parameter-value">{{ data.form_data.panel_type }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Ширина панелі (м):</div>
+                        <div class="parameter-value">{{ data.form_data.panel_width }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Довжина панелі (м):</div>
+                        <div class="parameter-value">{{ data.form_data.panel_length }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Висота панелі (мм):</div>
+                        <div class="parameter-value">{{ data.form_data.panel_height }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Орієнтація:</div>
+                        <div class="parameter-value">{{ data.form_data.panel_arrangement }}</div>
+                    </div>
+                    
+                </div>
+                
+                <!-- Параметри розміщення -->
+                <div class="parameter-section">
+                    <h3><i class="fas fa-th"></i> Параметри розміщення</h3>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Кількість рядків:</div>
+                        <div class="parameter-value">{{ data.form_data.rows }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Кількість панелей на рядок:</div>
+                        <div class="parameter-value">{{ data.form_data.panels_per_row }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Загальна кількість панелей:</div>
+                        <div class="parameter-value">{{ data.form_data.total_panels }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Доступні довжини профілів (м):</div>
+                        <div class="parameter-value">{{ data.form_data.profile_lengths }}</div>
+                    </div>
+                    <div class="parameter-row">
+                        <div class="parameter-label">Кількість стрінгів:</div>
+                        <div class="parameter-value">{{ data.form_data.string_count }}</div>
+                    </div>
+                </div>
+                
+                <!-- Електричні параметри -->
+                <div class="parameter-section">
+                    <h3><i class="fas fa-bolt"></i> Інвертор</h3>
+                    {% if data.form_data.inverterModel %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Модель інвертора:</div>
+                        <div class="parameter-value">
+                            {{ data.form_data.inverterModelName }}
+                            {% if data.form_data.inverterModelId %}
+                            <a href="{% url 'calculator:download_inverter_datasheet' data.form_data.inverterModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if data.form_data.inverterBrand %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Бренд інвертора:</div>
+                        <div class="parameter-value">{{ data.form_data.inverterBrand }}</div>
+                    </div>
+                    {% endif %}
+                    {% if data.form_data.inverterPower %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Потужність інвертора (кВт):</div>
+                        <div class="parameter-value">{{ data.form_data.inverterPower }}</div>
+                    </div>
+                    {% endif %}
+                    {% if data.form_data.inverterPhases %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Кількість фаз інвертора:</div>
+                        <div class="parameter-value">{{ data.form_data.inverterPhases }}</div>
+                    </div>
+                    {% endif %}
+                    
+                </div>
+                
+                <!-- Додаткові компоненти -->
+                <div class="parameter-section">
+                    <h3><i class="fas fa-plug"></i> Акумулятор</h3>
+                    {% if data.form_data.batteryModel %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Модель акумулятора:</div>
+                        <div class="parameter-value">
+                            {{ data.form_data.batteryModelName }}
+                            {% if data.form_data.batteryModelId %}
+                            <a href="{% url 'calculator:download_battery_datasheet' data.form_data.batteryModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                <i class="fas fa-file-pdf"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if data.form_data.batteryBrand %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Бренд акумулятора:</div>
+                        <div class="parameter-value">{{ data.form_data.batteryBrand }}</div>
+                    </div>
+                    {% endif %}
+                    {% if data.form_data.batteryPower %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Ємність акумулятора (кВт):</div>
+                        <div class="parameter-value">{{ data.form_data.batteryPower }}</div>
+                    </div>
+                    {% endif %}
+                    {% if data.form_data.batteryIsHead %}
+                    <div class="parameter-row">
+                        <div class="parameter-label">Наявність голови:</div>
+                        <div class="parameter-value">{{ data.form_data.batteryIsHead|yesno:"Так,Ні" }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="parameters-actions">
+                <a href="{% url 'calculator:index' %}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Повернутися до калькулятора
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="content-container">
+        <form id="pdf-form" action="{% url 'calculator:generate_pdf' %}" method="post">
+            {% csrf_token %}
+            
+            <h2><i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</h2>
+            <table id="equipment-table">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Кількість</th>
+                        <th>Одиниця виміру</th>
+                        <th>Закупка</th>
+                        <th>Ціна</th>
+                        <th>Сума</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Інвертор</td>
+                        <td><input type="number" name="O11" value="1"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z1" value="0"></td>
+                        <td><input type="number" name="O12" value="0"></td>
+                        <td><input type="number" name="O13" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Акумулятор</td>
+                        <td><input type="number" name="O21" value="1"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z2" value="0"></td>
+                        <td><input type="number" name="O22" value="0"></td>
+                        <td><input type="number" name="O23" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Сонячна панель</td>
+                        <td><input type="number" name="O31" value="{{ data.panel_count }}"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z3" value="0"></td>
+                        <td><input type="number" name="O32" value="0"></td>
+                        <td><input type="number" name="O33" value="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn" data-table="equipment" data-prefix="O" data-z-start="4">+</button>
+
+            <h2><i class="fas fa-wrench"></i> КРІПЛЕННЯ</h2>
+            <table id="mounting-table">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Кількість</th>
+                        <th>Одиниця виміру</th>
+                        <th>Закупка</th>
+                        <th>Ціна</th>
+                        <th>Сума</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for profile in data.profiles %}
+                    <tr>
+                        <td>Профіль ({{ profile.length }} м)</td>
+                        <td><input type="number" name="K11_{{ profile.length }}" value="{{ profile.count }}"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z4_{{ profile.length }}" value="0"></td>
+                        <td><input type="number" name="K12_{{ profile.length }}" value="0"></td>
+                        <td><input type="number" name="K13_{{ profile.length }}" value="0"></td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td>Бокові Г-образні зажими ({{ data.form_data.panel_height }} мм)</td>
+                        <td><input type="number" name="K21" value="{{ data.g_clamps}}"></td>
+                        <td>компл</td>
+                        <td><input type="number" name="Z5" value="0"></td>
+                        <td><input type="number" name="K22" value="0"></td>
+                        <td><input type="number" name="K23" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Міжпанельні V-образні зажими ({{ data.form_data.panel_height }} мм)</td>
+                        <td><input type="number" name="K31" value="{{ data.v_clamps }}"></td>
+                        <td>компл</td>
+                        <td><input type="number" name="Z6" value="0"></td>
+                        <td><input type="number" name="K32" value="0"></td>
+                        <td><input type="number" name="K33" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Гвинт шуруп М10*200 комплект цинк</td>
+                        <td><input type="number" name="K41" value="{{ data.m_sh }}"></td>
+                        <td>компл</td>
+                        <td><input type="number" name="Z7" value="0"></td>
+                        <td><input type="number" name="K42" value="0"></td>
+                        <td><input type="number" name="K43" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Комплект з'єднувача профілів (ЗОВНІШНІЙ)</td>
+                        <td><input type="number" name="K51" value="{{ data.front_connectors }}"></td>
+                        <td>компл</td>
+                        <td><input type="number" name="Z8" value="0"></td>
+                        <td><input type="number" name="K52" value="0"></td>
+                        <td><input type="number" name="K53" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Конектори МС4</td>
+                        <td><input type="number" name="K61" value="{{ data.connectors }}"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z9" value="0"></td>
+                        <td><input type="number" name="K62" value="0"></td>
+                        <td><input type="number" name="K63" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Кабель</td>
+                        <td><input type="number" name="K71" value="0"></td>
+                        <td>м</td>
+                        <td><input type="number" name="Z10" value="0"></td>
+                        <td><input type="number" name="K72" value="0"></td>
+                        <td><input type="number" name="K73" value="0"></td>
+                    </tr>
+                    {% if data.form_data.batteryIsStand8 == 'Так' %}
+                    <tr>
+                        <td>Стійка 8</td>
+                        <td><input type="number" name="K81" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z31" value="0"></td>
+                        <td><input type="number" name="K82" value="0"></td>
+                        <td><input type="number" name="K83" value="0"></td>
+                    </tr>
+                    {% endif %}
+                    {% if data.form_data.batteryIsStand12 == 'Так' %}
+                    <tr>
+                        <td>Стійка 12</td>
+                        <td><input type="number" name="K91" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z32" value="0"></td>
+                        <td><input type="number" name="K92" value="0"></td>
+                        <td><input type="number" name="K93" value="0"></td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn" data-table="mounting" data-prefix="K" data-z-start="16">+</button>
+
+            <h2><i class="fas fa-bolt"></i> ЕЛЕКТРИКА</h2>
+            <table id="electricity-table">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Кількість</th>
+                        <th>Одиниця виміру</th>
+                        <th>Закупка</th>
+                        <th>Ціна</th>
+                        <th>Сума</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Коробки з автоматами</td>
+                        <td><input type="number" name="E11" value="0"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z11" value="0"></td>
+                        <td><input type="number" name="E12" value="0"></td>
+                        <td><input type="number" name="E13" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Блискавкозахист</td>
+                        <td><input type="number" name="E21" value="0"></td>
+                        <td>шт</td>
+                        <td><input type="number" name="Z12" value="0"></td>
+                        <td><input type="number" name="E22" value="0"></td>
+                        <td><input type="number" name="E23" value="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn" data-table="electricity" data-prefix="E" data-z-start="20">+</button>
+
+            <h2><i class="fas fa-hard-hat"></i> РОБОТА</h2>
+            <table id="work-table">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Кількість</th>
+                        <th>Одиниця виміру</th>
+                        <th>Закупка</th>
+                        <th>Ціна</th>
+                        <th>Сума</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Доставка</td>
+                        <td><input type="number" name="R11" value="0"></td>
+                        <td>послуга</td>
+                        <td><input type="number" name="Z13" value="0"></td>
+                        <td><input type="number" name="R12" value="0"></td>
+                        <td><input type="number" name="R13" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Роботи електрика</td>
+                        <td><input type="number" name="R21" value="0"></td>
+                        <td>послуга</td>
+                        <td><input type="number" name="Z14" value="0"></td>
+                        <td><input type="number" name="R22" value="0"></td>
+                        <td><input type="number" name="R23" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td>Монтаж</td>
+                        <td><input type="number" name="R31" value="0"></td>
+                        <td>послуга</td>
+                        <td><input type="number" name="Z15" value="0"></td>
+                        <td><input type="number" name="R32" value="0"></td>
+                        <td><input type="number" name="R33" value="0"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button" class="add-row-btn" data-table="work" data-prefix="R" data-z-start="25">+</button>
+
+            <div class="summary-container">
+                <h3 style="margin-bottom: 1rem; color: var(--primary-dark);"><i class="fas fa-calculator"></i> Підсумок</h3>
+                <p>Сума закупки разом: <span id="total-purchase">0</span></p>
+                <p>Сума разом: <span id="total-sum">0</span></p>
+                <p>Заробіток (Сума - Закупка): <span id="profit">0</span></p>
+                <p>Курс долара на {{ data.current_date }}: <span style="font-weight: 600; color: var(--primary-dark);">{{ data.usd_rate }} грн</span></p>
+                <p>Сума в доларах: <span id="total-usd">0</span></p>
+                
+                <!-- Приховані поля для передачі курсу долара та суми в доларах у PDF-звіт -->
+                <input type="hidden" name="usd_rate" id="hidden-usd-rate" value="{{ data.usd_rate }}">
+                <input type="hidden" name="total_usd" id="hidden-total-usd" value="0">
+            </div>
+
+            <h2><i class="fas fa-file-pdf"></i> Налаштування PDF-звіту</h2>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="param-o" checked> <i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</label>
+                <label><input type="checkbox" name="param-k" checked> <i class="fas fa-wrench"></i> КРІПЛЕННЯ</label>
+                <label><input type="checkbox" name="param-e" checked> <i class="fas fa-bolt"></i> ЕЛЕКТРИКА</label>
+                <label><input type="checkbox" name="param-r" checked> <i class="fas fa-hard-hat"></i> РОБОТА</label>
+            </div>
+
+            <!-- Додаємо приховане поле для передачі шляху до зображення схеми -->
+            {% if data.scheme_file_path %}
+            <input type="hidden" name="scheme_image" value="{{ data.scheme_file_path }}">
+            {% endif %}
+
+            <div style="text-align: center;">
+                <button type="submit"><i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт</button>
+            </div>
+            
+            <!-- Додаємо розділ для схеми панелей -->
+            <div id="panel-scheme-container">
+                <h2><i class="fas fa-th"></i> Схема розташування панелей</h2>
+                <div id="panel-scheme">
+                    {% if data.scheme_image %}
+                    <img src="{{ data.scheme_image }}" alt="Схема розташування панелей">
+                    {% else %}
+                    <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
+                    {% endif %}
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #60a5fa;"></div>
+                        <span>Профілі</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="position: relative;">
+                            <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                                <div style="width: 12px; height: 2px; background-color: #1e40af; transform: rotate(45deg); position: absolute;"></div>
+                                <div style="width: 12px; height: 2px; background-color: #1e40af; transform: rotate(-45deg); position: absolute;"></div>
+                            </div>
+                        </div>
+                        <span>З'єднання профілів</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #15803d;"></div>
+                        <span>Крайні зажими</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #dc2626;"></div>
+                        <span>Міжпанельні зажими</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(100, 100, 100, 0.4); height: 10px;"></div>
+                        <span>Панелі</span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Функція для обчислення суми в рядку
+    function calculateRowSum(row) {
+        // Знаходимо всі інпути в рядку
+        const inputs = row.querySelectorAll('input[type="number"]');
+        
+        // Знаходимо інпути для кількості, ціни та суми
+        let quantityInput = null;
+        let priceInput = null;
+        let sumInput = null;
+        
+        // Визначаємо інпути за їх атрибутами name
+        inputs.forEach(input => {
+            const name = input.name;
+            
+            // Перевіряємо, чи це інпут для кількості (закінчується на 1 або містить "1_")
+            if (name.endsWith('1') || name.includes('1_')) {
+                quantityInput = input;
+            }
+            // Перевіряємо, чи це інпут для ціни (закінчується на 2 або містить "2_")
+            else if (name.endsWith('2') || name.includes('2_')) {
+                priceInput = input;
+            }
+            // Перевіряємо, чи це інпут для суми (закінчується на 3 або містить "3_")
+            else if (name.endsWith('3') || name.includes('3_')) {
+                sumInput = input;
+            }
+        });
+        
+        // Якщо знайдені всі потрібні інпути, обчислюємо суму
+        if (quantityInput && priceInput && sumInput) {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const sum = quantity * price;
+            
+            sumInput.value = sum.toFixed(2);
+        }
+    }
+    
+    // Функція для обчислення закупки в рядку
+    function calculatePurchase(row) {
+        // Знаходимо всі інпути в рядку
+        const inputs = row.querySelectorAll('input[type="number"]');
+        
+        // Знаходимо інпути для кількості та закупки
+        let quantityInput = null;
+        let purchaseInput = null;
+        
+        // Визначаємо інпути за їх атрибутами name
+        inputs.forEach(input => {
+            const name = input.name;
+            
+            // Перевіряємо, чи це інпут для кількості (закінчується на 1 або містить "1_")
+            if (name.endsWith('1') || name.includes('1_')) {
+                quantityInput = input;
+            }
+            // Перевіряємо, чи це інпут для закупки (починається з "Z")
+            else if (name.startsWith('Z')) {
+                purchaseInput = input;
+            }
+        });
+        
+        // Якщо знайдені всі потрібні інпути, обчислюємо закупку
+        if (quantityInput && purchaseInput) {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const purchase = parseFloat(purchaseInput.value) || 0;
+            return quantity * purchase;
+        }
+        
+        return 0;
+    }
+    
+    // Функція для обчислення загальної суми та закупки
+    function calculateTotal() {
+        let totalSum = 0;
+        let totalPurchase = 0;
+        
+        // Отримуємо курс долара
+        const usdRateElement = document.querySelector('.summary-container p:nth-child(4) span');
+        const usdRateText = usdRateElement.textContent.trim();
+        const usdRate = parseFloat(usdRateText.replace(',', '.')) || 42.5;
+        
+        // Виводимо у консоль для перевірки
+        console.log('Курс долара (текст):', usdRateText);
+        console.log('Курс долара (число):', usdRate);
+        
+        // Проходимо по всіх таблицях
+        const tables = ['equipment-table', 'mounting-table', 'electricity-table', 'work-table'];
+        tables.forEach(tableId => {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            
+            // Проходимо по всіх рядках таблиці
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                // Обчислюємо суму для рядка
+                calculateRowSum(row);
+                
+                // Знаходимо інпут для суми
+                const sumInputs = row.querySelectorAll('input[type="number"]');
+                let sumInput = null;
+                
+                // Визначаємо інпут для суми за атрибутом name
+                sumInputs.forEach(input => {
+                    const name = input.name;
+                    if (name.endsWith('3') || name.includes('3_')) {
+                        sumInput = input;
+                    }
+                });
+                
+                // Додаємо суму та закупку до загальних сум
+                if (sumInput) {
+                    const rowSum = parseFloat(sumInput.value) || 0;
+                    const rowPurchase = calculatePurchase(row);
+                    
+                    if (!isNaN(rowSum)) totalSum += rowSum;
+                    if (!isNaN(rowPurchase)) totalPurchase += rowPurchase;
+                }
+            });
+        });
+        
+        // Розраховуємо суму в доларах
+        const totalUsdValue = totalSum / usdRate;
+        
+        // Виводимо у консоль для перевірки
+        console.log('Загальна сума (грн):', totalSum);
+        console.log('Сума в доларах:', totalUsdValue);
+        
+        // Оновлюємо відображення загальних сум
+        document.getElementById('total-purchase').textContent = totalPurchase.toFixed(2);
+        document.getElementById('total-sum').textContent = totalSum.toFixed(2);
+        document.getElementById('profit').textContent = (totalSum - totalPurchase).toFixed(2);
+        document.getElementById('total-usd').textContent = totalUsdValue.toFixed(2);
+        document.getElementById('hidden-total-usd').value = totalUsdValue.toFixed(2);
+        
+        // Виводимо у консоль значення прихованого інпута
+        console.log('Значення прихованого інпута з сумою в доларах:', document.getElementById('hidden-total-usd').value);
+    }
+
+    // Функція для додавання нових рядків
+    function addNewRow(tableId, prefix, zIndex) {
+        const table = document.getElementById(tableId + '-table');
+        const tbody = table.querySelector('tbody');
+        const rowCount = tbody.querySelectorAll('tr').length + 1;
+        
+        // Створюємо новий рядок
+        const newRow = document.createElement('tr');
+        
+        // Додаємо комірку для назви
+        const nameCell = document.createElement('td');
+        const nameInput = document.createElement('input');
+        nameInput.type = 'text';
+        nameInput.name = prefix + rowCount + '0'; // Додаємо поле для назви
+        nameInput.placeholder = 'Назва';
+        nameCell.appendChild(nameInput);
+        
+        // Додаємо комірку для кількості
+        const quantityCell = document.createElement('td');
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'number';
+        quantityInput.name = prefix + rowCount + '1';
+        quantityInput.value = '0';
+        quantityInput.addEventListener('input', calculateTotal);
+        quantityCell.appendChild(quantityInput);
+        
+        // Додаємо комірку для одиниці виміру
+        const unitCell = document.createElement('td');
+        const unitSelect = document.createElement('select');
+        unitSelect.name = prefix + rowCount + 'unit';
+        
+        const units = ['шт', 'м', 'компл', 'послуга'];
+        units.forEach(unit => {
+            const option = document.createElement('option');
+            option.value = unit;
+            option.textContent = unit;
+            unitSelect.appendChild(option);
+        });
+        
+        unitCell.appendChild(unitSelect);
+        
+        // Додаємо комірку для закупки
+        const purchaseCell = document.createElement('td');
+        const purchaseInput = document.createElement('input');
+        purchaseInput.type = 'number';
+        purchaseInput.name = 'Z' + zIndex;
+        purchaseInput.value = '0';
+        purchaseInput.addEventListener('input', calculateTotal);
+        purchaseCell.appendChild(purchaseInput);
+        
+        // Додаємо комірку для ціни
+        const priceCell = document.createElement('td');
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.name = prefix + rowCount + '2';
+        priceInput.value = '0';
+        priceInput.addEventListener('input', calculateTotal);
+        priceCell.appendChild(priceInput);
+        
+        // Додаємо комірку для суми
+        const sumCell = document.createElement('td');
+        const sumInput = document.createElement('input');
+        sumInput.type = 'number';
+        sumInput.name = prefix + rowCount + '3';
+        sumInput.value = '0';
+        sumInput.readOnly = true;
+        sumCell.appendChild(sumInput);
+        
+        // Додаємо всі комірки до рядка
+        newRow.appendChild(nameCell);
+        newRow.appendChild(quantityCell);
+        newRow.appendChild(unitCell);
+        newRow.appendChild(purchaseCell);
+        newRow.appendChild(priceCell);
+        newRow.appendChild(sumCell);
+        
+        // Додаємо рядок до таблиці
+        tbody.appendChild(newRow);
+        
+        // Оновлюємо значення data-z-start для кнопки
+        const button = document.querySelector(`button[data-table="${tableId}"]`);
+        button.dataset.zStart = parseInt(zIndex) + 1;
+        
+        // Перераховуємо загальну суму
+        calculateTotal();
+    }
+
+    // Функція для перемикання відображення параметрів
+    function toggleParameters() {
+        const parametersContent = document.getElementById('parameters-content');
+        const toggleBtn = document.getElementById('toggle-parameters');
+        
+        if (parametersContent.style.display === 'none') {
+            parametersContent.style.display = 'block';
+            toggleBtn.querySelector('i').classList.remove('fa-chevron-down');
+            toggleBtn.querySelector('i').classList.add('fa-chevron-up');
+            toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Сховати параметри';
+        } else {
+            parametersContent.style.display = 'none';
+            toggleBtn.querySelector('i').classList.remove('fa-chevron-up');
+            toggleBtn.querySelector('i').classList.add('fa-chevron-down');
+            toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Показати параметри';
+        }
+    }
+
+    // Додаємо слухачі подій для всіх інпутів
+    function addEventListeners() {
+        // Додаємо слухачі для всіх інпутів типу number
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', calculateTotal);
+        });
+        
+        // Викликаємо функцію обчислення загальної суми при завантаженні сторінки
+        calculateTotal();
+        
+        // Додаємо слухачі для кнопок додавання рядків
+        document.querySelectorAll('.add-row-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const tableId = this.dataset.table;
+                const prefix = this.dataset.prefix;
+                const zIndex = this.dataset.zStart;
+                addNewRow(tableId, prefix, zIndex);
+            });
+        });
+    }
+
+    // Викликаємо функцію додавання слухачів подій при завантаженні сторінки
+    document.addEventListener('DOMContentLoaded', addEventListeners);
+</script>
+
+</body>
+</html>
