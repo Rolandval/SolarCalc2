@@ -1,5 +1,5 @@
 .idea
 venv
-calculator/__pycache__
+__pycache__/
 calculator/migrations/__pycache__
 .env
