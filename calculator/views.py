@@ -492,7 +492,7 @@ def create_panel(request):
             unique_filename = f"{uuid.uuid4()}{file_extension}"
             
             # Шлях для збереження файлу
-            datasheet_path = os.path.join('media/datasheets', unique_filename)
+            datasheet_path = 'media/datasheets/' + unique_filename
             
             # Збереження файлу
             with open(datasheet_path, 'wb+') as destination:
@@ -500,7 +500,7 @@ def create_panel(request):
                     destination.write(chunk)
             
             # Збереження відносного шляху в БД
-            relative_path = os.path.join('datasheets', unique_filename)
+            relative_path = 'datasheets/' + unique_filename
             
             # Створення нової панелі
             panel = Panels(
@@ -536,7 +536,7 @@ def download_datasheet(request, panel_id):
         panel = Panels.objects.get(id=panel_id)
         
         # Формуємо повний шлях до файлу
-        datasheet_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media', panel.datasheet)
+        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + panel.datasheet
         
         if os.path.exists(datasheet_path):
             # Відкриваємо файл для читання в бінарному режимі
@@ -566,7 +566,7 @@ def download_inverter_datasheet(request, inverter_id):
         inverter = Inverters.objects.get(id=inverter_id)
         
         # Формуємо повний шлях до файлу
-        datasheet_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media', inverter.datasheet)
+        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + inverter.datasheet
         
         if os.path.exists(datasheet_path):
             # Відкриваємо файл для читання в бінарному режимі
@@ -596,7 +596,7 @@ def download_battery_datasheet(request, battery_id):
         battery = Batteries.objects.get(id=battery_id)
         
         # Формуємо повний шлях до файлу
-        datasheet_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'media', battery.datasheet)
+        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + battery.datasheet
         
         if os.path.exists(datasheet_path):
             # Відкриваємо файл для читання в бінарному режимі
@@ -645,7 +645,7 @@ def create_inverter(request):
             unique_filename = f"{uuid.uuid4()}{file_extension}"
             
             # Шлях для збереження файлу
-            datasheet_path = os.path.join('media/datasheets', unique_filename)
+            datasheet_path = 'media/datasheets/' + unique_filename
             
             # Збереження файлу
             with open(datasheet_path, 'wb+') as destination:
@@ -653,7 +653,7 @@ def create_inverter(request):
                     destination.write(chunk)
             
             # Збереження відносного шляху в БД
-            relative_path = os.path.join('datasheets', unique_filename)
+            relative_path = 'datasheets/' + unique_filename
             
             # Створення нового інвертора
             inverter = Inverters(
@@ -708,7 +708,7 @@ def create_battery(request):
             unique_filename = f"{uuid.uuid4()}{file_extension}"
             
             # Шлях для збереження файлу
-            datasheet_path = os.path.join('media/datasheets', unique_filename)
+            datasheet_path = 'media/datasheets/' + unique_filename
             
             # Збереження файлу
             with open(datasheet_path, 'wb+') as destination:
@@ -716,7 +716,7 @@ def create_battery(request):
                     destination.write(chunk)
             
             # Збереження відносного шляху в БД
-            relative_path = os.path.join('datasheets', unique_filename)
+            relative_path = 'datasheets/' + unique_filename
             
             # Створення нової батареї
             battery = Batteries(

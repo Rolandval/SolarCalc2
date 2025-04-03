@@ -26,8 +26,8 @@ SECRET_KEY = 'django-insecure-kmx+oh1i_k8ub5(um226ddrb#jcpb5it!6sf$w-_5!vyx)0k4h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.100', 'solarcalc2.onrender.com']
+PORT = 8000
 
 # Application definition
 
