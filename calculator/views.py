@@ -428,7 +428,7 @@ def generate_pdf(request):
                         })
 
             # Викликаємо функцію generate з отриманими даними
-            generate(
+            pdf_path = generate(
                 O=param_o, K=param_k, E=param_e, R=param_r,
                 O11=int(data.get('O11', 0) or 0), O12=float(data.get('O12', 0) or 0.0),
                 O21=int(data.get('O21', 0) or 0), O22=float(data.get('O22', 0) or 0.0),
@@ -447,7 +447,7 @@ def generate_pdf(request):
                 R11=int(data.get('R11', 0) or 0), R12=float(data.get('R12', 0) or 0.0),
                 R21=int(data.get('R21', 0) or 0), R22=float(data.get('R22', 0) or 0.0),
                 R31=int(data.get('R31', 0) or 0), R32=float(data.get('R32', 0) or 0.0),
-                scheme_image=str(data.get('scheme_image', '')),
+                scheme_image=normalize_path(str(data.get('scheme_image', ''))),
                 panel_height=int(data.get('panel_height', 30) or 30),  # Додаємо параметр висоти панелі
                 dynamic_equipment=dynamic_equipment,
                 dynamic_mounting=dynamic_mounting,
@@ -457,11 +457,17 @@ def generate_pdf(request):
                 total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0)  # Замінюємо кому на крапку
             )
 
+            # Нормалізуємо шлях до PDF
+            pdf_path = normalize_path(pdf_path)
+
             # Повертаємо згенерований PDF
-            with open('report.pdf', 'rb') as pdf:
-                response = HttpResponse(pdf.read(), content_type='application/pdf')
-                response['Content-Disposition'] = 'attachment; filename=report.pdf'
-                return response
+            if os.path.exists(pdf_path):
+                with open(pdf_path, 'rb') as pdf:
+                    response = HttpResponse(pdf.read(), content_type='application/pdf')
+                    response['Content-Disposition'] = 'attachment; filename=report.pdf'
+                    return response
+            else:
+                return JsonResponse({'success': False, 'error': f'PDF файл не знайдено за шляхом: {pdf_path}'})
 
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})

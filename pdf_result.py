@@ -4,9 +4,15 @@ import os
 # Отримуємо абсолютний шлях до директорії проекту
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# Функція для нормалізації шляхів (заміна зворотних слешів на прямі)
+def normalize_path(path):
+    if path is None:
+        return None
+    return path.replace('\\', '/')
+
 # Шлях до шрифту
-font_path = os.path.join(BASE_DIR, "static", "fonts", "DejaVuSans.ttf")
-bold_font_path = os.path.join(BASE_DIR, "static", "fonts", "DejaVuSans-Bold.ttf")
+font_path = normalize_path(os.path.join(BASE_DIR, "static", "fonts", "DejaVuSans.ttf"))
+bold_font_path = normalize_path(os.path.join(BASE_DIR, "static", "fonts", "DejaVuSans-Bold.ttf"))
 
 # Ініціалізуємо PDF з підтримкою UTF-8
 def generate(
@@ -192,7 +198,7 @@ def generate(
         pdf.cell(0, 10, f'Сума в доларах: {total_sum / usd_rate} $', ln=True, align='R')
     
     # Додаємо схему, якщо вона передана
-    if scheme_image and os.path.exists(scheme_image):
+    if scheme_image and os.path.exists(normalize_path(scheme_image)):
         pdf.ln(10)  # Додатковий відступ перед схемою
         pdf.set_font('DejaVu', 'B', 14)
         pdf.cell(0, 10, 'Схема розміщення панелей:', ln=True, align='L')
@@ -200,10 +206,10 @@ def generate(
         # Визначаємо розмір схеми (бажана ширина - 190 мм)
         img_width = 190
         # Додаємо зображення схеми з центруванням
-        pdf.image(scheme_image, x=(210-img_width)/2, w=img_width)
+        pdf.image(normalize_path(scheme_image), x=(210-img_width)/2, w=img_width)
     
     # Шлях для збереження PDF
-    output_path = os.path.join(BASE_DIR, "report.pdf")
+    output_path = normalize_path(os.path.join(BASE_DIR, "report.pdf"))
 
     # Зберігаємо PDF
     pdf.output(output_path)
