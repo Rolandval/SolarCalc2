@@ -253,10 +253,10 @@ def generate(
         pdf.set_font('DejaVu', 'B', 14)
         pdf.cell(0, 10, 'Схема розміщення панелей:', ln=True, align='L')
         
-        # Визначаємо розмір схеми (бажана ширина - 190 мм)
-        img_width = 190
-        # Додаємо зображення схеми з центруванням
-        pdf.image(normalize_path(scheme_image), x=(210-img_width)/2, w=img_width)
+        # Визначаємо розмір схеми (максимальна ширина сторінки з урахуванням полів)
+        img_width = 190  # Максимальна ширина сторінки A4 з урахуванням полів
+        # Додаємо зображення схеми з центруванням на всю ширину сторінки
+        pdf.image(normalize_path(scheme_image), x=10, w=img_width)
     
     # Шлях для збереження PDF
     output_path = normalize_path(os.path.join(BASE_DIR, "report.pdf"))
