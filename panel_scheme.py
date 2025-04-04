@@ -35,31 +35,54 @@ possible_font_dirs = [
 ]
 
 def generate_panel_scheme(panel_length, panel_width, panel_height, panel_arrays, orientation, available_profiles, save_path=None):
-    # Розміри зображення - збільшуємо для кращої видимості
-    width, height = 1600, 1200  # Збільшуємо висоту для розміщення декількох масивів
-    
-    # Початкові координати для малювання
-    start_y = 50
-    current_y = start_y
+    """
+    Генерує схему розміщення панелей з урахуванням профілів
+    """
+    # Стандартні розміри зображення
+    width = 1600
+    height = 1200
     
     # Розрахуємо загальну висоту, необхідну для всіх масивів
     total_required_height = 0
+    num_arrays = len(panel_arrays)
+    
+    # Якщо масив один, використовуємо більший масштаб
+    if num_arrays == 1:
+        # Для одного масиву використовуємо більшу частину доступного простору
+        height_per_array = height * 0.7  # 70% висоти для масиву
+    else:
+        # Для кількох масивів рівномірно розподіляємо простір
+        # Залишаємо місце для заголовків та легенди
+        available_height = height * 0.8  # 80% висоти для всіх масивів
+        height_per_array = available_height / num_arrays
+    
+    # Перевіряємо, чи достатньо місця для всіх масивів
     for array in panel_arrays:
         rows = array['rows']
         panels_per_row = array['panels_per_row']
         
         # Розрахунок висоти для поточного масиву
         array_height = (panel_height * rows) + (0.02 * (rows - 1))
+        
         # Додаємо відступ для заголовка та профілів
-        total_required_height += array_height * 1.5 + 300  # Збільшуємо відступ для уникнення накладання
+        array_total_height = array_height * 1.5 + 300
+        
+        # Перевіряємо, чи потрібно збільшити висоту зображення
+        if array_total_height > height_per_array:
+            total_required_height += array_total_height
+        else:
+            total_required_height += height_per_array
+    
+    # Додаємо місце для легенди
+    total_required_height += 200
     
     # Збільшуємо висоту зображення, якщо потрібно
     if total_required_height > height:
-        height = int(total_required_height) + 300  # Додаємо більше місця для легенди внизу
+        height = int(total_required_height)
     
-    # Створюємо зображення з адаптивною висотою
-    image = Image.new('RGB', (width, height), color='white')
-    draw = ImageDraw.Draw(image)
+    # Початкові координати для малювання
+    start_y = 50
+    current_y = start_y
     
     # Намагаємося завантажити шрифт
     try:
@@ -100,24 +123,48 @@ def generate_panel_scheme(panel_length, panel_width, panel_height, panel_arrays,
     # Відступ між панелями (2см)
     panel_gap = 0.02
     
+    # Створюємо зображення з адаптивною висотою
+    image = Image.new('RGB', (width, height), color='white')
+    draw = ImageDraw.Draw(image)
+    
     # Малюємо кожен масив панелей
     for i, array in enumerate(panel_arrays):
         rows = array['rows']
         panels_per_row = array['panels_per_row']
         
-        # Загальні розміри системи для поточного масиву
-        total_row_width = (actual_panel_width * panels_per_row) + (panel_gap * (panels_per_row - 1))
-        total_height = (actual_panel_height * rows) + (panel_gap * (rows - 1))
+        # Розраховуємо масштаб для поточного масиву
+        if num_arrays == 1:
+            # Для одного масиву використовуємо більший масштаб, щоб розтягнути на весь простір
+            total_height = (actual_panel_height * rows) + (panel_gap * (rows - 1))
+            total_row_width = (actual_panel_width * panels_per_row) + (panel_gap * (panels_per_row - 1))
+            
+            # Використовуємо більшу частину доступної площі
+            scale_width = (width * 0.8) / total_row_width
+            scale_height = (height * 0.6) / total_height
+            
+            # Вибираємо менший масштаб, щоб зберегти пропорції
+            scale = min(scale_width, scale_height)
+        else:
+            # Для кількох масивів використовуємо масштаб, який відповідає виділеному простору
+            total_height = (actual_panel_height * rows) + (panel_gap * (rows - 1))
+            total_row_width = (actual_panel_width * panels_per_row) + (panel_gap * (panels_per_row - 1))
+            
+            # Розраховуємо доступну висоту для поточного масиву
+            available_height = height_per_array * 0.7  # 70% від виділеної висоти для масиву
+            
+            # Розраховуємо масштаб для поточного масиву
+            scale_width = (width * 0.8) / total_row_width
+            scale_height = available_height / total_height
+            
+            # Вибираємо менший масштаб, щоб зберегти пропорції
+            scale = min(scale_width, scale_height)
         
-        # Розраховуємо реальне розташування профілів
-        profile_layout = calculate_profiles_layout(total_row_width, available_profiles)
+        # Розраховуємо профілі для поточного масиву
+        profile_layout = calculate_profiles(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, available_profiles)
         total_profile_length = profile_layout['total_length']
         
-        # Масштаб для малювання (пікселі на метр)
-        scale = min(800 / total_profile_length, 200 / total_height)
-        
         # Відступи для центрування
-        offset_x = (width - (total_profile_length * scale)) / 2
+        offset_x = (width - (total_row_width * scale)) / 2
         
         # Додаємо заголовок для масиву з більшим відступом
         draw.text((width/2, current_y - 30), f"Масив #{i+1} ({rows}x{panels_per_row})", 
@@ -127,50 +174,36 @@ def generate_panel_scheme(panel_length, panel_width, panel_height, panel_arrays,
         frame_padding = 30
         frame_x1 = offset_x - frame_padding
         frame_y1 = current_y - frame_padding
-        frame_x2 = offset_x + (total_profile_length * scale) + frame_padding
+        frame_x2 = offset_x + (total_row_width * scale) + frame_padding
         frame_y2 = current_y + (total_height * scale) + frame_padding + 40
         draw.rectangle([frame_x1, frame_y1, frame_x2, frame_y2], outline=(100, 149, 237), width=2)
         
-        # Малюємо профілі з більшим відступом
-        profile_y = current_y + (total_height * scale) + 60
-        
-        # Малюємо профілі
-        draw_real_profiles(draw, offset_x, profile_y, total_profile_length, panel_height, 
-                          profile_layout['profiles'], scale, font_medium)
-        
         # Малюємо панелі
-        for row in range(rows):
-            row_y = current_y + (row * (actual_panel_height + panel_gap) * scale)
-            
-            for col in range(panels_per_row):
-                panel_x = offset_x + (col * (actual_panel_width + panel_gap) * scale)
-                
-                # Малюємо панель
-                draw_panel(draw, panel_x, row_y, actual_panel_width * scale, actual_panel_height * scale)
-                
-                # Малюємо затискачі
-                is_first = col == 0
-                is_last = col == panels_per_row - 1
-                draw_clamps(draw, panel_x, row_y, actual_panel_width * scale, actual_panel_height * scale, is_first, is_last)
-                
-                # Малюємо з'єднання профілів, якщо це не остання панель у ряді
-                if col < panels_per_row - 1:
-                    conn_x = panel_x + (actual_panel_width * scale)
-                    conn_y = row_y + (actual_panel_height * scale / 2)
-                    draw_profile_connection(draw, conn_x, conn_y)
+        draw_panels(draw, offset_x, current_y, actual_panel_width, actual_panel_height, 
+                   rows, panels_per_row, panel_gap, scale, font_small)
         
-        # Додаємо розміри
-        add_dimensions(draw, offset_x, current_y, total_profile_length * scale, total_height * scale,
-                      total_row_width * scale, actual_panel_height * scale, panels_per_row, rows, font_small)
+        # Додаємо розмірні лінії
+        rotated_text = add_dimensions(draw, offset_x, current_y, total_row_width * scale, 
+                                     total_height * scale, total_row_width, panel_height, 
+                                     panels_per_row, rows, font_medium)
         
-        # Додаємо інформацію про виступи профілів
+        # Додаємо інформацію про виступ профілів
         protrusion_length = (total_profile_length - total_row_width) / 2
-        cut_length = total_profile_length - total_row_width
+        cut_length = profile_layout['cut_length']
         add_protrusion_info(draw, offset_x, current_y, actual_panel_width * scale, 
                            total_row_width * scale, protrusion_length * scale, cut_length * scale, font_small)
         
+        # Малюємо профілі з більшим відступом
+        profile_y = current_y + (total_height * scale) + 60
+        draw_real_profiles(draw, offset_x, profile_y, total_row_width, panel_height, 
+                          profile_layout['profiles'], scale, font_medium)
+        
         # Оновлюємо поточну позицію Y для наступного масиву
-        current_y += (total_height * scale) + 250  # Збільшуємо відступ між масивами для уникнення накладання тексту
+        # Для одного масиву використовуємо менший відступ, для кількох - більший
+        if num_arrays == 1:
+            current_y += (total_height * scale) + 150
+        else:
+            current_y += (total_height * scale) + 250  # Збільшуємо відступ між масивами для уникнення накладання тексту
     
     # Додаємо легенду внизу зображення з більшим відступом
     legend_y = height - 100  # Збільшуємо відступ для легенди
@@ -215,7 +248,7 @@ def generate_panel_scheme(panel_length, panel_width, panel_height, panel_arrays,
     
     return img_str
 
-def calculate_profiles_layout(row_width, available_profiles):
+def calculate_profiles(panel_length, panel_width, panel_height, rows, panels_per_row, orientation, available_profiles):
     if not available_profiles or len(available_profiles) == 0:
         available_profiles = [6, 4, 3, 2]
     
@@ -223,7 +256,7 @@ def calculate_profiles_layout(row_width, available_profiles):
     sorted_profiles = sorted(available_profiles, reverse=True)
     
     # Розрахунок потрібної довжини (ширина ряду панелей + відступи по 10см з кожного боку)
-    required_length = row_width + 0.2
+    required_length = (panels_per_row * panel_width) + 0.2
     
     # Результат
     profiles = []
@@ -258,8 +291,36 @@ def calculate_profiles_layout(row_width, available_profiles):
     
     return {
         'profiles': profiles,
-        'total_length': current_pos
+        'total_length': current_pos,
+        'cut_length': required_length
     }
+
+def draw_panels(draw, offset_x, offset_y, panel_width, panel_height, rows, panels_per_row, panel_gap, scale, font):
+    # Відступи для центрування
+    start_x = offset_x
+    start_y = offset_y
+    
+    # Малюємо кожен ряд панелей
+    for row in range(rows):
+        row_y = start_y + (row * (panel_height + panel_gap) * scale)
+        
+        # Малюємо кожну панель у ряду
+        for col in range(panels_per_row):
+            panel_x = start_x + (col * (panel_width + panel_gap) * scale)
+            
+            # Малюємо панель
+            draw_panel(draw, panel_x, row_y, panel_width * scale, panel_height * scale)
+            
+            # Малюємо затискачі
+            is_first = col == 0
+            is_last = col == panels_per_row - 1
+            draw_clamps(draw, panel_x, row_y, panel_width * scale, panel_height * scale, is_first, is_last)
+            
+            # Малюємо з'єднання профілів, якщо це не остання панель у ряді
+            if col < panels_per_row - 1:
+                conn_x = panel_x + (panel_width * scale)
+                conn_y = row_y + (panel_height * scale / 2)
+                draw_profile_connection(draw, conn_x, conn_y)
 
 def draw_panel(draw, x, y, width, height):
     # Фон панелі - робимо прозорим, але не повністю (змінюємо значення alpha з 0 на 40)
@@ -329,53 +390,53 @@ def draw_clamps(draw, x, y, width, height, is_first, is_last):
             fill=(204, 0, 0)
         )
 
-def draw_real_profiles(draw, offset_x, row_y, total_length, panel_height, profiles, scale, font):
-    # Висоти для верхнього і нижнього профілів (золотий перетин)
-    upper_rail_y = row_y + panel_height * scale * 0.382
-    lower_rail_y = row_y + panel_height * scale * 0.618
+def draw_real_profiles(draw, offset_x, y, total_width, panel_height, profiles, scale, font):
+    """Малює реальні профілі з урахуванням їх довжини"""
+    # Розраховуємо загальну довжину всіх профілів
+    total_profile_length = sum(profile['length'] for profile in profiles)
     
-    # Товщина профілю
-    rail_height = 8
+    # Розраховуємо виступ профілів з кожного боку
+    protrusion = (total_profile_length - total_width) / 2
+    
+    # Початкова позиція X для першого профілю (з урахуванням виступу)
+    current_x = offset_x - (protrusion * scale)
     
     # Малюємо кожен профіль
     for i, profile in enumerate(profiles):
-        # Розраховуємо позицію профілю з урахуванням реальної довжини
-        start_x = offset_x + profile['start'] * scale
-        rail_length = profile['length'] * scale
+        profile_length = profile['length'] * scale
+        profile_height = 10  # Висота профілю в пікселях
         
-        # Верхній профіль
+        # Малюємо профіль
         draw.rectangle(
-            [start_x, upper_rail_y - rail_height/2, 
-             start_x + rail_length, upper_rail_y + rail_height/2],
-            fill=(96, 165, 250)
+            [current_x, y - profile_height/2, current_x + profile_length, y + profile_height/2],
+            fill=(96, 165, 250),
+            outline=(30, 64, 175),
+            width=1
         )
         
-        # Нижній профіль
-        draw.rectangle(
-            [start_x, lower_rail_y - rail_height/2, 
-             start_x + rail_length, lower_rail_y + rail_height/2],
-            fill=(96, 165, 250)
-        )
+        # Додаємо текст з розміром профілю
+        profile_text = f"{profile['length']:.2f}м"
+        text_width = draw.textlength(profile_text, font=font)
         
-        # Додаємо підпис з довжиною профілю
-        display_length = round(profile['length'] * 100)
-        draw.text(
-            (start_x + rail_length/2, upper_rail_y - rail_height - 15),
-            f"{display_length} см",
-            fill=(0, 0, 0),
-            font=font,
-            anchor="mm"
-        )
+        # Перевіряємо, чи достатньо місця для тексту
+        if profile_length > text_width + 10:
+            # Центруємо текст на профілі
+            text_x = current_x + (profile_length - text_width) / 2
+            draw.text((text_x, y - 20), profile_text, fill=(0, 0, 0), font=font)
+        else:
+            # Розміщуємо текст над профілем
+            draw.text((current_x, y - 25), profile_text, fill=(0, 0, 0), font=font)
         
-        # Якщо це не останній профіль, додаємо з'єднання
+        # Додаємо номер профілю
+        profile_num = f"#{i+1}"
+        draw.text((current_x + 5, y + 15), profile_num, fill=(0, 0, 0), font=font)
+        
+        # Оновлюємо позицію X для наступного профілю
+        current_x += profile_length
+        
+        # Малюємо з'єднання профілів, якщо це не останній профіль
         if i < len(profiles) - 1:
-            draw_profile_connection(draw, start_x + rail_length, upper_rail_y)
-            draw_profile_connection(draw, start_x + rail_length, lower_rail_y)
-            
-        # Якщо це не перший профіль, додаємо з'єднання зліва (на початку цього профілю)
-        if i > 0:
-            draw_profile_connection(draw, start_x, upper_rail_y)
-            draw_profile_connection(draw, start_x, lower_rail_y)
+            draw_profile_connection(draw, current_x, y)
 
 def draw_profile_connection(draw, x, y):
     # Малюємо хрестик для з'єднання профілів
