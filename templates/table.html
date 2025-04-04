@@ -963,13 +963,23 @@
         let totalSum = 0;
         let totalPurchase = 0;
         
-        // Отримуємо курс долара
-        const usdRateElement = document.querySelector('.summary-container p:nth-child(4) span');
-        const usdRateText = usdRateElement.textContent.trim();
-        const usdRate = parseFloat(usdRateText.replace(',', '.')) || 42.5;
+        // Отримуємо курс долара більш надійним способом
+        // Спочатку спробуємо отримати з прихованого поля, яке має точне значення
+        let usdRate = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.'));
+        
+        // Якщо не вдалося отримати з прихованого поля, спробуємо отримати з тексту
+        if (isNaN(usdRate) || usdRate === 0) {
+            const usdRateElement = document.querySelector('.summary-container p span[style*="color: var(--primary-dark)"]');
+            if (usdRateElement) {
+                const usdRateText = usdRateElement.textContent.trim();
+                usdRate = parseFloat(usdRateText.replace(',', '.')) || 42.5;
+            } else {
+                // Якщо не вдалося знайти елемент, використовуємо значення за замовчуванням
+                usdRate = 42.5;
+            }
+        }
         
         // Виводимо у консоль для перевірки
-        console.log('Курс долара (текст):', usdRateText);
         console.log('Курс долара (число):', usdRate);
         
         // Проходимо по всіх таблицях
@@ -991,18 +1001,22 @@
             });
         });
         
-        // Розраховуємо суму в доларах
+        // Обчислюємо прибуток
+        const profit = totalSum - totalPurchase;
+        
+        // Розраховуємо суму в доларах (лише загальна сума без закупки)
         const totalUsdValue = totalSum / usdRate;
         
         // Виводимо у консоль для перевірки
         console.log('Загальна сума (грн):', totalSum);
         console.log('Загальна закупка (грн):', totalPurchase);
-        console.log('Сума в доларах:', totalUsdValue);
+        console.log('Прибуток (грн):', profit);
+        console.log('Сума в доларах (без закупки):', totalUsdValue);
         
         // Оновлюємо відображення загальних сум
         document.getElementById('total-purchase').textContent = totalPurchase.toFixed(2);
         document.getElementById('total-sum').textContent = totalSum.toFixed(2);
-        document.getElementById('profit').textContent = (totalSum - totalPurchase).toFixed(2);
+        document.getElementById('profit').textContent = profit.toFixed(2);
         document.getElementById('total-usd').textContent = totalUsdValue.toFixed(2);
         document.getElementById('hidden-total-usd').value = totalUsdValue.toFixed(2);
         
