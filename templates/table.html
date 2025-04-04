@@ -280,7 +280,6 @@
         .legend-item {
             display: flex;
             align-items: center;
-            margin: 5px 10px;
         }
 
         .legend-color {
@@ -496,6 +495,35 @@
         
         .clear-btn i {
             margin-right: 0.5rem;
+        }
+        
+        /* Стилі для кнопки видалення рядка */
+        .delete-row-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 5px;
+            padding: 0;
+            line-height: 1;
+        }
+        
+        .delete-row-btn:hover {
+            background-color: #c0392b;
+            transform: scale(1.1);
+        }
+        
+        .row-actions {
+            display: flex;
+            align-items: center;
         }
     </style>
 </head>
@@ -1305,7 +1333,34 @@
         sumInput.name = prefix + rowCount + '3';
         sumInput.value = '0';
         sumInput.readOnly = true;
-        sumCell.appendChild(sumInput);
+        
+        // Створюємо контейнер для суми та кнопки видалення
+        const rowActions = document.createElement('div');
+        rowActions.className = 'row-actions';
+        
+        // Додаємо поле суми
+        rowActions.appendChild(sumInput);
+        
+        // Створюємо кнопку видалення
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'delete-row-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+        deleteBtn.title = 'Видалити рядок';
+        
+        // Додаємо обробник події для кнопки видалення
+        deleteBtn.addEventListener('click', function() {
+            // Видаляємо рядок з таблиці
+            newRow.remove();
+            // Перераховуємо загальну суму
+            calculateTotal();
+        });
+        
+        // Додаємо кнопку видалення до контейнера
+        rowActions.appendChild(deleteBtn);
+        
+        // Додаємо контейнер до комірки суми
+        sumCell.appendChild(rowActions);
         
         // Додаємо всі комірки до рядка
         newRow.appendChild(nameCell);
@@ -1324,6 +1379,71 @@
         
         // Перераховуємо загальну суму
         calculateTotal();
+    }
+
+    // Функція для додавання кнопки видалення до існуючого рядка
+    function addDeleteButtonToRow(row) {
+        const sumCell = row.querySelector('td:last-child');
+        const sumInput = sumCell.querySelector('input[type="number"]');
+        
+        // Якщо кнопка видалення вже є, не додаємо нову
+        if (sumCell.querySelector('.delete-row-btn')) {
+            return;
+        }
+        
+        // Якщо sumInput вже в контейнері row-actions, не створюємо новий
+        if (sumCell.querySelector('.row-actions')) {
+            const rowActions = sumCell.querySelector('.row-actions');
+            
+            // Створюємо кнопку видалення
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'delete-row-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.title = 'Видалити рядок';
+            
+            // Додаємо обробник події для кнопки видалення
+            deleteBtn.addEventListener('click', function() {
+                // Видаляємо рядок з таблиці
+                row.remove();
+                // Перераховуємо загальну суму
+                calculateTotal();
+            });
+            
+            // Додаємо кнопку видалення до контейнера
+            rowActions.appendChild(deleteBtn);
+        } else {
+            // Видаляємо sumInput з комірки
+            sumCell.removeChild(sumInput);
+            
+            // Створюємо контейнер для суми та кнопки видалення
+            const rowActions = document.createElement('div');
+            rowActions.className = 'row-actions';
+            
+            // Додаємо поле суми
+            rowActions.appendChild(sumInput);
+            
+            // Створюємо кнопку видалення
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'delete-row-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.title = 'Видалити рядок';
+            
+            // Додаємо обробник події для кнопки видалення
+            deleteBtn.addEventListener('click', function() {
+                // Видаляємо рядок з таблиці
+                row.remove();
+                // Перераховуємо загальну суму
+                calculateTotal();
+            });
+            
+            // Додаємо кнопку видалення до контейнера
+            rowActions.appendChild(deleteBtn);
+            
+            // Додаємо контейнер до комірки суми
+            sumCell.appendChild(rowActions);
+        }
     }
 
     // Функція для перемикання відображення параметрів
