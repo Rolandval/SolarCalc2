@@ -301,6 +301,89 @@
             font-weight: 500;
         }
 
+        /* Стилі для масивів панелей */
+        #panel-arrays-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .panel-array {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        
+        .array-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .array-header h4 {
+            margin: 0;
+            color: #2563eb;
+            font-size: 16px;
+        }
+        
+        .remove-array-btn {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .remove-array-btn:hover {
+            background-color: #dc2626;
+        }
+        
+        .array-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .array-total {
+            font-weight: bold;
+            color: #2563eb;
+            font-size: 16px;
+        }
+        
+        .array-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .add-array-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .add-array-btn:hover {
+            background-color: #1d4ed8;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -336,7 +419,7 @@
         </div>
         
         <div class="form-container">
-            <form id="calculator-form" action="{% url 'calculator:calculate' %}" method="post">
+            <form id="calculator-form" action="{% url 'calculator:calculate' %}" method="post" onsubmit="return prepareFormData()">
                 {% csrf_token %}
                 
                 <!-- Додаткові компоненти (необов'язкові) -->
@@ -504,13 +587,37 @@
                 <div class="section-title"><i class="fas fa-th"></i> Параметри розміщення</div>
                 <div class="form-section">
                     <div class="form-grid">
-                        <div class="form-group">
-                            <label for="rows"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
-                            <input type="number" id="rows" name="rows" value="3" required onchange="calculateTotalPanels()">
-                        </div>
-                        <div class="form-group">
-                            <label for="panels_per_row"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
-                            <input type="number" id="panels_per_row" name="panels_per_row" value="4" required onchange="calculateTotalPanels()">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label><i class="fas fa-layer-group"></i> Масиви панелей:</label>
+                            <div id="panel-arrays-container">
+                                <div class="panel-array" data-array-id="1">
+                                    <div class="array-header">
+                                        <h4>Масив #1</h4>
+                                        <button type="button" class="remove-array-btn" onclick="removeArray(this)" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="array-content">
+                                        <div class="form-group">
+                                            <label for="rows_1"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
+                                            <input type="number" id="rows_1" name="rows_1" value="3" required min="1" onchange="calculateTotalPanels()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="panels_per_row_1"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
+                                            <input type="number" id="panels_per_row_1" name="panels_per_row_1" value="4" required min="1" onchange="calculateTotalPanels()">
+                                        </div>
+                                        <div class="form-group">
+                                            <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
+                                            <span class="array-total">12</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="array-actions">
+                                <button type="button" class="add-array-btn" onclick="addNewArray()">
+                                    <i class="fas fa-plus"></i> Додати масив
+                                </button>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="total_panels"><i class="fas fa-calculator"></i> Загальна кількість панелей:</label>
@@ -819,9 +926,148 @@
         }
         
         function calculateTotalPanels() {
-            const rows = parseInt(document.getElementById('rows').value) || 0;
-            const panelsPerRow = parseInt(document.getElementById('panels_per_row').value) || 0;
-            document.getElementById('total_panels').value = rows * panelsPerRow;
+            let totalPanels = 0;
+            const arrays = document.querySelectorAll('.panel-array');
+            
+            arrays.forEach(array => {
+                const arrayId = array.dataset.arrayId;
+                const rows = parseInt(document.getElementById(`rows_${arrayId}`).value) || 0;
+                const panelsPerRow = parseInt(document.getElementById(`panels_per_row_${arrayId}`).value) || 0;
+                const arrayTotal = rows * panelsPerRow;
+                
+                // Оновлюємо відображення кількості панелей у масиві
+                array.querySelector('.array-total').textContent = arrayTotal;
+                
+                totalPanels += arrayTotal;
+            });
+            
+            document.getElementById('total_panels').value = totalPanels;
+        }
+        
+        function addNewArray() {
+            const container = document.getElementById('panel-arrays-container');
+            const arrays = container.querySelectorAll('.panel-array');
+            const newArrayId = arrays.length + 1;
+            
+            // Створюємо новий масив
+            const newArray = document.createElement('div');
+            newArray.className = 'panel-array';
+            newArray.dataset.arrayId = newArrayId;
+            
+            newArray.innerHTML = `
+                <div class="array-header">
+                    <h4>Масив #${newArrayId}</h4>
+                    <button type="button" class="remove-array-btn" onclick="removeArray(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="array-content">
+                    <div class="form-group">
+                        <label for="rows_${newArrayId}"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
+                        <input type="number" id="rows_${newArrayId}" name="rows_${newArrayId}" value="2" required min="1" onchange="calculateTotalPanels()">
+                    </div>
+                    <div class="form-group">
+                        <label for="panels_per_row_${newArrayId}"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
+                        <input type="number" id="panels_per_row_${newArrayId}" name="panels_per_row_${newArrayId}" value="3" required min="1" onchange="calculateTotalPanels()">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
+                        <span class="array-total">6</span>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(newArray);
+            
+            // Показуємо кнопку видалення для першого масиву, якщо тепер є більше одного масиву
+            if (arrays.length === 1) {
+                const firstArrayRemoveBtn = arrays[0].querySelector('.remove-array-btn');
+                if (firstArrayRemoveBtn) {
+                    firstArrayRemoveBtn.style.display = 'block';
+                }
+            }
+            
+            calculateTotalPanels();
+        }
+        
+        function removeArray(button) {
+            const array = button.closest('.panel-array');
+            const container = document.getElementById('panel-arrays-container');
+            const arrays = container.querySelectorAll('.panel-array');
+            
+            // Не дозволяємо видалити останній масив
+            if (arrays.length <= 1) {
+                return;
+            }
+            
+            // Видаляємо масив
+            array.remove();
+            
+            // Перенумеровуємо масиви
+            const remainingArrays = container.querySelectorAll('.panel-array');
+            remainingArrays.forEach((array, index) => {
+                const arrayId = index + 1;
+                array.dataset.arrayId = arrayId;
+                
+                // Оновлюємо заголовок
+                const header = array.querySelector('h4');
+                if (header) {
+                    header.textContent = `Масив #${arrayId}`;
+                }
+                
+                // Оновлюємо ID та назви полів
+                const rowsInput = array.querySelector('input[id^="rows_"]');
+                const panelsInput = array.querySelector('input[id^="panels_per_row_"]');
+                
+                if (rowsInput) {
+                    rowsInput.id = `rows_${arrayId}`;
+                    rowsInput.name = `rows_${arrayId}`;
+                }
+                
+                if (panelsInput) {
+                    panelsInput.id = `panels_per_row_${arrayId}`;
+                    panelsInput.name = `panels_per_row_${arrayId}`;
+                }
+                
+                // Приховуємо кнопку видалення для першого масиву, якщо він єдиний
+                if (remainingArrays.length === 1 && index === 0) {
+                    const removeBtn = array.querySelector('.remove-array-btn');
+                    if (removeBtn) {
+                        removeBtn.style.display = 'none';
+                    }
+                }
+            });
+            
+            calculateTotalPanels();
+        }
+        
+        // Підготовка даних форми перед відправкою
+        function prepareFormData() {
+            // Збираємо дані про масиви панелей для передачі на сервер
+            const panelArraysData = [];
+            const arrays = document.querySelectorAll('.panel-array');
+            
+            arrays.forEach(array => {
+                const arrayId = array.dataset.arrayId;
+                const rows = parseInt(document.getElementById(`rows_${arrayId}`).value) || 0;
+                const panelsPerRow = parseInt(document.getElementById(`panels_per_row_${arrayId}`).value) || 0;
+                
+                panelArraysData.push({
+                    id: arrayId,
+                    rows: rows,
+                    panels_per_row: panelsPerRow,
+                    total: rows * panelsPerRow
+                });
+            });
+            
+            // Додаємо дані про масиви панелей до прихованого поля
+            const panelArraysInput = document.createElement('input');
+            panelArraysInput.type = 'hidden';
+            panelArraysInput.name = 'panel_arrays';
+            panelArraysInput.value = JSON.stringify(panelArraysData);
+            document.getElementById('calculator-form').appendChild(panelArraysInput);
+            
+            return true;
         }
         
         function downloadDatasheet() {

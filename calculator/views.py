@@ -165,11 +165,34 @@ def calculate(request):
                 panel_height = float(data.get('panel_height', 0))
                 panel_model_name = data.get('custom_panel_model', '')  # Використовуємо введену назву
 
-            panels_per_row = int(data.get('panels_per_row', 0))
-            rows = int(data.get('rows', 0))
-            total_panels = int(data.get('total_panels', 0))
-            if total_panels != rows * panels_per_row:
-                return JsonResponse({'success': False, 'error': 'Кількість рядів та кількість панелей в ряді не співпадають'})
+            # Обробка масивів панелей
+            panel_arrays = []
+            total_panels = 0
+            
+            # Збираємо дані про всі масиви панелей
+            array_index = 1
+            while f'rows_{array_index}' in data:
+                rows = int(data.get(f'rows_{array_index}', 0))
+                panels_per_row = int(data.get(f'panels_per_row_{array_index}', 0))
+                
+                if rows > 0 and panels_per_row > 0:
+                    panel_arrays.append({
+                        'id': array_index,
+                        'rows': rows,
+                        'panels_per_row': panels_per_row,
+                        'total': rows * panels_per_row
+                    })
+                    total_panels += rows * panels_per_row
+                
+                array_index += 1
+            
+            # Перевірка наявності масивів панелей
+            if not panel_arrays:
+                return JsonResponse({'success': False, 'error': 'Необхідно вказати хоча б один масив панелей'})
+            
+            # Перевірка відповідності загальної кількості панелей
+            if total_panels != int(data.get('total_panels', 0)):
+                return JsonResponse({'success': False, 'error': 'Загальна кількість панелей не співпадає з сумою панелей у масивах'})
             
             panel_arrangement = data.get('panel_arrangement', '')
             if panel_arrangement == '':
@@ -180,14 +203,24 @@ def calculate(request):
             available_lengths = [float(x.strip()) for x in data['profile_lengths'].split(',')]
             strings = int(data.get('string_count', 0))
 
-            profil_len = 0
-            if panel_arrangement == 'альбомна':
-                profil_len = ((panel_length * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
-            elif panel_arrangement == 'портретна':
-                profil_len = ((panel_width * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+            # Розрахунок загальної довжини профілів для всіх масивів
+            total_profil_len = 0
+            for array in panel_arrays:
+                rows = array['rows']
+                panels_per_row = array['panels_per_row']
+                
+                array_profil_len = 0
+                if panel_arrangement == 'альбомна':
+                    array_profil_len = ((panel_length * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+                elif panel_arrangement == 'портретна':
+                    array_profil_len = ((panel_width * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+                
+                array['profil_len'] = array_profil_len
+                total_profil_len += array_profil_len
+            
             sorted_arr = sorted(available_lengths, reverse=True)
             profiles = []
-            remaining_length = profil_len
+            remaining_length = total_profil_len
             while remaining_length > 0:
                 possible_lengths = [l for l in sorted_arr if l <= remaining_length]
                 if not possible_lengths:
@@ -201,68 +234,89 @@ def calculate(request):
             profile_counts = {length: profiles.count(length) for length in set(profiles)}
             grouped_profiles = [{'length': length, 'count': count} for length, count in profile_counts.items()]
 
-            g_clamps = 4 * rows
-            v_clamps = (total_panels * 2) - 2
-            m_sh = math.ceil(profil_len / 0.9)
-            front_connectors = (panels_per_row - 1) * rows
-
-            connectors = 0
-
-            if panel_arrangement == 'альбомна':
-                connectors += (strings * 2) + 1
-            elif panel_arrangement == 'портретна':
-                connectors += ((strings * 2) + 1) + rows
+            # Розрахунок загальної кількості затискачів для всіх масивів
+            total_g_clamps = 0
+            for array in panel_arrays:
+                array_g_clamps = 4 * array['rows']
+                array['g_clamps'] = array_g_clamps
+                total_g_clamps += array_g_clamps
+            
+            # Розрахунок загальної кількості вертикальних затискачів для всіх масивів
+            total_v_clamps = 0
+            for array in panel_arrays:
+                array_v_clamps = (array['total'] * 2) - 2
+                array['v_clamps'] = array_v_clamps
+                total_v_clamps += array_v_clamps
+            
+            # Розрахунок загальної кількості монтажних шин для всіх масивів
+            total_m_sh = 0
+            for array in panel_arrays:
+                array_m_sh = math.ceil(array['profil_len'] / 0.9)
+                array['m_sh'] = array_m_sh
+                total_m_sh += array_m_sh
+            
+            # Розрахунок загальної кількості фронтальних конекторів для всіх масивів
+            total_front_connectors = 0
+            for array in panel_arrays:
+                array_front_connectors = (array['panels_per_row'] - 1) * array['rows']
+                array['front_connectors'] = array_front_connectors
+                total_front_connectors += array_front_connectors
+            
+            # Розрахунок загальної кількості конекторів для всіх масивів
+            total_connectors = 0
+            for array in panel_arrays:
+                array_connectors = 0
+                if panel_arrangement == 'альбомна':
+                    array_connectors += (strings * 2) + 1
+                elif panel_arrangement == 'портретна':
+                    array_connectors += ((strings * 2) + 1) + array['rows']
+                array['connectors'] = array_connectors
+                total_connectors += array_connectors
 
             # Генеруємо схему
             scheme_image = generate_panel_scheme(
                 panel_length, panel_width, panel_height,
-                rows, panels_per_row,
+                panel_arrays,
                 panel_arrangement, available_lengths
             )
             
-            # Зберігаємо зображення схеми для використання в PDF
             scheme_file_path = save_panel_scheme(
                 panel_length, panel_width, panel_height,
-                rows, panels_per_row,
+                panel_arrays,
                 panel_arrangement, available_lengths
             )
             
-            # Конвертуємо зображення в base64 для вбудовування в HTML
-            buffer = BytesIO()
-            scheme_image.save(buffer, format='PNG')
-            scheme_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+            # Конвертуємо зображення в base64
+            scheme_base64 = scheme_image
             
             # Отримуємо курс долара
             usd_rate = round(get_usd_rate(), 2)
             
+            # Повертаємо результат
             results = {
                 'success': True,
                 'data': {
                     'panel_count': total_panels,
                     'profiles': grouped_profiles,
-                    'g_clamps': g_clamps,
-                    'v_clamps': v_clamps,
-                    'm_sh': m_sh,
-                    'front_connectors': front_connectors,
-                    'connectors': connectors,
+                    'g_clamps': total_g_clamps,
+                    'v_clamps': total_v_clamps,
+                    'm_sh': total_m_sh,
+                    'front_connectors': total_front_connectors,
+                    'connectors': total_connectors,
                     'scheme_image': f'data:image/png;base64,{scheme_base64}',
                     'scheme_file_path': scheme_file_path,  # Додаємо шлях до файлу схеми
                     'usd_rate': usd_rate,  # Додаємо курс долара
-                    'current_date': datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
-                    # Додаємо параметри з форми
-                    'form_data': {
-                        'panel_brand': data.get('panel_brand', ''),
-                        'panel_model': data.get('panel_model', ''),
-                        'panel_width': panel_width,
+                    'panel_data': {
+                        'panel_model': panel_model_name,
                         'panel_length': panel_length,
+                        'panel_width': panel_width,
                         'panel_height': panel_height,
                         'panel_arrangement': panel_arrangement,
                         'panel_type': panel_type,
-                        'rows': rows,
-                        'panels_per_row': panels_per_row,
+                        'panel_arrays': panel_arrays,
                         'total_panels': total_panels,
                         'profile_lengths': data.get('profile_lengths', ''),
-                        'string_count': data.get('string_count', ''),  
+                        'string_count': data.get('string_count', ''),
                         'screw_material': data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
                         'profile_material': data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
                         # Додаткові параметри (необов'язкові)
@@ -307,6 +361,24 @@ def generate_pdf(request):
             param_r = request.POST.get('param-r')
             param_usd = request.POST.get('param-usd')  # Додаємо параметр для відображення суми в доларах
 
+            # Отримуємо дані з форми
+            panel_model_name = data.get('panel_model_name', '')
+            panel_length = float(data.get('panel_length', 0))
+            panel_width = float(data.get('panel_width', 0))
+            panel_height = float(data.get('panel_height', 0))
+            panel_arrangement = data.get('panel_arrangement', '')
+            panel_type = data.get('panel_type', '')
+            
+            # Отримуємо дані про масиви панелей
+            panel_arrays = json.loads(data.get('panel_arrays', '[]'))
+            total_panels = int(data.get('total_panels', 0))
+            
+            # Розрахунок загальної кількості рядів для відображення в PDF
+            total_rows = sum(array['rows'] for array in panel_arrays)
+            
+            # Розрахунок середньої кількості панелей в ряді для відображення в PDF
+            avg_panels_per_row = total_panels / total_rows if total_rows > 0 else 0
+            
             # Створюємо списки для K11 і K12
             K11_values = []
             K12_values = {}
@@ -451,7 +523,6 @@ def generate_pdf(request):
                 R21=int(data.get('R21', 0) or 0), R22=float(data.get('R22', 0) or 0.0),
                 R31=int(data.get('R31', 0) or 0), R32=float(data.get('R32', 0) or 0.0),
                 scheme_image=normalize_path(str(data.get('scheme_image', ''))),
-                panel_height=int(data.get('panel_height', 30) or 30),  # Додаємо параметр висоти панелі
                 dynamic_equipment=dynamic_equipment,
                 dynamic_mounting=dynamic_mounting,
                 dynamic_electrical=dynamic_electrical,
@@ -461,7 +532,17 @@ def generate_pdf(request):
                 screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
                 profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
                 current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
-                show_usd=param_usd  # Додаємо параметр для відображення суми в доларах
+                show_usd=param_usd,  # Додаємо параметр для відображення суми в доларах
+                panel_model_name=panel_model_name,  # Додаємо назву моделі панелі
+                panel_length=panel_length,  # Додаємо довжину панелі
+                panel_width=panel_width,  # Додаємо ширину панелі
+                panel_height=panel_height,  # Додаємо висоту панелі
+                panel_arrangement=panel_arrangement,  # Додаємо розташування панелі
+                panel_type=panel_type,  # Додаємо тип панелі
+                panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
+                total_panels=total_panels,  # Додаємо загальну кількість панелей
+                total_rows=total_rows,  # Додаємо загальну кількість рядів
+                avg_panels_per_row=avg_panels_per_row  # Додаємо середню кількість панелей в ряді
             )
 
             # Нормалізуємо шлях до PDF
