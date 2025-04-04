@@ -263,6 +263,7 @@ def calculate(request):
                         'total_panels': total_panels,
                         'profile_lengths': data.get('profile_lengths', ''),
                         'string_count': data.get('string_count', ''),
+                        'screw_material': data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
                         # Додаткові параметри (необов'язкові)
                         'inverterModel': data.get('custom_inverter_model', '') or data.get('inverter_model', ''),
                         'inverterPower': data.get('inverter_power', ''),
@@ -454,7 +455,8 @@ def generate_pdf(request):
                 dynamic_electrical=dynamic_electrical,
                 dynamic_work=dynamic_work,
                 usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0)  # Замінюємо кому на крапку
+                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
+                screw_material=data.get('screw_material', 'оцинковані')  # Додаємо матеріал гвинт-шурупа
             )
 
             # Нормалізуємо шлях до PDF

@@ -517,8 +517,15 @@
                             <input type="number" id="total_panels" name="total_panels" value="12" readonly>
                         </div>
                         <div class="form-group">
-                            <label for="profile_lengths"><i class="fas fa-ruler-horizontal"></i> Доступні довжини профілів (м):</label>
+                            <label for="profile_lengths" style="white-space: nowrap;"><i class="fas fa-ruler-horizontal"></i> Доступні довжини профілів (м):</label>
                             <input type="text" id="profile_lengths" name="profile_lengths" value="2,3,4" required placeholder="Введіть через кому, наприклад: 2,3,4">
+                        </div>
+                        <div class="form-group">
+                            <label for="screw_material"><i class="fas fa-wrench"></i> Матеріал гвинт-шурупа:</label>
+                            <select id="screw_material" name="screw_material" required>
+                                <option value="оцинковані">Оцинковані</option>
+                                <option value="нержавійка">Нержавійка</option>
+                            </select>
                         </div>
                     </div>
                 </div>
