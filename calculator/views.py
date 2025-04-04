@@ -305,6 +305,7 @@ def generate_pdf(request):
             param_k = request.POST.get('param-k')
             param_e = request.POST.get('param-e')
             param_r = request.POST.get('param-r')
+            param_usd = request.POST.get('param-usd')  # Додаємо параметр для відображення суми в доларах
 
             # Створюємо списки для K11 і K12
             K11_values = []
@@ -459,7 +460,8 @@ def generate_pdf(request):
                 total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
                 screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
                 profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
-                current_date=datetime.now().strftime('%d.%m.%Y')  # Додаємо поточну дату
+                current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
+                show_usd=param_usd  # Додаємо параметр для відображення суми в доларах
             )
 
             # Нормалізуємо шлях до PDF

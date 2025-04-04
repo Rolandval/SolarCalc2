@@ -59,6 +59,7 @@ def generate(
         screw_material: str = 'оцинковані',
         profile_material: str = 'алюміній',
         current_date: str = '',  # Додаємо поточну дату
+        show_usd: bool = True,  # Додаємо параметр для відображення суми в доларах
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -255,8 +256,8 @@ def generate(
     pdf.set_font('DejaVu', 'B', 14)
     pdf.cell(0, 10, f'Загальна сума: {total_sum}', ln=True, align='R')
     
-    # Додаємо інформацію про курс долара та суму в доларах, якщо вони передані
-    if usd_rate > 0:
+    # Додаємо інформацію про курс долара та суму в доларах, якщо вони передані і показ суми в доларах включений
+    if usd_rate > 0 and show_usd:
         pdf.set_font('DejaVu', 'B', 12)
         pdf.cell(0, 10, f'Курс долара: {usd_rate} грн', ln=True, align='R')
         pdf.cell(0, 10, f'Сума в доларах: {total_usd} $', ln=True, align='R')
