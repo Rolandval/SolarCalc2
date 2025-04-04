@@ -472,6 +472,31 @@
             justify-content: space-between;
             margin: 0;
         }
+        
+        .clear-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .clear-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+        }
+        
+        .clear-btn i {
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -902,6 +927,13 @@
                     <p>Сума роботи:<span id="work-sum">0</span>грн</p>
                 </div>
             </div>
+            <!-- Кнопка для очищення параметрів таблиці -->
+            <div class="clear-params-container" style="text-align: center; margin: 20px 0;">
+                <button type="button" id="clear-table-btn" class="clear-btn">
+                    <i class="fas fa-eraser"></i> Очистити параметри таблиці
+                </button>
+            </div>
+
 
             <div class="summary-container">
                 <h3 style="margin-bottom: 1rem; color: var(--primary-dark);"><i class="fas fa-calculator"></i> Підсумок</h3>
@@ -916,6 +948,7 @@
                 <input type="hidden" name="total_usd" id="hidden-total-usd" value="0">
             </div>
 
+            
             <h2><i class="fas fa-file-pdf"></i> Налаштування PDF-звіту</h2>
             <div class="checkbox-group">
                 <label><input type="checkbox" name="param-o" checked> <i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</label>
@@ -1353,6 +1386,22 @@
                 
                 addNewRow(tableId, prefix, zStart);
             });
+        });
+        
+        // Додаємо обробник події для кнопки очищення параметрів таблиці
+        document.getElementById('clear-table-btn').addEventListener('click', function() {
+            // Очищаємо всі інпути типу number
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.value = '0';
+            });
+            
+            // Очищаємо всі інпути типу text
+            document.querySelectorAll('input[type="text"]').forEach(input => {
+                input.value = '';
+            });
+            
+            // Перераховуємо загальну суму
+            calculateTotal();
         });
     });
 </script>

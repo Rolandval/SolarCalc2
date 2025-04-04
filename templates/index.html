@@ -550,6 +550,7 @@
                 
                 <div class="submit-container">
                     <button type="submit"><i class="fas fa-table"></i> Зробити розрахунок</button>
+                    <!-- <button type="button" id="reset-form-btn"><i class="fas fa-eraser"></i> Очистити параметри</button> -->
                 </div>
             </form>
         </div>
@@ -855,6 +856,59 @@
         
         // Ініціалізуємо загальну кількість панелей при завантаженні сторінки
         calculateTotalPanels();
+        
+        // Обробник для кнопки очищення параметрів
+        document.getElementById('reset-form-btn').addEventListener('click', function() {
+            // Отримуємо всі елементи форми
+            const form = document.getElementById('calculator-form');
+            
+            // Скидаємо значення для всіх полів вводу
+            const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], textarea');
+            inputs.forEach(input => {
+                // Встановлюємо значення за замовчуванням, якщо воно є
+                if (input.hasAttribute('data-default')) {
+                    input.value = input.getAttribute('data-default');
+                } else {
+                    // Інакше просто очищаємо
+                    input.value = input.defaultValue || '';
+                }
+            });
+            
+            // Скидаємо значення для всіх випадаючих списків
+            const selects = form.querySelectorAll('select');
+            selects.forEach(select => {
+                // Встановлюємо перший елемент як вибраний
+                select.selectedIndex = 0;
+                
+                // Якщо це select для моделі панелі, оновлюємо його
+                if (select.id === 'panel_model') {
+                    updateModelOptions();
+                }
+                if (select.id === 'inverter_model') {
+                    updateInverterModelOptions();
+                }
+                if (select.id === 'battery_model') {
+                    updateBatteryModelOptions();
+                }
+            });
+            
+            // Скидаємо значення для всіх чекбоксів і радіокнопок
+            const checkboxes = form.querySelectorAll('input[type="checkbox"], input[type="radio"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checkbox.defaultChecked;
+            });
+            
+            // Оновлюємо залежні поля
+            updatePanelDimensions();
+            
+            // Приховуємо поля для ручного введення моделей
+            document.getElementById('custom-model-container').style.display = 'none';
+            document.getElementById('custom-inverter-model-container').style.display = 'none';
+            document.getElementById('custom-battery-model-container').style.display = 'none';
+            
+            // Відображаємо повідомлення про успішне очищення
+            alert('Параметри форми очищено!');
+        });
     </script>
 </body>
 </html>
