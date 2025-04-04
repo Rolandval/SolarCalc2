@@ -150,9 +150,9 @@ def generate(
 
     # Дані для таблиць
     equipment = [
-        ['Інвертор', f'{O11}', 'шт', f'{O12}', f'{O11 * O12}'],
-        ['Акумулятор', f'{O21}', 'шт', f'{O22}', f'{O21 * O22}'],
-        ['Сонячна панель', f'{O31}', 'шт', f'{O32}', f'{O31 * O32}']
+        ['Інвертор', f'{O11}', 'шт.', f'{O12}', f'{O11 * O12}'],
+        ['Акумулятор', f'{O21}', 'шт.', f'{O22}', f'{O21 * O22}'],
+        ['Сонячна панель', f'{O31}', 'шт.', f'{O32}', f'{O31 * O32}']
     ]
     
     # Додаємо динамічно створені рядки обладнання
@@ -160,6 +160,9 @@ def generate(
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
         unit = item.get('unit', 'шт')
+        # Додаємо крапку після одиниці виміру, якщо її ще немає
+        if not unit.endswith('.'):
+            unit += '.'
         price = item.get('price', 0)
         total = quantity * price
         equipment.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
@@ -174,37 +177,40 @@ def generate(
         price = profile.get('price', 0)
         # Обчислюємо суму як кількість * ціна * метри
         total = count * price * length
-        mounting.append([f'Профіль {length}м ({profile_material})', f'{count}', 'шт', f'{price}/м', f'{total}'])
+        mounting.append([f'Профіль {length}м ({profile_material})', f'{count}', 'шт.', f'{price}/м', f'{total}'])
     
     # Додаємо інші елементи
     mounting.extend([
-        [f'Бокові Г-образні зажими ({panel_height} мм)', f'{K21}', 'комп', f'{K22}', f'{K21 * K22}'],
-        [f'Міжпанельні V-образні зажими ({panel_height} мм)', f'{K31}', 'комп', f'{K32}', f'{K31 * K32}'],
-        [f'Гвинт шуруп М10*200 комплект ({screw_material})', f'{K41}', 'комп', f'{K42}', f'{K41 * K42}'],
-        ['Комплект з\'єднувача профілів (ЗОВНІШНІЙ)', f'{K51}', 'комп', f'{K52}', f'{K51 * K52}'],
-        ['Конектори МС4', f'{K61}', 'пара', f'{K62}', f'{K61 * K62}'],
-        ['Кабель', f'{K71}', 'м', f'{K72}', f'{K71 * K72}']
+        [f'Бокові Г-образні зажими ({panel_height} мм)', f'{K21}', 'компл.', f'{K22}', f'{K21 * K22}'],
+        [f'Міжпанельні V-образні зажими ({panel_height} мм)', f'{K31}', 'компл.', f'{K32}', f'{K31 * K32}'],
+        [f'Гвинт шуруп М10*200 комплект ({screw_material})', f'{K41}', 'компл.', f'{K42}', f'{K41 * K42}'],
+        ['Комплект з\'єднувача профілів (ЗОВНІШНІЙ)', f'{K51}', 'компл.', f'{K52}', f'{K51 * K52}'],
+        ['Конектори МС4', f'{K61}', 'пара.', f'{K62}', f'{K61 * K62}'],
+        ['Кабель', f'{K71}', 'м.', f'{K72}', f'{K71 * K72}']
     ])
     
     # Додаємо стійки тільки якщо їх кількість більше 0
     if K81 > 0:
-        mounting.append(['Стійка 8', f'{K81}', 'шт', f'{K82}', f'{K81 * K82}'])
+        mounting.append(['Стійка 8', f'{K81}', 'шт.', f'{K82}', f'{K81 * K82}'])
     
     if K91 > 0:
-        mounting.append(['Стійка 12', f'{K91}', 'шт', f'{K92}', f'{K91 * K92}'])
+        mounting.append(['Стійка 12', f'{K91}', 'шт.', f'{K92}', f'{K91 * K92}'])
     
     # Додаємо динамічно створені рядки кріплення
     for item in dynamic_mounting:
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
         unit = item.get('unit', 'шт')
+        # Додаємо крапку після одиниці виміру, якщо її ще немає
+        if not unit.endswith('.'):
+            unit += '.'
         price = item.get('price', 0)
         total = quantity * price
         mounting.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
 
     electrical = [
-        ['Коробки з автоматами', f'{E11}', 'компл', f'{E12}', f'{E11 * E12}'],
-        ['Блискавкозахист', f'{E21}', 'компл', f'{E22}', f'{E21 * E22}']
+        ['Коробки з автоматами', f'{E11}', 'компл.', f'{E12}', f'{E11 * E12}'],
+        ['Блискавкозахист', f'{E21}', 'компл.', f'{E22}', f'{E21 * E22}']
     ]
     
     # Додаємо динамічно створені рядки електрики
@@ -212,6 +218,9 @@ def generate(
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
         unit = item.get('unit', 'шт')
+        # Додаємо крапку після одиниці виміру, якщо її ще немає
+        if not unit.endswith('.'):
+            unit += '.'
         price = item.get('price', 0)
         total = quantity * price
         electrical.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
@@ -227,6 +236,9 @@ def generate(
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
         unit = item.get('unit', 'шт')
+        # Додаємо крапку після одиниці виміру, якщо її ще немає і це не "послуга"
+        if not unit.endswith('.') and unit != 'послуга':
+            unit += '.'
         price = item.get('price', 0)
         total = quantity * price
         work.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
