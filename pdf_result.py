@@ -169,7 +169,9 @@ def generate(
         length = profile.get('length', 0)
         count = profile.get('count', 0)
         price = profile.get('price', 0)
-        mounting.append([f'Профіль {length}м', f'{count}', 'шт', f'{price}', f'{count * price}'])
+        # Обчислюємо суму як кількість * ціна * метри
+        total = count * price * length
+        mounting.append([f'Профіль {length}м', f'{count}', 'шт', f'{price}/м', f'{total}'])
     
     # Додаємо інші елементи
     mounting.extend([
@@ -240,7 +242,7 @@ def generate(
     if usd_rate > 0:
         pdf.set_font('DejaVu', 'B', 12)
         pdf.cell(0, 10, f'Курс долара: {usd_rate} грн', ln=True, align='R')
-        pdf.cell(0, 10, f'Сума в доларах: {total_sum / usd_rate} $', ln=True, align='R')
+        pdf.cell(0, 10, f'Сума в доларах: {total_usd} $', ln=True, align='R')
     
     # Додаємо схему, якщо вона передана
     if scheme_image and os.path.exists(normalize_path(scheme_image)):
