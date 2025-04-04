@@ -686,7 +686,7 @@
                 <tbody>
                     {% for profile in data.profiles %}
                     <tr>
-                        <td>Профіль ({{ profile.length }} м)</td>
+                        <td>Профіль {{ profile.length }} м ({{ data.form_data.profile_material }})</td>
                         <td><input type="number" name="K11_{{ profile.length }}" value="{{ profile.count }}"></td>
                         <td>шт</td>
                         <td><input type="number" name="Z4_{{ profile.length }}" value="0"></td>

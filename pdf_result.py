@@ -51,10 +51,12 @@ def generate(
         dynamic_equipment: list = [],
         dynamic_mounting: list = [],
         dynamic_electrical: list = [],
+        dynamic_other: list = [],
         dynamic_work: list = [],
         usd_rate: float = 0.0,  # Додаємо курс долара
         total_usd: float = 0.0,  # Додаємо суму в доларах
         screw_material: str = 'оцинковані',
+        profile_material: str = 'алюміній',
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -172,7 +174,7 @@ def generate(
         price = profile.get('price', 0)
         # Обчислюємо суму як кількість * ціна * метри
         total = count * price * length
-        mounting.append([f'Профіль {length}м', f'{count}', 'шт', f'{price}/м', f'{total}'])
+        mounting.append([f'Профіль {length}м ({profile_material})', f'{count}', 'шт', f'{price}/м', f'{total}'])
     
     # Додаємо інші елементи
     mounting.extend([
