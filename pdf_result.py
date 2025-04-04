@@ -2,6 +2,7 @@ from fpdf import FPDF
 import os
 import sys
 import shutil
+from datetime import date
 
 # Отримуємо абсолютний шлях до директорії проекту
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -57,6 +58,7 @@ def generate(
         total_usd: float = 0.0,  # Додаємо суму в доларах
         screw_material: str = 'оцинковані',
         profile_material: str = 'алюміній',
+        current_date: str = '',  # Додаємо поточну дату
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -258,6 +260,10 @@ def generate(
         pdf.set_font('DejaVu', 'B', 12)
         pdf.cell(0, 10, f'Курс долара: {usd_rate} грн', ln=True, align='R')
         pdf.cell(0, 10, f'Сума в доларах: {total_usd} $', ln=True, align='R')
+    
+    # Додаємо інформацію про поточну дату
+    pdf.set_font('DejaVu', 'B', 12)
+    pdf.cell(0, 10, f'Дата: {current_date or date.today().strftime("%d.%m.%Y")}', ln=True, align='R')
     
     # Додаємо схему, якщо вона передана
     if scheme_image and os.path.exists(normalize_path(scheme_image)):

@@ -458,7 +458,8 @@ def generate_pdf(request):
                 usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
                 total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
                 screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
-                profile_material=data.get('profile_material', 'алюміній')  # Додаємо матеріал профілю
+                profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
+                current_date=datetime.now().strftime('%d.%m.%Y')  # Додаємо поточну дату
             )
 
             # Нормалізуємо шлях до PDF
