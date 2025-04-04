@@ -18,7 +18,6 @@
             --border-color: #dfe6e9;
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
             --radius: 10px;
-            --transition: all 0.3s ease;
         }
 
         * {
@@ -375,11 +374,12 @@
             padding: 8px 16px;
             cursor: pointer;
             transition: background-color 0.2s;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            width: 100%;
         }
-        
+
         .add-array-btn:hover {
             background-color: #1d4ed8;
         }
@@ -408,6 +408,64 @@
             .optional-fields-container {
                 grid-template-columns: 1fr;
             }
+        }
+        
+        .orientation-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .orientation-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            cursor: help;
+        }
+        
+        .panel-icon {
+            width: 40px;
+            height: 30px;
+            border: 2px solid var(--primary-color);
+            border-radius: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(96, 165, 250, 0.1);
+            position: relative;
+            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+        }
+        
+        .panel-icon-inner {
+            width: 30px;
+            height: 20px;
+            background-color: rgba(96, 165, 250, 0.3);
+            border: 1px solid var(--primary-color);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+        
+        /* Стилі для орієнтації панелей */
+        .orientation-icon.landscape .panel-icon {
+            /* Альбомна орієнтація */
+            transform: rotate(0deg);
+            width: 40px;
+            height: 30px;
+        }
+        
+        .orientation-icon.landscape .panel-icon-inner {
+            width: 30px;
+            height: 20px;
+        }
+        
+        .orientation-icon.portrait .panel-icon {
+            /* Книжкова орієнтація */
+            transform: rotate(90deg);
+            width: 30px;
+            height: 40px;
+        }
+        
+        .orientation-icon.portrait .panel-icon-inner {
+            width: 20px;
+            height: 30px;
         }
     </style>
 </head>
@@ -574,10 +632,17 @@
                         </div>
                         <div class="form-group">
                             <label for="panel_arrangement"><i class="fas fa-expand"></i> Орієнтація:</label>
-                            <select id="orientation" name="panel_arrangement" required>
-                                <option value="альбомна" selected>Альбомна</option>
-                                <option value="портретна">Книжкова</option>
-                            </select>
+                            <div class="orientation-container">
+                                <select id="orientation" name="panel_arrangement" required onchange="updateOrientationIcon()">
+                                    <option value="альбомна" selected>Альбомна</option>
+                                    <option value="портретна">Книжкова</option>
+                                </select>
+                                <div class="orientation-icon" id="orientation-icon" title="Схематичне зображення орієнтації панелі">
+                                    <div class="panel-icon">
+                                        <div class="panel-icon-inner"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                     </div>
@@ -1099,6 +1164,27 @@
                 window.open(`/batteries/datasheet/${batteryId}/`, '_blank');
             }
         }
+        
+        // Функція для оновлення іконки орієнтації панелей
+        function updateOrientationIcon() {
+            const orientationSelect = document.getElementById('orientation');
+            const orientationIcon = document.getElementById('orientation-icon');
+            
+            // Встановлюємо клас в залежності від обраної орієнтації
+            if (orientationSelect.value === 'альбомна') {
+                orientationIcon.className = 'orientation-icon landscape';
+            } else {
+                orientationIcon.className = 'orientation-icon portrait';
+            }
+        }
+        
+        // Ініціалізуємо іконку при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', function() {
+            updateOrientationIcon();
+            
+            // Додаємо обробник події для зміни орієнтації
+            document.getElementById('orientation').addEventListener('change', updateOrientationIcon);
+        });
         
         // Ініціалізуємо загальну кількість панелей при завантаженні сторінки
         calculateTotalPanels();
