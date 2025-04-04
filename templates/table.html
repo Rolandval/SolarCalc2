@@ -627,226 +627,256 @@
         <form id="pdf-form" action="{% url 'calculator:generate_pdf' %}" method="post">
             {% csrf_token %}
             
-            <h2><i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</h2>
-            <table id="equipment-table">
-                <thead>
-                    <tr>
-                        <th>Назва</th>
-                        <th>Кількість</th>
-                        <th>Одиниця виміру</th>
-                        <th>Закупка</th>
-                        <th>Ціна</th>
-                        <th>Сума</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Інвертор</td>
-                        <td><input type="number" name="O11" value="1"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z1" value="0"></td>
-                        <td><input type="number" name="O12" value="0"></td>
-                        <td><input type="number" name="O13" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Акумулятор</td>
-                        <td><input type="number" name="O21" value="1"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z2" value="0"></td>
-                        <td><input type="number" name="O22" value="0"></td>
-                        <td><input type="number" name="O23" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Сонячна панель</td>
-                        <td><input type="number" name="O31" value="{{ data.panel_count }}"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z3" value="0"></td>
-                        <td><input type="number" name="O32" value="0"></td>
-                        <td><input type="number" name="O33" value="0"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button type="button" class="add-row-btn" data-table="equipment" data-prefix="O" data-z-start="4">+</button>
-            <div class="table-summary">
-                <p>Сума обладнання:<span id="equipment-sum">0</span>грн</p>
+            <!-- Чекбокси для контролю відображення блоків таблиці -->
+            <div class="table-controls">
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="show-equipment" checked onchange="toggleTableSection('equipment')">
+                        <label for="show-equipment">Обладнання</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="show-mounting" checked onchange="toggleTableSection('mounting')">
+                        <label for="show-mounting">Кріплення</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="show-electrical" checked onchange="toggleTableSection('electrical')">
+                        <label for="show-electrical">Електрика</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="show-work" checked onchange="toggleTableSection('work')">
+                        <label for="show-work">Робота</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="equipment-section">
+                <h2><i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</h2>
+                <table id="equipment-table">
+                    <thead>
+                        <tr>
+                            <th>Назва</th>
+                            <th>Кількість</th>
+                            <th>Одиниця виміру</th>
+                            <th>Закупка</th>
+                            <th>Ціна</th>
+                            <th>Сума</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Інвертор</td>
+                            <td><input type="number" name="O11" value="1"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z1" value="0"></td>
+                            <td><input type="number" name="O12" value="0"></td>
+                            <td><input type="number" name="O13" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Акумулятор</td>
+                            <td><input type="number" name="O21" value="1"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z2" value="0"></td>
+                            <td><input type="number" name="O22" value="0"></td>
+                            <td><input type="number" name="O23" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Сонячна панель</td>
+                            <td><input type="number" name="O31" value="{{ data.panel_count }}"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z3" value="0"></td>
+                            <td><input type="number" name="O32" value="0"></td>
+                            <td><input type="number" name="O33" value="0"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="add-row-btn" data-table="equipment" data-prefix="O" data-z-start="4">+</button>
+                <div class="table-summary">
+                    <p>Сума обладнання:<span id="equipment-sum">0</span>грн</p>
+                </div>
             </div>
 
-            <h2><i class="fas fa-wrench"></i> КРІПЛЕННЯ</h2>
-            <table id="mounting-table">
-                <thead>
-                    <tr>
-                        <th>Назва</th>
-                        <th>Кількість</th>
-                        <th>Одиниця виміру</th>
-                        <th>Закупка</th>
-                        <th>Ціна</th>
-                        <th>Сума</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for profile in data.profiles %}
-                    <tr>
-                        <td>Профіль {{ profile.length }} м ({{ data.form_data.profile_material }})</td>
-                        <td><input type="number" name="K11_{{ profile.length }}" value="{{ profile.count }}"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z4_{{ profile.length }}" value="0"></td>
-                        <td><input type="number" name="K12_{{ profile.length }}" value="0"></td>
-                        <td><input type="number" name="K13_{{ profile.length }}" value="0"></td>
-                    </tr>
-                    {% endfor %}
-                    <tr>
-                        <td>Бокові Г-образні зажими ({{ data.form_data.panel_height }} мм)</td>
-                        <td><input type="number" name="K21" value="{{ data.g_clamps}}"></td>
-                        <td>компл</td>
-                        <td><input type="number" name="Z5" value="0"></td>
-                        <td><input type="number" name="K22" value="0"></td>
-                        <td><input type="number" name="K23" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Міжпанельні V-образні зажими ({{ data.form_data.panel_height }} мм)</td>
-                        <td><input type="number" name="K31" value="{{ data.v_clamps }}"></td>
-                        <td>компл</td>
-                        <td><input type="number" name="Z6" value="0"></td>
-                        <td><input type="number" name="K32" value="0"></td>
-                        <td><input type="number" name="K33" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Гвинт шуруп М10*200 комплект ({{ data.form_data.screw_material }})</td>
-                        <td><input type="number" name="K41" value="{{ data.m_sh }}"></td>
-                        <td>компл</td>
-                        <td><input type="number" name="Z7" value="0"></td>
-                        <td><input type="number" name="K42" value="0"></td>
-                        <td><input type="number" name="K43" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Комплект з'єднувача профілів (ЗОВНІШНІЙ)</td>
-                        <td><input type="number" name="K51" value="{{ data.front_connectors }}"></td>
-                        <td>компл</td>
-                        <td><input type="number" name="Z8" value="0"></td>
-                        <td><input type="number" name="K52" value="0"></td>
-                        <td><input type="number" name="K53" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Конектори МС4</td>
-                        <td><input type="number" name="K61" value="{{ data.connectors }}"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z9" value="0"></td>
-                        <td><input type="number" name="K62" value="0"></td>
-                        <td><input type="number" name="K63" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Кабель</td>
-                        <td><input type="number" name="K71" value="0"></td>
-                        <td>м</td>
-                        <td><input type="number" name="Z10" value="0"></td>
-                        <td><input type="number" name="K72" value="0"></td>
-                        <td><input type="number" name="K73" value="0"></td>
-                    </tr>
-                    {% if data.form_data.batteryIsStand8 == 'Так' %}
-                    <tr>
-                        <td>Стійка 8</td>
-                        <td><input type="number" name="K81" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z31" value="0"></td>
-                        <td><input type="number" name="K82" value="0"></td>
-                        <td><input type="number" name="K83" value="0"></td>
-                    </tr>
-                    {% endif %}
-                    {% if data.form_data.batteryIsStand12 == 'Так' %}
-                    <tr>
-                        <td>Стійка 12</td>
-                        <td><input type="number" name="K91" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z32" value="0"></td>
-                        <td><input type="number" name="K92" value="0"></td>
-                        <td><input type="number" name="K93" value="0"></td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-            <button type="button" class="add-row-btn" data-table="mounting" data-prefix="K" data-z-start="16">+</button>
-            <div class="table-summary">
-                <p>Сума кріплення:<span id="mounting-sum">0</span>грн</p>
+            <div id="mounting-section">
+                <h2><i class="fas fa-wrench"></i> КРІПЛЕННЯ</h2>
+                <table id="mounting-table">
+                    <thead>
+                        <tr>
+                            <th>Назва</th>
+                            <th>Кількість</th>
+                            <th>Одиниця виміру</th>
+                            <th>Закупка</th>
+                            <th>Ціна</th>
+                            <th>Сума</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for profile in data.profiles %}
+                        <tr>
+                            <td>Профіль {{ profile.length }} м ({{ data.form_data.profile_material }})</td>
+                            <td><input type="number" name="K11_{{ profile.length }}" value="{{ profile.count }}"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z4_{{ profile.length }}" value="0"></td>
+                            <td><input type="number" name="K12_{{ profile.length }}" value="0"></td>
+                            <td><input type="number" name="K13_{{ profile.length }}" value="0"></td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>Бокові Г-образні зажими ({{ data.form_data.panel_height }} мм)</td>
+                            <td><input type="number" name="K21" value="{{ data.g_clamps}}"></td>
+                            <td>компл</td>
+                            <td><input type="number" name="Z5" value="0"></td>
+                            <td><input type="number" name="K22" value="0"></td>
+                            <td><input type="number" name="K23" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Міжпанельні V-образні зажими ({{ data.form_data.panel_height }} мм)</td>
+                            <td><input type="number" name="K31" value="{{ data.v_clamps }}"></td>
+                            <td>компл</td>
+                            <td><input type="number" name="Z6" value="0"></td>
+                            <td><input type="number" name="K32" value="0"></td>
+                            <td><input type="number" name="K33" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Гвинт шуруп М10*200 комплект ({{ data.form_data.screw_material }})</td>
+                            <td><input type="number" name="K41" value="{{ data.m_sh }}"></td>
+                            <td>компл</td>
+                            <td><input type="number" name="Z7" value="0"></td>
+                            <td><input type="number" name="K42" value="0"></td>
+                            <td><input type="number" name="K43" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Комплект з'єднувача профілів (ЗОВНІШНІЙ)</td>
+                            <td><input type="number" name="K51" value="{{ data.front_connectors }}"></td>
+                            <td>компл</td>
+                            <td><input type="number" name="Z8" value="0"></td>
+                            <td><input type="number" name="K52" value="0"></td>
+                            <td><input type="number" name="K53" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Конектори МС4</td>
+                            <td><input type="number" name="K61" value="{{ data.connectors }}"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z9" value="0"></td>
+                            <td><input type="number" name="K62" value="0"></td>
+                            <td><input type="number" name="K63" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Кабель</td>
+                            <td><input type="number" name="K71" value="0"></td>
+                            <td>м</td>
+                            <td><input type="number" name="Z10" value="0"></td>
+                            <td><input type="number" name="K72" value="0"></td>
+                            <td><input type="number" name="K73" value="0"></td>
+                        </tr>
+                        {% if data.form_data.batteryIsStand8 == 'Так' %}
+                        <tr>
+                            <td>Стійка 8</td>
+                            <td><input type="number" name="K81" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z31" value="0"></td>
+                            <td><input type="number" name="K82" value="0"></td>
+                            <td><input type="number" name="K83" value="0"></td>
+                        </tr>
+                        {% endif %}
+                        {% if data.form_data.batteryIsStand12 == 'Так' %}
+                        <tr>
+                            <td>Стійка 12</td>
+                            <td><input type="number" name="K91" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z32" value="0"></td>
+                            <td><input type="number" name="K92" value="0"></td>
+                            <td><input type="number" name="K93" value="0"></td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                <button type="button" class="add-row-btn" data-table="mounting" data-prefix="K" data-z-start="16">+</button>
+                <div class="table-summary">
+                    <p>Сума кріплення:<span id="mounting-sum">0</span>грн</p>
+                </div>
             </div>
 
-            <h2><i class="fas fa-bolt"></i> ЕЛЕКТРИКА</h2>
-            <table id="electricity-table">
-                <thead>
-                    <tr>
-                        <th>Назва</th>
-                        <th>Кількість</th>
-                        <th>Одиниця виміру</th>
-                        <th>Закупка</th>
-                        <th>Ціна</th>
-                        <th>Сума</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Коробки з автоматами</td>
-                        <td><input type="number" name="E11" value="0"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z11" value="0"></td>
-                        <td><input type="number" name="E12" value="0"></td>
-                        <td><input type="number" name="E13" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Блискавкозахист</td>
-                        <td><input type="number" name="E21" value="0"></td>
-                        <td>шт</td>
-                        <td><input type="number" name="Z12" value="0"></td>
-                        <td><input type="number" name="E22" value="0"></td>
-                        <td><input type="number" name="E23" value="0"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button type="button" class="add-row-btn" data-table="electricity" data-prefix="E" data-z-start="20">+</button>
-            <div class="table-summary">
-                <p>Сума електрики:<span id="electricity-sum">0</span>грн</p>
+            <div id="electricity-section">
+                <h2><i class="fas fa-bolt"></i> ЕЛЕКТРИКА</h2>
+                <table id="electricity-table">
+                    <thead>
+                        <tr>
+                            <th>Назва</th>
+                            <th>Кількість</th>
+                            <th>Одиниця виміру</th>
+                            <th>Закупка</th>
+                            <th>Ціна</th>
+                            <th>Сума</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Коробки з автоматами</td>
+                            <td><input type="number" name="E11" value="0"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z11" value="0"></td>
+                            <td><input type="number" name="E12" value="0"></td>
+                            <td><input type="number" name="E13" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Блискавкозахист</td>
+                            <td><input type="number" name="E21" value="0"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z12" value="0"></td>
+                            <td><input type="number" name="E22" value="0"></td>
+                            <td><input type="number" name="E23" value="0"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="add-row-btn" data-table="electricity" data-prefix="E" data-z-start="20">+</button>
+                <div class="table-summary">
+                    <p>Сума електрики:<span id="electricity-sum">0</span>грн</p>
+                </div>
             </div>
 
-            <h2><i class="fas fa-hard-hat"></i> РОБОТА</h2>
-            <table id="work-table">
-                <thead>
-                    <tr>
-                        <th>Назва</th>
-                        <th>Кількість</th>
-                        <th>Одиниця виміру</th>
-                        <th>Закупка</th>
-                        <th>Ціна</th>
-                        <th>Сума</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Доставка</td>
-                        <td><input type="number" name="R11" value="0"></td>
-                        <td>послуга</td>
-                        <td><input type="number" name="Z13" value="0"></td>
-                        <td><input type="number" name="R12" value="0"></td>
-                        <td><input type="number" name="R13" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Роботи електрика</td>
-                        <td><input type="number" name="R21" value="0"></td>
-                        <td>послуга</td>
-                        <td><input type="number" name="Z14" value="0"></td>
-                        <td><input type="number" name="R22" value="0"></td>
-                        <td><input type="number" name="R23" value="0"></td>
-                    </tr>
-                    <tr>
-                        <td>Монтаж</td>
-                        <td><input type="number" name="R31" value="0"></td>
-                        <td>послуга</td>
-                        <td><input type="number" name="Z15" value="0"></td>
-                        <td><input type="number" name="R32" value="0"></td>
-                        <td><input type="number" name="R33" value="0"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <button type="button" class="add-row-btn" data-table="work" data-prefix="R" data-z-start="25">+</button>
-            <div class="table-summary">
-                <p>Сума роботи:<span id="work-sum">0</span>грн</p>
+            <div id="work-section">
+                <h2><i class="fas fa-hard-hat"></i> РОБОТА</h2>
+                <table id="work-table">
+                    <thead>
+                        <tr>
+                            <th>Назва</th>
+                            <th>Кількість</th>
+                            <th>Одиниця виміру</th>
+                            <th>Закупка</th>
+                            <th>Ціна</th>
+                            <th>Сума</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Доставка</td>
+                            <td><input type="number" name="R11" value="0"></td>
+                            <td>послуга</td>
+                            <td><input type="number" name="Z13" value="0"></td>
+                            <td><input type="number" name="R12" value="0"></td>
+                            <td><input type="number" name="R13" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Роботи електрика</td>
+                            <td><input type="number" name="R21" value="0"></td>
+                            <td>послуга</td>
+                            <td><input type="number" name="Z14" value="0"></td>
+                            <td><input type="number" name="R22" value="0"></td>
+                            <td><input type="number" name="R23" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Монтаж</td>
+                            <td><input type="number" name="R31" value="0"></td>
+                            <td>послуга</td>
+                            <td><input type="number" name="Z15" value="0"></td>
+                            <td><input type="number" name="R32" value="0"></td>
+                            <td><input type="number" name="R33" value="0"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="add-row-btn" data-table="work" data-prefix="R" data-z-start="25">+</button>
+                <div class="table-summary">
+                    <p>Сума роботи:<span id="work-sum">0</span>грн</p>
+                </div>
             </div>
 
             <div class="summary-container">
@@ -1246,6 +1276,18 @@
             toggleBtn.querySelector('i').classList.remove('fa-chevron-up');
             toggleBtn.querySelector('i').classList.add('fa-chevron-down');
             toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Показати параметри';
+        }
+    }
+
+    // Функція для перемикання відображення таблиць
+    function toggleTableSection(sectionId) {
+        const section = document.getElementById(sectionId + '-section');
+        const checkbox = document.getElementById('show-' + sectionId);
+        
+        if (checkbox.checked) {
+            section.style.display = 'block';
+        } else {
+            section.style.display = 'none';
         }
     }
 
