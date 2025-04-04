@@ -896,16 +896,16 @@
         inputs.forEach(input => {
             const name = input.name;
             
-            // Перевіряємо, чи це інпут для кількості (закінчується на 1 або містить "1_")
-            if (name.endsWith('1') || name.includes('1_')) {
+            // Перевіряємо, чи це інпут для кількості (3-й символ == 1)
+            if (name.length >= 3 && name.charAt(2) === '1' && !name.startsWith('Z')) {
                 quantityInput = input;
             }
-            // Перевіряємо, чи це інпут для ціни (закінчується на 2 або містить "2_")
-            else if (name.endsWith('2') || name.includes('2_')) {
+            // Перевіряємо, чи це інпут для ціни (3-й символ == 2)
+            else if (name.length >= 3 && name.charAt(2) === '2' && !name.startsWith('Z')) {
                 priceInput = input;
             }
-            // Перевіряємо, чи це інпут для суми (закінчується на 3 або містить "3_")
-            else if (name.endsWith('3') || name.includes('3_')) {
+            // Перевіряємо, чи це інпут для суми (3-й символ == 3)
+            else if (name.length >= 3 && name.charAt(2) === '3' && !name.startsWith('Z')) {
                 sumInput = input;
             }
         });
@@ -917,7 +917,10 @@
             const sum = quantity * price;
             
             sumInput.value = sum.toFixed(2);
+            return sum; // Повертаємо значення суми для використання в інших функціях
         }
+        
+        return 0; // Повертаємо 0, якщо не вдалося обчислити суму
     }
     
     // Функція для обчислення закупки в рядку
@@ -933,8 +936,8 @@
         inputs.forEach(input => {
             const name = input.name;
             
-            // Перевіряємо, чи це інпут для кількості (закінчується на 1 або містить "1_")
-            if (name.endsWith('1') || name.includes('1_')) {
+            // Перевіряємо, чи це інпут для кількості (3-й символ == 1)
+            if (name.length >= 3 && name.charAt(2) === '1' && !name.startsWith('Z')) {
                 quantityInput = input;
             }
             // Перевіряємо, чи це інпут для закупки (починається з "Z")
@@ -946,8 +949,10 @@
         // Якщо знайдені всі потрібні інпути, обчислюємо закупку
         if (quantityInput && purchaseInput) {
             const quantity = parseFloat(quantityInput.value) || 0;
-            const purchase = parseFloat(purchaseInput.value) || 0;
-            return quantity * purchase;
+            const purchasePrice = parseFloat(purchaseInput.value) || 0;
+            const totalPurchase = quantity * purchasePrice;
+            
+            return totalPurchase; // Повертаємо загальну вартість закупки
         }
         
         return 0;
@@ -976,29 +981,13 @@
             // Проходимо по всіх рядках таблиці
             const rows = table.querySelectorAll('tbody tr');
             rows.forEach(row => {
-                // Обчислюємо суму для рядка
-                calculateRowSum(row);
+                // Обчислюємо суму для рядка і додаємо до загальної суми
+                const rowSum = calculateRowSum(row);
+                totalSum += rowSum;
                 
-                // Знаходимо інпут для суми
-                const sumInputs = row.querySelectorAll('input[type="number"]');
-                let sumInput = null;
-                
-                // Визначаємо інпут для суми за атрибутом name
-                sumInputs.forEach(input => {
-                    const name = input.name;
-                    if (name.endsWith('3') || name.includes('3_')) {
-                        sumInput = input;
-                    }
-                });
-                
-                // Додаємо суму та закупку до загальних сум
-                if (sumInput) {
-                    const rowSum = parseFloat(sumInput.value) || 0;
-                    const rowPurchase = calculatePurchase(row);
-                    
-                    if (!isNaN(rowSum)) totalSum += rowSum;
-                    if (!isNaN(rowPurchase)) totalPurchase += rowPurchase;
-                }
+                // Обчислюємо закупку для рядка і додаємо до загальної закупки
+                const rowPurchase = calculatePurchase(row);
+                totalPurchase += rowPurchase;
             });
         });
         
@@ -1007,6 +996,7 @@
         
         // Виводимо у консоль для перевірки
         console.log('Загальна сума (грн):', totalSum);
+        console.log('Загальна закупка (грн):', totalPurchase);
         console.log('Сума в доларах:', totalUsdValue);
         
         // Оновлюємо відображення загальних сум
