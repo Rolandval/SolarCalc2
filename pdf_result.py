@@ -60,6 +60,15 @@ def generate(
         profile_material: str = 'алюміній',
         current_date: str = '',  # Додаємо поточну дату
         show_usd: bool = True,  # Додаємо параметр для відображення суми в доларах
+        panel_model_name: str = '',  # Додаємо назву моделі панелі
+        panel_length: int = 0,  # Додаємо довжину панелі
+        panel_width: int = 0,  # Додаємо ширину панелі
+        panel_arrangement: str = '',  # Додаємо розташування панелі
+        panel_type: str = '',  # Додаємо тип панелі
+        panel_arrays: list = [],  # Додаємо дані про масиви панелей
+        total_panels: int = 0,  # Додаємо загальну кількість панелей
+        total_rows: int = 0,  # Додаємо загальну кількість рядів
+        avg_panels_per_row: float = 0  # Додаємо середню кількість панелей в ряді
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
