@@ -927,7 +927,7 @@
                         <tr>
                             <td>Доставка</td>
                             <td><input type="number" name="R11" value="0"></td>
-                            <td>послуга</td>
+                            <td>км</td>
                             <td><input type="number" name="Z13" value="0"></td>
                             <td><input type="number" name="R12" value="0"></td>
                             <td><input type="number" name="R13" value="0"></td>
@@ -1111,7 +1111,9 @@
                 sum = quantity * price;
             }
             
+            // Встановлюємо обчислену суму в інпут суми
             sumInput.value = sum.toFixed(2);
+            
             return sum; // Повертаємо значення суми для використання в інших функціях
         }
         
@@ -1165,14 +1167,8 @@
             
             let totalPurchase = 0;
             
-            if (isProfileRow) {
-                // Для профілю: кількість * закупка * метри
-                totalPurchase = quantity * purchasePrice * profileLength;
-                console.log('Закупка профілю, Довжина:', profileLength, 'Кількість:', quantity, 'Закупка:', purchasePrice, 'Загальна закупка:', totalPurchase);
-            } else {
-                // Для інших рядків: кількість * закупка
-                totalPurchase = quantity * purchasePrice;
-            }
+            // Для всіх рядків: кількість * закупка
+            totalPurchase = quantity * purchasePrice;
             
             return totalPurchase; // Повертаємо загальну вартість закупки
         }
