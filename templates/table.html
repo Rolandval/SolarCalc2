@@ -439,6 +439,22 @@
         .datasheet-btn-small:hover {
             color: var(--primary-dark);
         }
+        
+        .table-summary {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: var(--light-gray);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .table-summary p {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
@@ -651,6 +667,9 @@
                 </tbody>
             </table>
             <button type="button" class="add-row-btn" data-table="equipment" data-prefix="O" data-z-start="4">+</button>
+            <div class="table-summary">
+                <p>Сума обладнання:<span id="equipment-sum">0</span>грн</p>
+            </div>
 
             <h2><i class="fas fa-wrench"></i> КРІПЛЕННЯ</h2>
             <table id="mounting-table">
@@ -746,6 +765,9 @@
                 </tbody>
             </table>
             <button type="button" class="add-row-btn" data-table="mounting" data-prefix="K" data-z-start="16">+</button>
+            <div class="table-summary">
+                <p>Сума кріплення:<span id="mounting-sum">0</span>грн</p>
+            </div>
 
             <h2><i class="fas fa-bolt"></i> ЕЛЕКТРИКА</h2>
             <table id="electricity-table">
@@ -779,6 +801,9 @@
                 </tbody>
             </table>
             <button type="button" class="add-row-btn" data-table="electricity" data-prefix="E" data-z-start="20">+</button>
+            <div class="table-summary">
+                <p>Сума електрики:<span id="electricity-sum">0</span>грн</p>
+            </div>
 
             <h2><i class="fas fa-hard-hat"></i> РОБОТА</h2>
             <table id="work-table">
@@ -820,6 +845,9 @@
                 </tbody>
             </table>
             <button type="button" class="add-row-btn" data-table="work" data-prefix="R" data-z-start="25">+</button>
+            <div class="table-summary">
+                <p>Сума роботи:<span id="work-sum">0</span>грн</p>
+            </div>
 
             <div class="summary-container">
                 <h3 style="margin-bottom: 1rem; color: var(--primary-dark);"><i class="fas fa-calculator"></i> Підсумок</h3>
@@ -975,6 +1003,14 @@
         let totalSum = 0;
         let totalPurchase = 0;
         
+        // Створюємо об'єкт для зберігання сум по кожній таблиці
+        let tableSums = {
+            'equipment': 0,
+            'mounting': 0,
+            'electricity': 0,
+            'work': 0
+        };
+        
         // Отримуємо курс долара більш надійним способом
         // Спочатку спробуємо отримати з прихованого поля, яке має точне значення
         let usdRate = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.'));
@@ -996,7 +1032,9 @@
         
         // Проходимо по всіх таблицях
         const tables = ['equipment-table', 'mounting-table', 'electricity-table', 'work-table'];
-        tables.forEach(tableId => {
+        const tableIds = ['equipment', 'mounting', 'electricity', 'work'];
+        
+        tables.forEach((tableId, index) => {
             const table = document.getElementById(tableId);
             if (!table) return;
             
@@ -1007,10 +1045,16 @@
                 const rowSum = calculateRowSum(row);
                 totalSum += rowSum;
                 
+                // Додаємо суму рядка до суми відповідної таблиці
+                tableSums[tableIds[index]] += rowSum;
+                
                 // Обчислюємо закупку для рядка і додаємо до загальної закупки
                 const rowPurchase = calculatePurchase(row);
                 totalPurchase += rowPurchase;
             });
+            
+            // Оновлюємо відображення суми для поточної таблиці
+            document.getElementById(tableIds[index] + '-sum').textContent = tableSums[tableIds[index]].toFixed(2);
         });
         
         // Обчислюємо прибуток
@@ -1024,6 +1068,9 @@
         console.log('Загальна закупка (грн):', totalPurchase);
         console.log('Прибуток (грн):', profit);
         console.log('Сума в доларах (без закупки):', totalUsdValue);
+        
+        // Виводимо у консоль суми по кожній таблиці
+        console.log('Суми по таблицях:', tableSums);
         
         // Оновлюємо відображення загальних сум
         document.getElementById('total-purchase').textContent = totalPurchase.toFixed(2);
