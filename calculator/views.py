@@ -178,7 +178,7 @@ def calculate(request):
             if panel_type == '':
                 return JsonResponse({'success': False, 'error': 'Необхідно вибрати тип панелі'})
             available_lengths = [float(x.strip()) for x in data['profile_lengths'].split(',')]
-            strings = int(data.get('strings', 0))
+            strings = int(data.get('string_count', 0))
 
             profil_len = 0
             if panel_arrangement == 'альбомна':
@@ -208,10 +208,10 @@ def calculate(request):
 
             connectors = 0
 
-            if panel_type == 'альбомна':
-                connectors = (strings * 2) + 1
-            elif panel_type == 'портретна':
-                connectors = ((strings * 2) + 1) + rows
+            if panel_arrangement == 'альбомна':
+                connectors += (strings * 2) + 1
+            elif panel_arrangement == 'портретна':
+                connectors += ((strings * 2) + 1) + rows
 
             # Генеруємо схему
             scheme_image = generate_panel_scheme(
@@ -262,7 +262,7 @@ def calculate(request):
                         'panels_per_row': panels_per_row,
                         'total_panels': total_panels,
                         'profile_lengths': data.get('profile_lengths', ''),
-                        'string_count': data.get('string_count', ''),
+                        'string_count': data.get('string_count', ''),  
                         'screw_material': data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
                         'profile_material': data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
                         # Додаткові параметри (необов'язкові)
