@@ -1,0 +1,503 @@
+// Функція для обчислення суми в рядку
+function calculateRowSum(row) {
+    // Знаходимо всі інпути в рядку
+    const inputs = row.querySelectorAll('input[type="number"]');
+    
+    // Знаходимо інпути для кількості, ціни та суми
+    let quantityInput = null;
+    let priceInput = null;
+    let sumInput = null;
+    let isProfileRow = false;
+    let profileLength = 1;
+    
+    // Визначаємо інпути за їх атрибутами name
+    inputs.forEach(input => {
+        const name = input.name;
+        
+        // Перевіряємо, чи це інпут для кількості профілю (починається з K11_)
+        if (name.startsWith('K11_')) {
+            isProfileRow = true;
+            // Витягуємо довжину профілю з імені інпута (K11_3 -> 3)
+            const lengthMatch = name.match(/K11_(\d+\.?\d*)/);
+            if (lengthMatch) {
+                profileLength = parseFloat(lengthMatch[1]) || 1;
+            }
+            quantityInput = input;
+        }
+        // Перевіряємо, чи це інпут для кількості (3-й символ == 1)
+        else if (name.length >= 3 && name.charAt(2) === '1' && !name.startsWith('Z')) {
+            quantityInput = input;
+        }
+        
+        // Перевіряємо, чи це інпут для ціни профілю (починається з K12_)
+        if (name.startsWith('K12_')) {
+            priceInput = input;
+        }
+        // Перевіряємо, чи це інпут для ціни (3-й символ == 2)
+        else if (name.length >= 3 && name.charAt(2) === '2' && !name.startsWith('Z')) {
+            priceInput = input;
+        }
+        
+        // Перевіряємо, чи це інпут для суми профілю (починається з K13_)
+        if (name.startsWith('K13_')) {
+            sumInput = input;
+        }
+        // Перевіряємо, чи це інпут для суми (3-й символ == 3)
+        else if (name.length >= 3 && name.charAt(2) === '3' && !name.startsWith('Z')) {
+            sumInput = input;
+        }
+    });
+    
+    // Якщо знайдені всі потрібні інпути, обчислюємо суму
+    if (quantityInput && priceInput && sumInput) {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        
+        let sum = 0;
+        
+        if (isProfileRow) {
+            // Для профілю: кількість * ціна * метри
+            sum = quantity * price * profileLength;
+            console.log('Профіль, Довжина:', profileLength, 'Кількість:', quantity, 'Ціна:', price, 'Сума:', sum);
+        } else {
+            // Для інших рядків: кількість * ціна
+            sum = quantity * price;
+        }
+        
+        // Встановлюємо обчислену суму в інпут суми
+        sumInput.value = sum.toFixed(2);
+        
+        return sum; // Повертаємо значення суми для використання в інших функціях
+    }
+    
+    return 0; // Повертаємо 0, якщо не вдалося обчислити суму
+}
+
+// Функція для обчислення закупки в рядку
+function calculatePurchase(row) {
+    // Знаходимо всі інпути в рядку
+    const inputs = row.querySelectorAll('input[type="number"]');
+    
+    // Знаходимо інпути для кількості та закупки
+    let quantityInput = null;
+    let purchaseInput = null;
+    let isProfileRow = false;
+    let profileLength = 1;
+    
+    // Визначаємо інпути за їх атрибутами name
+    inputs.forEach(input => {
+        const name = input.name;
+        
+        // Перевіряємо, чи це інпут для кількості профілю (починається з K11_)
+        if (name.startsWith('K11_')) {
+            isProfileRow = true;
+            // Витягуємо довжину профілю з імені інпута (K11_3 -> 3)
+            const lengthMatch = name.match(/K11_(\d+\.?\d*)/);
+            if (lengthMatch) {
+                profileLength = parseFloat(lengthMatch[1]) || 1;
+            }
+            quantityInput = input;
+        }
+        // Перевіряємо, чи це інпут для кількості (3-й символ == 1)
+        else if (name.length >= 3 && name.charAt(2) === '1' && !name.startsWith('Z')) {
+            quantityInput = input;
+        }
+        
+        // Перевіряємо, чи це інпут для закупки профілю (починається з Z4_)
+        if (name.startsWith('Z4_')) {
+            purchaseInput = input;
+        }
+        // Перевіряємо, чи це інпут для закупки (починається з "Z")
+        else if (name.startsWith('Z')) {
+            purchaseInput = input;
+        }
+    });
+    
+    // Якщо знайдені всі потрібні інпути, обчислюємо закупку
+    if (quantityInput && purchaseInput) {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const purchasePrice = parseFloat(purchaseInput.value) || 0;
+        
+        let totalPurchase = 0;
+        
+        // Для всіх рядків: кількість * закупка
+        totalPurchase = quantity * purchasePrice;
+        
+        return totalPurchase; // Повертаємо загальну вартість закупки
+    }
+    
+    return 0;
+}
+
+// Функція для обчислення загальної суми та закупки
+function calculateTotal() {
+    let totalSum = 0;
+    let totalPurchase = 0;
+    
+    // Створюємо об'єкт для зберігання сум по кожній таблиці
+    let tableSums = {
+        'equipment': 0,
+        'mounting': 0,
+        'electricity': 0,
+        'work': 0
+    };
+    
+    // Отримуємо курс долара з поля вводу
+    let usdRate = parseFloat(document.getElementById('usd-rate-input').value.replace(',', '.'));
+    
+    // Якщо не вдалося отримати з поля вводу, використовуємо значення за замовчуванням
+    if (isNaN(usdRate) || usdRate <= 0) {
+        usdRate = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.')) || 42.5;
+        // Встановлюємо коректне значення в поле вводу
+        document.getElementById('usd-rate-input').value = usdRate.toFixed(2);
+    }
+    
+    // Оновлюємо приховане поле з курсом долара для PDF-звіту
+    document.getElementById('hidden-usd-rate').value = usdRate.toFixed(2);
+    
+    // Виводимо у консоль для перевірки
+    console.log('Курс долара (число):', usdRate);
+    
+    // Проходимо по всіх таблицях
+    const tables = ['equipment-table', 'mounting-table', 'electricity-table', 'work-table'];
+    const tableIds = ['equipment', 'mounting', 'electricity', 'work'];
+    
+    tables.forEach((tableId, index) => {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        
+        // Проходимо по всіх рядках таблиці
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            // Обчислюємо суму для рядка і додаємо до загальної суми
+            const rowSum = calculateRowSum(row);
+            totalSum += rowSum;
+            
+            // Додаємо суму рядка до суми відповідної таблиці
+            tableSums[tableIds[index]] += rowSum;
+            
+            // Обчислюємо закупку для рядка і додаємо до загальної закупки
+            const rowPurchase = calculatePurchase(row);
+            totalPurchase += rowPurchase;
+        });
+        
+        // Оновлюємо відображення суми для поточної таблиці
+        document.getElementById(tableIds[index] + '-sum').textContent = tableSums[tableIds[index]].toFixed(2);
+    });
+    
+    // Обчислюємо прибуток
+    const profit = totalSum - totalPurchase;
+    
+    // Розраховуємо суму в доларах (лише загальна сума без закупки)
+    const totalUsdValue = totalSum / usdRate;
+    
+    // Виводимо у консоль для перевірки
+    console.log('Загальна сума (грн):', totalSum);
+    console.log('Загальна закупка (грн):', totalPurchase);
+    console.log('Прибуток (грн):', profit);
+    console.log('Сума в доларах (без закупки):', totalUsdValue);
+    
+    // Виводимо у консоль суми по кожній таблиці
+    console.log('Суми по таблицях:', tableSums);
+    
+    // Оновлюємо відображення загальних сум
+    document.getElementById('total-purchase').textContent = totalPurchase.toFixed(2);
+    document.getElementById('total-sum').textContent = totalSum.toFixed(2);
+    
+    // Оновлюємо відображення прибутку з перевіркою на від'ємне значення
+    const profitElement = document.getElementById('profit');
+    profitElement.textContent = profit.toFixed(2);
+    
+    // Змінюємо колір прибутку залежно від значення
+    if (profit < 0) {
+        profitElement.style.color = 'red'; // Червоний колір для від'ємного прибутку
+    } else {
+        profitElement.style.color = 'var(--secondary-color)'; // Зелений колір для додатного прибутку
+    }
+    
+    document.getElementById('total-usd').textContent = totalUsdValue.toFixed(2);
+    document.getElementById('hidden-total-usd').value = totalUsdValue.toFixed(2);
+    
+    // Виводимо у консоль значення прихованого інпута
+    console.log('Значення прихованого інпута з сумою в доларах:', document.getElementById('hidden-total-usd').value);
+}
+
+// Функція для додавання нових рядків
+function addNewRow(tableId, prefix, zIndex) {
+    const table = document.getElementById(tableId + '-table');
+    const tbody = table.querySelector('tbody');
+    const rowCount = tbody.querySelectorAll('tr').length + 1;
+    
+    // Створюємо новий рядок
+    const newRow = document.createElement('tr');
+    
+    // Додаємо комірку для назви
+    const nameCell = document.createElement('td');
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.name = prefix + rowCount + '0'; // Додаємо поле для назви
+    nameInput.placeholder = 'Назва';
+    nameInput.style.fontFamily = "'Montserrat', sans-serif";
+    nameInput.style.fontSize = '0.95rem';
+    nameCell.appendChild(nameInput);
+    
+    // Додаємо комірку для кількості
+    const quantityCell = document.createElement('td');
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'number';
+    quantityInput.name = prefix + rowCount + '1';
+    quantityInput.value = '0';
+    quantityInput.addEventListener('input', calculateTotal);
+    quantityCell.appendChild(quantityInput);
+    
+    // Додаємо комірку для одиниці виміру
+    const unitCell = document.createElement('td');
+    const unitSelect = document.createElement('select');
+    unitSelect.name = prefix + rowCount + 'unit';
+    unitSelect.style.fontFamily = "'Montserrat', sans-serif";
+    unitSelect.style.fontSize = '1rem';
+    
+    const units = ['шт', 'м', 'компл', 'послуга'];
+    units.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit;
+        option.textContent = unit;
+        unitSelect.appendChild(option);
+    });
+    
+    unitCell.appendChild(unitSelect);
+    
+    // Додаємо комірку для закупки
+    const purchaseCell = document.createElement('td');
+    const purchaseInput = document.createElement('input');
+    purchaseInput.type = 'number';
+    purchaseInput.name = 'Z' + zIndex;
+    purchaseInput.value = '0';
+    purchaseInput.addEventListener('input', calculateTotal);
+    purchaseCell.appendChild(purchaseInput);
+    
+    // Додаємо комірку для ціни
+    const priceCell = document.createElement('td');
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.name = prefix + rowCount + '2';
+    priceInput.value = '0';
+    priceInput.addEventListener('input', calculateTotal);
+    priceCell.appendChild(priceInput);
+    
+    // Додаємо комірку для суми
+    const sumCell = document.createElement('td');
+    const sumInput = document.createElement('input');
+    sumInput.type = 'number';
+    sumInput.name = prefix + rowCount + '3';
+    sumInput.value = '0';
+    sumInput.readOnly = true;
+    
+    // Створюємо контейнер для суми та кнопки видалення
+    const rowActions = document.createElement('div');
+    rowActions.className = 'row-actions';
+    
+    // Додаємо поле суми
+    rowActions.appendChild(sumInput);
+    
+    // Створюємо кнопку видалення
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'delete-row-btn';
+    deleteBtn.innerHTML = '<i class="fas fa-minus"></i>';
+    deleteBtn.title = 'Видалити рядок';
+    
+    // Додаємо обробник події для кнопки видалення
+    deleteBtn.addEventListener('click', function() {
+        // Видаляємо рядок з таблиці
+        newRow.remove();
+        // Перераховуємо загальну суму
+        calculateTotal();
+    });
+    
+    // Додаємо кнопку видалення до контейнера
+    rowActions.appendChild(deleteBtn);
+    
+    // Додаємо контейнер до комірки суми
+    sumCell.appendChild(rowActions);
+    
+    // Додаємо всі комірки до рядка
+    newRow.appendChild(nameCell);
+    newRow.appendChild(quantityCell);
+    newRow.appendChild(unitCell);
+    newRow.appendChild(purchaseCell);
+    newRow.appendChild(priceCell);
+    newRow.appendChild(sumCell);
+    
+    // Додаємо рядок до таблиці
+    tbody.appendChild(newRow);
+    
+    // Оновлюємо значення data-z-start для кнопки
+    const button = document.querySelector(`button[data-table="${tableId}"]`);
+    button.dataset.zStart = parseInt(zIndex) + 1;
+    
+    // Перераховуємо загальну суму
+    calculateTotal();
+}
+
+// Функція для додавання кнопки видалення до існуючого рядка
+function addDeleteButtonToRow(row) {
+    const sumCell = row.querySelector('td:last-child');
+    const sumInput = sumCell.querySelector('input[type="number"]');
+    
+    // Якщо кнопка видалення вже є, не додаємо нову
+    if (sumCell.querySelector('.delete-row-btn')) {
+        return;
+    }
+    
+    // Якщо sumInput вже в контейнері row-actions, не створюємо новий
+    if (sumCell.querySelector('.row-actions')) {
+        const rowActions = sumCell.querySelector('.row-actions');
+        
+        // Створюємо кнопку видалення
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'delete-row-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-minus"></i>';
+        deleteBtn.title = 'Видалити рядок';
+        
+        // Додаємо обробник події для кнопки видалення
+        deleteBtn.addEventListener('click', function() {
+            // Видаляємо рядок з таблиці
+            row.remove();
+            // Перераховуємо загальну суму
+            calculateTotal();
+        });
+        
+        // Додаємо кнопку видалення до контейнера
+        rowActions.appendChild(deleteBtn);
+    } else {
+        // Видаляємо sumInput з комірки
+        sumCell.removeChild(sumInput);
+        
+        // Створюємо контейнер для суми та кнопки видалення
+        const rowActions = document.createElement('div');
+        rowActions.className = 'row-actions';
+        
+        // Додаємо поле суми
+        rowActions.appendChild(sumInput);
+        
+        // Створюємо кнопку видалення
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'delete-row-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-minus"></i>';
+        deleteBtn.title = 'Видалити рядок';
+        
+        // Додаємо обробник події для кнопки видалення
+        deleteBtn.addEventListener('click', function() {
+            // Видаляємо рядок з таблиці
+            row.remove();
+            // Перераховуємо загальну суму
+            calculateTotal();
+        });
+        
+        // Додаємо кнопку видалення до контейнера
+        rowActions.appendChild(deleteBtn);
+        
+        // Додаємо контейнер до комірки суми
+        sumCell.appendChild(rowActions);
+    }
+}
+
+// Функція для перемикання відображення параметрів
+function toggleParameters() {
+    const parametersContent = document.getElementById('parameters-content');
+    const toggleBtn = document.getElementById('toggle-parameters');
+    
+    if (parametersContent.style.display === 'none') {
+        parametersContent.style.display = 'block';
+        toggleBtn.querySelector('i').classList.remove('fa-chevron-down');
+        toggleBtn.querySelector('i').classList.add('fa-chevron-up');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Сховати параметри';
+    } else {
+        parametersContent.style.display = 'none';
+        toggleBtn.querySelector('i').classList.remove('fa-chevron-up');
+        toggleBtn.querySelector('i').classList.add('fa-chevron-down');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Показати параметри';
+    }
+}
+
+// Функція для перемикання відображення таблиць
+function toggleTableSection(sectionId) {
+    const section = document.getElementById(sectionId + '-section');
+    const checkbox = document.getElementById('show-' + sectionId);
+    
+    if (checkbox.checked) {
+        section.style.display = 'block';
+    } else {
+        section.style.display = 'none';
+    }
+}
+
+// Додаємо обробники подій для всіх інпутів
+document.addEventListener('DOMContentLoaded', function() {
+    // Додаємо обробники для всіх інпутів типу number
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', function() {
+            // Знаходимо рядок, в якому знаходиться інпут
+            const row = this.closest('tr');
+            if (row) {
+                // Обчислюємо суму для рядка
+                calculateRowSum(row);
+                // Оновлюємо загальну суму
+                calculateTotal();
+            }
+        });
+    });
+
+    // Додаємо обробник події для поля вводу курсу долара
+    document.getElementById('usd-rate-input').addEventListener('input', function() {
+        // Перевіряємо, що введене значення є додатнім числом
+        let value = parseFloat(this.value.replace(',', '.'));
+        if (isNaN(value) || value <= 0) {
+            // Якщо значення некоректне, встановлюємо значення за замовчуванням
+            value = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.')) || 42.5;
+            this.value = value.toFixed(2);
+        }
+        
+        // Оновлюємо приховане поле з курсом долара для PDF-звіту
+        document.getElementById('hidden-usd-rate').value = value.toFixed(2);
+        
+        // Перераховуємо загальну суму
+        calculateTotal();
+    });
+
+    // Початкове обчислення сум
+    document.querySelectorAll('table tbody tr').forEach(row => {
+        calculateRowSum(row);
+    });
+    calculateTotal();
+    
+    // Додаємо обробники подій для кнопок додавання рядків
+    document.querySelectorAll('.add-row-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const tableId = this.dataset.table;
+            const prefix = this.dataset.prefix;
+            const zStart = parseInt(this.dataset.zStart);
+            
+            addNewRow(tableId, prefix, zStart);
+        });
+    });
+    
+    // Додаємо обробник події для кнопки очищення параметрів таблиці
+    document.getElementById('clear-table-btn').addEventListener('click', function() {
+        // Очищаємо всі інпути типу number
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.value = '0';
+        });
+        
+        // Очищаємо всі інпути типу text
+        document.querySelectorAll('input[type="text"]').forEach(input => {
+            input.value = '';
+        });
+        
+        // Перераховуємо загальну суму
+        calculateTotal();
+    });
+});
