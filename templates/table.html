@@ -1317,6 +1317,8 @@
         const unitCell = document.createElement('td');
         const unitSelect = document.createElement('select');
         unitSelect.name = prefix + rowCount + 'unit';
+        unitSelect.style.fontFamily = "'Montserrat', sans-serif";
+        unitSelect.style.fontSize = '1rem';
         
         const units = ['шт', 'м', 'компл', 'послуга'];
         units.forEach(unit => {
