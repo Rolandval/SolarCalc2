@@ -962,7 +962,11 @@
                 <p>Сума закупки разом: <span id="total-purchase">0</span></p>
                 <p>Сума разом: <span id="total-sum">0</span></p>
                 <p>Заробіток (Сума - Закупка): <span id="profit">0</span></p>
-                <p>Курс долара на {{ data.current_date }}: <span style="font-weight: 600; color: var(--primary-dark);">{{ data.usd_rate }} грн</span></p>
+                <p>Курс долара на {{ data.current_date }}: 
+                    <span style="display: flex; justify-content: flex-end; align-items: center;">
+                        <input type="number" id="usd-rate-input" value="{{ data.usd_rate }}" min="0.01" step="0.01" style="width: 80px; font-weight: 600; color: var(--primary-dark); text-align: right; margin-right: 5px;"> грн
+                    </span>
+                </p>
                 <p>Сума в доларах: <span id="total-usd">0</span></p>
                 
                 <!-- Приховані поля для передачі курсу долара та суми в доларах у PDF-звіт -->
@@ -1183,21 +1187,18 @@
             'work': 0
         };
         
-        // Отримуємо курс долара більш надійним способом
-        // Спочатку спробуємо отримати з прихованого поля, яке має точне значення
-        let usdRate = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.'));
+        // Отримуємо курс долара з поля вводу
+        let usdRate = parseFloat(document.getElementById('usd-rate-input').value.replace(',', '.'));
         
-        // Якщо не вдалося отримати з прихованого поля, спробуємо отримати з тексту
-        if (isNaN(usdRate) || usdRate === 0) {
-            const usdRateElement = document.querySelector('.summary-container p span[style*="color: var(--primary-dark)"]');
-            if (usdRateElement) {
-                const usdRateText = usdRateElement.textContent.trim();
-                usdRate = parseFloat(usdRateText.replace(',', '.')) || 42.5;
-            } else {
-                // Якщо не вдалося знайти елемент, використовуємо значення за замовчуванням
-                usdRate = 42.5;
-            }
+        // Якщо не вдалося отримати з поля вводу, використовуємо значення за замовчуванням
+        if (isNaN(usdRate) || usdRate <= 0) {
+            usdRate = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.')) || 42.5;
+            // Встановлюємо коректне значення в поле вводу
+            document.getElementById('usd-rate-input').value = usdRate.toFixed(2);
         }
+        
+        // Оновлюємо приховане поле з курсом долара для PDF-звіту
+        document.getElementById('hidden-usd-rate').value = usdRate.toFixed(2);
         
         // Виводимо у консоль для перевірки
         console.log('Курс долара (число):', usdRate);
@@ -1480,6 +1481,23 @@
                     calculateTotal();
                 }
             });
+        });
+
+        // Додаємо обробник події для поля вводу курсу долара
+        document.getElementById('usd-rate-input').addEventListener('input', function() {
+            // Перевіряємо, що введене значення є додатнім числом
+            let value = parseFloat(this.value.replace(',', '.'));
+            if (isNaN(value) || value <= 0) {
+                // Якщо значення некоректне, встановлюємо значення за замовчуванням
+                value = parseFloat(document.getElementById('hidden-usd-rate').value.replace(',', '.')) || 42.5;
+                this.value = value.toFixed(2);
+            }
+            
+            // Оновлюємо приховане поле з курсом долара для PDF-звіту
+            document.getElementById('hidden-usd-rate').value = value.toFixed(2);
+            
+            // Перераховуємо загальну суму
+            calculateTotal();
         });
 
         // Початкове обчислення сум
