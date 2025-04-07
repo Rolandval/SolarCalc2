@@ -4,13 +4,14 @@ from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 import json
 import traceback
 from django.http import HttpResponse
+from panel_scheme_report import generate_panel_scheme, save_panel_scheme
+from panel_scheme import generate_panel_schemes
 from pdf_result import generate
 from django import template
 import math
 from io import BytesIO
 import base64
 from PIL import Image, ImageDraw, ImageFont
-from panel_scheme import generate_panel_scheme, save_panel_scheme
 import os
 from .models import Panels, Inverters, Batteries
 import uuid
@@ -280,6 +281,16 @@ def calculate(request):
                 panel_arrangement, available_lengths
             )
             
+            # Генеруємо окремі схеми для кожного масиву
+            panel_schemes = generate_panel_schemes(
+                panel_length, panel_width, panel_height,
+                panel_arrays,
+                panel_arrangement, available_lengths
+            )
+            
+            # Серіалізуємо схеми панелей в JSON для передачі в PDF-звіт
+            panel_schemes_json = json.dumps(panel_schemes)
+            
             scheme_file_path = save_panel_scheme(
                 panel_length, panel_width, panel_height,
                 panel_arrays,
@@ -305,6 +316,8 @@ def calculate(request):
                     'connectors': total_connectors,
                     'scheme_image': f'data:image/png;base64,{scheme_base64}',
                     'scheme_file_path': scheme_file_path,  # Додаємо шлях до файлу схеми
+                    'panel_schemes': panel_schemes,  # Додаємо окремі схеми для кожного масиву
+                    'panel_schemes_json': panel_schemes_json,  # Додаємо серіалізовані схеми для PDF-звіту
                     'usd_rate': usd_rate,  # Додаємо курс долара
                     'panel_data': {
                         'panel_model': panel_model_name,
@@ -387,6 +400,14 @@ def generate_pdf(request):
             
             # Розрахунок середньої кількості панелей в ряді для відображення в PDF
             avg_panels_per_row = total_panels / total_rows if total_rows > 0 else 0
+            
+            # Отримуємо схеми для кожного масиву, якщо вони є
+            panel_schemes = []
+            if 'panel_schemes' in data:
+                try:
+                    panel_schemes = json.loads(data.get('panel_schemes', '[]'))
+                except json.JSONDecodeError:
+                    print("Помилка декодування panel_schemes з JSON")
             
             # Створюємо списки для K11 і K12
             K11_values = []
@@ -551,7 +572,8 @@ def generate_pdf(request):
                 panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
                 total_panels=total_panels,  # Додаємо загальну кількість панелей
                 total_rows=total_rows,  # Додаємо загальну кількість рядів
-                avg_panels_per_row=avg_panels_per_row  # Додаємо середню кількість панелей в ряді
+                avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
+                panel_schemes=panel_schemes  # Додаємо схеми для кожного масиву
             )
 
             # Нормалізуємо шлях до PDF

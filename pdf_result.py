@@ -3,6 +3,7 @@ import os
 import sys
 import shutil
 from datetime import date
+import base64
 
 # Отримуємо абсолютний шлях до директорії проекту
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -32,6 +33,46 @@ possible_font_dirs = [
     os.path.join(BASE_DIR, "fonts"),
     "/opt/render/project/src/fonts",
 ]
+
+# Створюємо власний клас PDF, який розширює FPDF і відстежує, чи додавався контент на поточну сторінку
+class CustomPDF(FPDF):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.page_has_content = False
+    
+    def add_page(self, *args, **kwargs):
+        # Перед додаванням нової сторінки перевіряємо, чи поточна сторінка має контент
+        if self.page_no() > 0 and not self.page_has_content:
+            # Якщо поточна сторінка пуста, не додаємо нову
+            return
+        
+        # Додаємо нову сторінку і скидаємо прапорець контенту
+        super().add_page(*args, **kwargs)
+        self.page_has_content = False
+    
+    # Перевизначаємо методи, які додають контент на сторінку
+    def cell(self, *args, **kwargs):
+        super().cell(*args, **kwargs)
+        self.page_has_content = True
+    
+    def multi_cell(self, *args, **kwargs):
+        super().multi_cell(*args, **kwargs)
+        self.page_has_content = True
+    
+    def text(self, *args, **kwargs):
+        super().text(*args, **kwargs)
+        self.page_has_content = True
+    
+    def image(self, *args, **kwargs):
+        super().image(*args, **kwargs)
+        self.page_has_content = True
+    
+    # Метод для перевірки, чи остання сторінка має контент
+    def check_last_page(self):
+        if self.page_no() > 0 and not self.page_has_content:
+            # Якщо остання сторінка пуста, видаляємо її
+            self._pages.pop(self.page_no() - 1)
+            self.page = self.page_no() - 1
 
 # Ініціалізуємо PDF з підтримкою UTF-8
 def generate(
@@ -68,7 +109,8 @@ def generate(
         panel_arrays: list = [],  # Додаємо дані про масиви панелей
         total_panels: int = 0,  # Додаємо загальну кількість панелей
         total_rows: int = 0,  # Додаємо загальну кількість рядів
-        avg_panels_per_row: float = 0  # Додаємо середню кількість панелей в ряді
+        avg_panels_per_row: float = 0,  # Додаємо середню кількість панелей в ряді
+        panel_schemes: list = []  # Додаємо список схем для кожного масиву
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -80,34 +122,27 @@ def generate(
     
     # Виводимо діагностичну інформацію
     print(f"BASE_DIR: {BASE_DIR}")
-    print(f"Шукаємо шрифти в директоріях: {possible_font_dirs}")
-    print(f"Знайдений шлях до звичайного шрифту: {font_path}")
-    print(f"Знайдений шлях до жирного шрифту: {bold_font_path}")
+    print(f"Font path: {font_path}")
+    print(f"Bold font path: {bold_font_path}")
     
-    # Копіюємо шрифти в тимчасову директорію, якщо вони знайдені
-    temp_font_path = None
-    temp_bold_font_path = None
-    
+    # Копіюємо шрифти у тимчасову директорію, якщо вони знайдені
     if font_path:
-        temp_font_path = os.path.join(temp_font_dir, "DejaVuSans.ttf")
-        shutil.copy2(font_path, temp_font_path)
-    
+        shutil.copy(font_path, os.path.join(temp_font_dir, "DejaVuSans.ttf"))
     if bold_font_path:
-        temp_bold_font_path = os.path.join(temp_font_dir, "DejaVuSans-Bold.ttf")
-        shutil.copy2(bold_font_path, temp_bold_font_path)
+        shutil.copy(bold_font_path, os.path.join(temp_font_dir, "DejaVuSans-Bold.ttf"))
     
     # Ініціалізуємо PDF
-    pdf = FPDF()
+    pdf = CustomPDF()
+    pdf.add_font('DejaVu', '', os.path.join(temp_font_dir, "DejaVuSans.ttf"), uni=True)
+    pdf.add_font('DejaVu', 'B', os.path.join(temp_font_dir, "DejaVuSans-Bold.ttf"), uni=True)
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
 
     total_sum = 0
 
     # Додаємо шрифти, якщо вони доступні
-    if temp_font_path and temp_bold_font_path:
+    if font_path and bold_font_path:
         try:
-            pdf.add_font('DejaVu', '', temp_font_path, uni=True)
-            pdf.add_font('DejaVu', 'B', temp_bold_font_path, uni=True)
             pdf.set_font('DejaVu', size=12)
         except Exception as e:
             print(f"Помилка при додаванні шрифту: {e}")
@@ -275,8 +310,43 @@ def generate(
     pdf.set_font('DejaVu', 'B', 12)
     pdf.cell(0, 10, f'Дата: {current_date or date.today().strftime("%d.%m.%Y")}', ln=True, align='R')
     
-    # Додаємо схему, якщо вона передана
-    if scheme_image and os.path.exists(normalize_path(scheme_image)):
+    # Додаємо схеми розміщення панелей
+    if panel_schemes and len(panel_schemes) > 0:
+        # Якщо є окремі схеми для кожного масиву, відображаємо їх на окремих сторінках
+        for i, scheme in enumerate(panel_schemes):
+            # Перевіряємо, чи є base64 зображення
+            if 'image_base64' in scheme and scheme['image_base64']:
+                # Додаємо нову сторінку для кожної схеми (крім першої, якщо сторінка ще порожня)
+                if i > 0 or pdf.get_y() > 50:
+                    pdf.add_page()
+                
+                try:
+                    # Декодуємо base64 в бінарні дані
+                    image_data = base64.b64decode(scheme['image_base64'])
+                    
+                    # Створюємо тимчасовий файл
+                    temp_image_path = os.path.join(BASE_DIR, f"temp_scheme_{i}.png")
+                    
+                    # Зберігаємо в тимчасовий файл
+                    with open(temp_image_path, 'wb') as f:
+                        f.write(image_data)
+                    
+                    # Визначаємо розмір схеми (максимальна ширина сторінки з урахуванням полів)
+                    img_width = 190  # Максимальна ширина сторінки A4 з урахуванням полів
+                    
+                    # Додаємо зображення схеми з центруванням на всю ширину сторінки
+                    pdf.image(normalize_path(temp_image_path), x=10, w=img_width)
+                    
+                    # Видаляємо тимчасовий файл після використання
+                    try:
+                        os.remove(temp_image_path)
+                    except:
+                        pass
+                except Exception as e:
+                    print(f"Помилка при обробці зображення схеми: {e}")
+    
+    # Додаємо загальну схему, якщо вона передана і немає окремих схем
+    elif scheme_image and os.path.exists(normalize_path(scheme_image)):
         pdf.ln(10)  # Додатковий відступ перед схемою
         pdf.set_font('DejaVu', 'B', 14)
         pdf.cell(0, 10, 'Схема розміщення панелей:', ln=True, align='L')
@@ -285,6 +355,9 @@ def generate(
         img_width = 190  # Максимальна ширина сторінки A4 з урахуванням полів
         # Додаємо зображення схеми з центруванням на всю ширину сторінки
         pdf.image(normalize_path(scheme_image), x=10, w=img_width)
+    
+    # Перевіряємо, чи остання сторінка має контент
+    pdf.check_last_page()
     
     # Шлях для збереження PDF
     output_path = normalize_path(os.path.join(BASE_DIR, "report.pdf"))

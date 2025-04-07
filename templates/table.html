@@ -466,6 +466,11 @@
             <input type="hidden" name="scheme_image" value="{{ data.scheme_file_path }}">
             {% endif %}
 
+            <!-- Додаємо приховане поле для передачі даних про схеми панелей -->
+            {% if data.panel_schemes_json %}
+            <input type="hidden" name="panel_schemes" value="{{ data.panel_schemes_json }}">
+            {% endif %}
+
             <div style="text-align: center; margin: 30px 0;">
                 <button type="submit" class="pdf-btn">
                     <i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт
@@ -475,13 +480,29 @@
             <!-- Додаємо розділ для схеми панелей -->
             <div id="panel-scheme-container">
                 <h2><i class="fas fa-th"></i> Схема розташування панелей</h2>
+                
+                <!-- Відображаємо окремі схеми для кожного масиву, якщо вони є -->
+                {% if data.panel_schemes %}
+                    {% for scheme in data.panel_schemes %}
+                    <div class="panel-scheme-item" style="margin-bottom: 30px;">
+                        <h3 style="margin-bottom: 15px; color: var(--primary-dark);">
+                            <i class="fas fa-solar-panel"></i> Масив #{{ scheme.array_id|add:1 }} ({{ scheme.rows }}x{{ scheme.panels_per_row }})
+                        </h3>
+                        <div class="panel-scheme">
+                            <img src="data:image/png;base64,{{ scheme.image_base64 }}" alt="Схема масиву #{{ scheme.array_id|add:1 }}" 
+                                 style="width: 100%; max-width: 100%; height: auto;">
+                        </div>
+                    </div>
+                    {% endfor %}
+                <!-- Відображаємо загальну схему, якщо немає окремих схем -->
+                {% elif data.scheme_image %}
                 <div id="panel-scheme">
-                    {% if data.scheme_image %}
                     <img src="{{ data.scheme_image }}" alt="Схема розташування панелей" style="width: 100%; max-width: 100%; height: auto;">
-                    {% else %}
-                    <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
-                    {% endif %}
                 </div>
+                {% else %}
+                <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
+                {% endif %}
+                
                 <div class="legend" style="display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 15px; gap: 10px;">
                     <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
                         <div class="legend-color" style="background-color: #60a5fa; width: 25px; height: 25px; margin-right: 10px;"></div>
