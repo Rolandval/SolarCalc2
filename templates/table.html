@@ -1277,7 +1277,18 @@
         // Оновлюємо відображення загальних сум
         document.getElementById('total-purchase').textContent = totalPurchase.toFixed(2);
         document.getElementById('total-sum').textContent = totalSum.toFixed(2);
-        document.getElementById('profit').textContent = profit.toFixed(2);
+        
+        // Оновлюємо відображення прибутку з перевіркою на від'ємне значення
+        const profitElement = document.getElementById('profit');
+        profitElement.textContent = profit.toFixed(2);
+        
+        // Змінюємо колір прибутку залежно від значення
+        if (profit < 0) {
+            profitElement.style.color = 'red'; // Червоний колір для від'ємного прибутку
+        } else {
+            profitElement.style.color = 'var(--secondary-color)'; // Зелений колір для додатного прибутку
+        }
+        
         document.getElementById('total-usd').textContent = totalUsdValue.toFixed(2);
         document.getElementById('hidden-total-usd').value = totalUsdValue.toFixed(2);
         
