@@ -811,7 +811,7 @@ def create_battery(request):
             model = request.POST.get('model')
             capacity = float(request.POST.get('capacity'))
             is_head = 'is_head' in request.POST
-            is_stand = 'is_stand' in request.POST
+            is_stand = False
             
             # Перевірка наявності файлу
             if 'datasheet' not in request.FILES:
