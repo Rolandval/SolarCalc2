@@ -219,7 +219,6 @@
         }
 
         button {
-            background: linear-gradient(to right, var(--secondary-color), var(--secondary-dark));
             color: white;
             padding: 1rem 2rem;
             border: none;
@@ -473,7 +472,7 @@
         }
         
         .clear-btn {
-            background-color: var(--primary-color);
+            background-color: red;
             color: white;
             border: none;
             border-radius: 50px;
@@ -499,25 +498,32 @@
         
         /* Стилі для кнопки видалення рядка */
         .delete-row-btn {
-            background-color: #e74c3c;
+            background-color: red;
             color: white;
             border: none;
-            border-radius: 50%;
+            border-radius: 4px;
             width: 24px;
             height: 24px;
-            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-left: 10px;
             cursor: pointer;
-            transition: var(--transition);
-            margin-left: 5px;
+            transition: all 0.2s ease;
             padding: 0;
+            font-size: 14px;
+            text-align: center;
             line-height: 1;
         }
         
+        .delete-row-btn i {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+        
         .delete-row-btn:hover {
-            background-color: #c0392b;
+            background-color: var(--secondary-dark);
             transform: scale(1.1);
         }
         
@@ -1329,7 +1335,7 @@
         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
         deleteBtn.className = 'delete-row-btn';
-        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+        deleteBtn.innerHTML = '<i class="fas fa-minus"></i>';
         deleteBtn.title = 'Видалити рядок';
         
         // Додаємо обробник події для кнопки видалення
@@ -1383,7 +1389,7 @@
             const deleteBtn = document.createElement('button');
             deleteBtn.type = 'button';
             deleteBtn.className = 'delete-row-btn';
-            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.innerHTML = '<i class="fas fa-minus"></i>';
             deleteBtn.title = 'Видалити рядок';
             
             // Додаємо обробник події для кнопки видалення
@@ -1411,7 +1417,7 @@
             const deleteBtn = document.createElement('button');
             deleteBtn.type = 'button';
             deleteBtn.className = 'delete-row-btn';
-            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.innerHTML = '<i class="fas fa-minus"></i>';
             deleteBtn.title = 'Видалити рядок';
             
             // Додаємо обробник події для кнопки видалення
