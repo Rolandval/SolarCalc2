@@ -336,13 +336,22 @@ def calculate(request):
                         'panelModelId': data.get('panel_model', ''),
                         'panelModelName': panel_model_name,  # Додаємо назву моделі
                         'inverterModelName': inverter_model_name,  # Додаємо назву моделі інвертора
-                        'batteryModelName': battery_model_name  # Додаємо назву моделі батареї
+                        'batteryModelName': battery_model_name,  # Додаємо назву моделі батареї
+                        'current_date': datetime.now().strftime('%Y-%m-%d'),  # Додаємо поточну дату
                     }
                 }
             }
             print(results)
             print("Profiles dictionary:", profile_counts)
 
+            # Додаємо поточну дату та інформацію про обладнання в контекст
+            results['data']['current_date'] = datetime.now().strftime('%d.%m.%Y')
+            
+            # Переносимо дані з panel_data у верхній рівень data для доступу в шаблоні
+            if 'panel_data' in results['data']:
+                for key, value in results['data']['panel_data'].items():
+                    results['data'][key] = value
+            
             return render(request, 'table.html', context=results)
 
         except Exception as e:
