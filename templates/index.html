@@ -205,11 +205,10 @@
 
         .submit-container {
             text-align: center;
-            margin-top: 2rem;
+            margin: 30px 0;
         }
 
         button {
-            background: linear-gradient(to right, var(--secondary-color), var(--secondary-dark));
             color: white;
             padding: 1rem 2rem;
             border: none;
@@ -467,6 +466,33 @@
             width: 20px;
             height: 30px;
         }
+        
+        /* Стилі для кнопки "Зробити розрахунок" */
+        .calc-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            margin: 25px 0;
+            letter-spacing: 0.5px;
+        }
+        
+        .calc-btn:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calc-btn i {
+            margin-right: 10px;
+            font-size: 1.4rem;
+        }
     </style>
 </head>
 <body>
@@ -720,9 +746,10 @@
                     </div>
                 </div>
                 
-                <div class="submit-container">
-                    <button type="submit"><i class="fas fa-table"></i> Зробити розрахунок</button>
-                    <!-- <button type="button" id="reset-form-btn"><i class="fas fa-eraser"></i> Очистити параметри</button> -->
+                <div class="submit-container" style="text-align: center; margin: 30px 0;">
+                    <button type="submit" class="calc-btn">
+                        <i class="fas fa-table"></i> Зробити розрахунок
+                    </button>
                 </div>
             </form>
         </div>

@@ -531,6 +531,33 @@
             display: flex;
             align-items: center;
         }
+        
+        /* Стилі для кнопки "Роздрукувати PDF звіт" */
+        .pdf-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            margin: 25px 0;
+            letter-spacing: 0.5px;
+        }
+        
+        .pdf-btn:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pdf-btn i {
+            margin-right: 10px;
+            font-size: 1.4rem;
+        }
     </style>
 </head>
 <body>
@@ -989,8 +1016,10 @@
             <input type="hidden" name="scheme_image" value="{{ data.scheme_file_path }}">
             {% endif %}
 
-            <div style="text-align: center;">
-                <button type="submit"><i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт</button>
+            <div style="text-align: center; margin: 30px 0;">
+                <button type="submit" class="pdf-btn">
+                    <i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт
+                </button>
             </div>
             
             <!-- Додаємо розділ для схеми панелей -->
