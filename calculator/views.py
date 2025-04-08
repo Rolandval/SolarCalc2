@@ -247,7 +247,7 @@ def calculate(request):
                         c = vertical_profile_len - 0.12
                         N = int(((panel_width * panels_per_row) / column_distance) + 1)
                         K = math.sin(math.radians(a)) * c
-                        carcase_profile = (carcase_high * N * 2) + K
+                        carcase_profile = (carcase_high * N * 2) + (K * N)
                         array_profil_len += vertical_profile_len * N
                         total_carcase_len += carcase_profile
                         total_carcase_count += N * 2
@@ -259,7 +259,7 @@ def calculate(request):
                         c = vertical_profile_len - 0.12
                         N = int(((panel_length * panels_per_row) / column_distance) + 1)
                         K = math.sin(math.radians(a)) * c
-                        carcase_profile = (carcase_high * N * 2) + K
+                        carcase_profile = (carcase_high * N * 2) + (K * N)
                         array_profil_len += vertical_profile_len * N
                         total_carcase_len += carcase_profile
                         total_carcase_count += N * 2
