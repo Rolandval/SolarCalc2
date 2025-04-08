@@ -482,20 +482,47 @@
 
             
             <h2><i class="fas fa-file-pdf"></i> Налаштування PDF-звіту</h2>
-            <div class="checkbox-group">
-                <label><input type="checkbox" name="param-o" checked> <i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</label>
-                <label><input type="checkbox" name="param-k" checked> <i class="fas fa-wrench"></i> КРІПЛЕННЯ</label>
-                <label><input type="checkbox" name="param-e" checked> <i class="fas fa-bolt"></i> ЕЛЕКТРИКА</label>
-                <label><input type="checkbox" name="param-r" checked> <i class="fas fa-hard-hat"></i> РОБОТА</label>
-                <label><input type="checkbox" name="param-usd" checked> <i class="fas fa-dollar-sign"></i> СУМА В ДОЛАРАХ</label>
+            <div class="pdf-options">
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="param-o" checked> <i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</label>
+                    <label><input type="checkbox" name="param-k" checked> <i class="fas fa-wrench"></i> КРІПЛЕННЯ</label>
+                    <label><input type="checkbox" name="param-e" checked> <i class="fas fa-bolt"></i> ЕЛЕКТРИКА</label>
+                    <label><input type="checkbox" name="param-r" checked> <i class="fas fa-hard-hat"></i> РОБОТА</label>
+                    <label><input type="checkbox" name="param-usd" checked> <i class="fas fa-dollar-sign"></i> СУМА В ДОЛАРАХ</label>
+                </div>
+                <div class="pdf-options-grid">
+                    <div class="pdf-option">
+                        <input type="checkbox" id="include_panel_ds" name="include_panel_ds" {% if data.panelModelId %}{% else %}disabled{% endif %}>
+                        <label for="include_panel_ds">Включити datasheet панелі</label>
+                    </div>
+                    <div class="pdf-option">
+                        <input type="checkbox" id="include_inverter_ds" name="include_inverter_ds" {% if data.inverterModelId %}{% else %}disabled{% endif %}>
+                        <label for="include_inverter_ds">Включити datasheet інвертора</label>
+                    </div>
+                    <div class="pdf-option">
+                        <input type="checkbox" id="include_battery_ds" name="include_battery_ds" {% if data.batteryModelId %}{% else %}disabled{% endif %}>
+                        <label for="include_battery_ds">Включити datasheet батареї</label>
+                    </div>
+                </div>
             </div>
 
-            <!-- Додаємо приховане поле для передачі шляху до зображення схеми -->
+            <!-- Додаємо приховані поля для ідентифікаторів моделей для datasheet -->
+            {% if data.panelModelId %}
+            <input type="hidden" name="panelModelId" value="{{ data.panelModelId }}">
+            {% endif %}
+            {% if data.inverterModelId %}
+            <input type="hidden" name="inverterModelId" value="{{ data.inverterModelId }}">
+            {% endif %}
+            {% if data.batteryModelId %}
+            <input type="hidden" name="batteryModelId" value="{{ data.batteryModelId }}">
+            {% endif %}
+
+            <!-- Додаємо приховані поля для передачі шляху до зображення схеми -->
             {% if data.scheme_file_path %}
             <input type="hidden" name="scheme_image" value="{{ data.scheme_file_path }}">
             {% endif %}
 
-            <!-- Додаємо приховане поле для передачі даних про схеми панелей -->
+            <!-- Додаємо приховані поля для передачі даних про схеми панелей -->
             {% if data.panel_schemes_json %}
             <input type="hidden" name="panel_schemes" value="{{ data.panel_schemes_json }}">
             {% endif %}
@@ -511,6 +538,9 @@
             <div style="text-align: center; margin: 30px 0;">
                 <button type="submit" class="pdf-btn">
                     <i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт
+                </button>
+                <button type="button" id="send-telegram-btn" class="telegram-btn" style="margin-left: 15px; background-color: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    <i class="fab fa-telegram"></i> Відправити в Telegram
                 </button>
             </div>
             
@@ -580,5 +610,32 @@
 </div>
 
 <script src="/static/js/table.js?v={% now 'U' %}"></script>
+
+<script>
+    // Функція для відправки PDF звіту через Telegram
+    document.getElementById('send-telegram-btn').addEventListener('click', function() {
+        // Показуємо повідомлення про генерацію PDF
+        alert('Генерація PDF звіту та відправка в Telegram...');
+        
+        // Відправляємо запит на генерацію PDF та відправку через Telegram
+        fetch('{% url "calculator:send_pdf_telegram" %}', {
+            method: 'POST',
+            body: new FormData(document.querySelector('form')),
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('PDF звіт успішно відправлено через Telegram!');
+            } else {
+                alert('Помилка при відправці PDF через Telegram: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Помилка:', error);
+            alert('Виникла помилка при відправці PDF через Telegram');
+        });
+    });
+</script>
 </body>
 </html>

@@ -82,6 +82,10 @@ WKHTMLTOPDF_CMD_OPTIONS = {
     'encoding': 'UTF-8',
 }
 
+# Налаштування для Telegram бота
+TELEGRAM_BOT_TOKEN = "7842998801:AAFe7CE_0ULczRdS4AQHP9_czQBv58p99Ls"
+TELEGRAM_DEFAULT_CHAT_ID = "280126088"  # Замініть на ваш chat_id
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -133,6 +137,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+# Media files (User uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

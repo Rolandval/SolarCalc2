@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('api/calculate/', views.calculate, name='calculate'),
     path('generate-pdf/', views.generate_pdf, name='generate_pdf'),
+    path('send-pdf-telegram/', views.send_pdf_telegram, name='send_pdf_telegram'),
     path('panels/create/', views.create_panel, name='create_panel'),
     path('panels/datasheet/<int:panel_id>/', views.download_datasheet, name='download_datasheet'),
     path('inverters/create/', views.create_inverter, name='create_inverter'),

@@ -359,6 +359,52 @@ tr:hover {
     font-size: 1.4rem;
 }
 
+/* Стилі для опцій PDF */
+.pdf-options {
+    margin-bottom: 2rem;
+    background-color: white;
+    padding: 1.25rem;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.pdf-options h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--primary-dark);
+}
+
+.pdf-options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.pdf-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pdf-option input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.pdf-option input[type="checkbox"]:disabled + label {
+    color: #999;
+    cursor: not-allowed;
+}
+
+.pdf-option label {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-color);
+}
+
 @media (max-width: 768px) {
     table {
         display: block;
@@ -373,5 +419,9 @@ tr:hover {
     .checkbox-group label {
         padding: 0.4rem 0.8rem;
         font-size: 0.9rem;
+    }
+    
+    .pdf-options-grid {
+        grid-template-columns: 1fr;
     }
 }

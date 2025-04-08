@@ -1,9 +1,16 @@
 from fpdf import FPDF
 import os
-import sys
 import shutil
 from datetime import date
 import base64
+import logging
+import io
+from django.conf import settings
+from calculator.models import Panels, Inverters, Batteries
+
+# Налаштовуємо логування
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Отримуємо абсолютний шлях до директорії проекту
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -97,32 +104,38 @@ def generate(
         R11: int = 0, R12: float = 0.0,
         R21: int = 0, R22: float = 0.0,
         R31: int = 0, R32: float = 0.0,
+        panel_model_name: str = '',
+        panel_length: float = 0.0,
+        panel_width: float = 0.0,
+        panel_height: float = 0.0,
+        panel_arrangement: str = '',
+        panel_type: str = '',
+        total_panels: int = 0,
+        total_rows: int = 0,
+        avg_panels_per_row: float = 0.0,
+        usd_rate: float = 0.0,
+        show_usd: bool = False,
+        current_date: str = '',
         scheme_image: str = '',
-        panel_height: int = 30,
-        dynamic_equipment: list = [],
-        dynamic_mounting: list = [],  # Додаємо динамічні рядки кріплень
-        dynamic_electrical: list = [],
-        dynamic_other: list = [],
-        dynamic_work: list = [],
-        usd_rate: float = 0.0,  # Додаємо курс долара
-        total_usd: float = 0.0,  # Додаємо суму в доларах
-        screw_material: str = 'оцинковані',
-        profile_material: str = 'алюміній',
-        current_date: str = '',  # Додаємо поточну дату
-        show_usd: bool = True,  # Додаємо параметр для відображення суми в доларах
-        panel_model_name: str = '',  # Додаємо назву моделі панелі
-        panel_length: int = 0,  # Додаємо довжину панелі
-        panel_width: int = 0,  # Додаємо ширину панелі
-        panel_arrangement: str = '',  # Додаємо розташування панелі
-        panel_type: str = '',  # Додаємо тип панелі
-        panel_arrays: list = [],  # Додаємо дані про масиви панелей
-        total_panels: int = 0,  # Додаємо загальну кількість панелей
-        total_rows: int = 0,  # Додаємо загальну кількість рядів
-        avg_panels_per_row: float = 0,  # Додаємо середню кількість панелей в ряді
-        panel_schemes: list = [],  # Додаємо список схем для кожного масиву
+        panel_schemes: list = [],
         carcase_material: str = '',  # Додаємо матеріал каркасу
         foundation_type_1: str = '',  # Додаємо тип основи
-        carcase_profiles: list = []  # Додаємо профілі каркасу
+        carcase_profiles: list = [],  # Додаємо профілі каркасу
+        include_panel_ds: bool = False,  # Додаємо параметр для включення datasheet панелі
+        include_inverter_ds: bool = False,  # Додаємо параметр для включення datasheet інвертора
+        include_battery_ds: bool = False,  # Додаємо параметр для включення datasheet батареї
+        panel_model_id: str = '',  # ID моделі панелі для завантаження datasheet
+        inverter_model_id: str = '',  # ID моделі інвертора для завантаження datasheet
+        battery_model_id: str = '',  # ID моделі батареї для завантаження datasheet
+        dynamic_equipment: list = [],  # Додаємо динамічні рядки обладнання
+        dynamic_mounting: list = [],  # Додаємо динамічні рядки кріплень
+        dynamic_electrical: list = [],  # Додаємо динамічні рядки електрики
+        dynamic_work: list = [],  # Додаємо динамічні рядки роботи
+        dynamic_other: list = [],  # Додаємо динамічні рядки інших матеріалів
+        total_usd: float = 0.0,  # Додаємо суму в доларах
+        screw_material: str = 'оцинковані',  # Додаємо матеріал гвинтів
+        profile_material: str = 'алюміній',  # Додаємо матеріал профілю
+        panel_arrays: list = []  # Додаємо дані про масиви панелей
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -218,12 +231,10 @@ def generate(
     for item in dynamic_equipment:
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
-        unit = item.get('unit', 'шт')
-        # Додаємо крапку після одиниці виміру, якщо її ще немає
-        if not unit.endswith('.'):
-            unit += '.'
+        unit = item.get('unit', 'шт.')
         price = item.get('price', 0)
         total = quantity * price
+        
         equipment.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
 
     # Створюємо базову структуру для mounting
@@ -252,9 +263,9 @@ def generate(
     # Додаємо профілі каркасу та тип основи, якщо вказано матеріал каркасу
     if carcase_material:
         # Виведемо діагностичну інформацію
-        print("PDF: carcase_material:", carcase_material)
-        print("PDF: foundation_type_1:", foundation_type_1)
-        print("PDF: carcase_profiles:", carcase_profiles)
+        logger.info("PDF: carcase_material: %s", carcase_material)
+        logger.info("PDF: foundation_type_1: %s", foundation_type_1)
+        logger.info("PDF: carcase_profiles: %s", carcase_profiles)
         
         # Додаємо профілі каркасу з K71 (carcase_profiles)
         if isinstance(K71, list) and len(K71) > 0:
@@ -281,12 +292,10 @@ def generate(
     for item in dynamic_mounting:
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
-        unit = item.get('unit', 'шт')
-        # Додаємо крапку після одиниці виміру, якщо її ще немає
-        if not unit.endswith('.'):
-            unit += '.'
+        unit = item.get('unit', 'шт.')
         price = item.get('price', 0)
         total = quantity * price
+        
         mounting.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
 
     electrical = [
@@ -307,28 +316,38 @@ def generate(
         electrical.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
 
     work = [
-        ['Доставка', f'{R11}', 'км', f'{R12}', f'{R11 * R12}'],
-        ['Роботи електрика', f'{R21}', 'послуга', f'{R22}', f'{R21 * R22}'],
-        ['Монтаж', f'{R31}', 'послуга', f'{R32}', f'{R31 * R32}'],
+        ['Монтаж', f'{R11}', 'шт.', f'{R12}', f'{R11 * R12}'],
+        ['Проектування', f'{R21}', 'шт.', f'{R22}', f'{R21 * R22}'],
+        ['Доставка', f'{R31}', 'шт.', f'{R32}', f'{R31 * R32}']
     ]
     
     # Додаємо динамічно створені рядки роботи
     for item in dynamic_work:
         name = item.get('name', '')
         quantity = item.get('quantity', 0)
-        unit = item.get('unit', 'шт')
-        # Додаємо крапку після одиниці виміру, якщо її ще немає і це не "послуга"
-        if not unit.endswith('.') and unit != 'послуга':
-            unit += '.'
+        unit = item.get('unit', 'шт.')
         price = item.get('price', 0)
         total = quantity * price
+        
         work.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
+        
+    # Додаємо динамічно створені рядки інших матеріалів
+    other = []
+    for item in dynamic_other:
+        name = item.get('name', '')
+        quantity = item.get('quantity', 0)
+        unit = item.get('unit', 'шт.')
+        price = item.get('price', 0)
+        total = quantity * price
+        
+        other.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
 
     # Створюємо таблиці
     create_table('ОБЛАДНАННЯ', equipment, total=sum(float(item[4]) for item in equipment)) if O else None
     create_table('КРІПЛЕННЯ', mounting, total=sum(float(item[4]) for item in mounting)) if K else None
     create_table('ЕЛЕКТРИКА', electrical, total=sum(float(item[4]) for item in electrical)) if E else None
     create_table('РОБОТА', work, total=sum(float(item[4]) for item in work)) if R else None
+    create_table('ІНШІ МАТЕРІАЛИ', other, total=sum(float(item[4]) for item in other)) if other else None
 
     # Додаємо загальну суму
     pdf.set_font('DejaVu', 'B', 14)
@@ -377,7 +396,7 @@ def generate(
                     except:
                         pass
                 except Exception as e:
-                    print(f"Помилка при обробці зображення схеми: {e}")
+                    logger.error(f"Помилка при обробці зображення схеми: {e}")
     
     # Додаємо загальну схему, якщо вона передана і немає окремих схем
     elif scheme_image and os.path.exists(normalize_path(scheme_image)):
@@ -392,6 +411,291 @@ def generate(
     
     # Перевіряємо, чи остання сторінка має контент
     pdf.check_last_page()
+    
+    # Додаємо datasheet панелі, якщо потрібно
+    if include_panel_ds and panel_model_id:
+        try:
+            from django.conf import settings
+            from calculator.models import Panels
+            
+            logger.info(f"Спроба отримати панель з ID: {panel_model_id}")
+            # Отримуємо панель з бази даних
+            panel = Panels.objects.get(id=panel_model_id)
+            logger.info(f"Панель знайдено: {panel.model}")
+            
+            # Перевіряємо, чи є datasheet
+            if panel.datasheet:
+                datasheet_path = str(panel.datasheet)
+                logger.info(f"Datasheet панелі знайдено: {datasheet_path}")
+                
+                # Перевіряємо різні можливі шляхи до файлу
+                found = False
+                paths_to_check = [
+                    datasheet_path,  # Оригінальний шлях
+                    os.path.join(settings.MEDIA_ROOT, datasheet_path) if 'MEDIA_ROOT' in globals() else None,  # MEDIA_ROOT + шлях
+                    os.path.join(BASE_DIR, 'media', 'datasheets', os.path.basename(datasheet_path)),  # BASE_DIR/media/datasheets + ім'я файлу
+                    os.path.join(BASE_DIR, 'media', datasheet_path),  # BASE_DIR/media + шлях
+                    os.path.join(BASE_DIR, datasheet_path),  # BASE_DIR + шлях
+                ]
+                
+                for path in paths_to_check:
+                    if path:
+                        logger.info(f"Перевірка шляху: {path}")
+                        if os.path.exists(path):
+                            datasheet_path = path
+                            found = True
+                            logger.info(f"Знайдено файл datasheet за шляхом: {datasheet_path}")
+                            break
+                
+                if found:
+                    # Додаємо нову сторінку для datasheet
+                    pdf.add_page()
+                    
+                    # Отримуємо розширення файлу
+                    file_ext = os.path.splitext(datasheet_path)[1].lower()
+                    logger.info(f"Розширення файлу datasheet: {file_ext}")
+                    
+                    # Додаємо заголовок
+                    pdf.set_font('DejaVu', 'B', 14)
+                    pdf.cell(0, 10, f'Технічна специфікація панелі {panel.model}', ln=True, align='C')
+                    pdf.ln(5)
+                    
+                    if file_ext in ['.jpg', '.jpeg', '.png', '.gif']:
+                        # Якщо це зображення, додаємо його напряму
+                        logger.info(f"Файл datasheet є зображенням: {file_ext}")
+                        try:
+                            pdf.image(normalize_path(datasheet_path), x=10, w=190)
+                            logger.info("Зображення datasheet додано до PDF")
+                        except Exception as e:
+                            logger.error(f"Помилка при додаванні зображення datasheet: {e}")
+                    elif file_ext == '.pdf':
+                        # Якщо це PDF, копіюємо файл і додаємо посилання
+                        logger.info("Файл datasheet є PDF")
+                        
+                        # Копіюємо файл в директорію з результатами
+                        result_dir = os.path.join(BASE_DIR, 'media', 'results')
+                        os.makedirs(result_dir, exist_ok=True)
+                        
+                        # Генеруємо унікальне ім'я файлу
+                        filename = os.path.basename(datasheet_path)
+                        new_path = os.path.join(result_dir, f"panel_{panel.id}_{filename}")
+                        
+                        try:
+                            shutil.copy2(datasheet_path, new_path)
+                            logger.info(f"PDF файл скопійовано у: {new_path}")
+                            
+                            # Додаємо посилання на файл
+                            pdf.set_font('DejaVu', '', 12)
+                            pdf.cell(0, 10, f'Datasheet доступний за посиланням:', ln=True)
+                            pdf.ln(5)
+                            pdf.cell(0, 10, f'{new_path}', ln=True)
+                            pdf.ln(5)
+                        except Exception as e:
+                            logger.error(f"Помилка при копіюванні PDF файлу: {e}")
+                            pdf.set_font('DejaVu', '', 12)
+                            pdf.cell(0, 10, f'Помилка при копіюванні PDF файлу: {e}', ln=True)
+                            pdf.ln(5)
+                    else:
+                        # Непідтримуваний формат
+                        logger.error(f"Непідтримуваний формат файлу datasheet: {file_ext}")
+                        pdf.set_font('DejaVu', '', 12)
+                        pdf.cell(0, 10, f'Непідтримуваний формат файлу datasheet: {file_ext}', ln=True)
+                        pdf.ln(5)
+                else:
+                    logger.error(f"Файл datasheet не знайдено за жодним із шляхів")
+                    pdf.set_font('DejaVu', '', 12)
+                    pdf.cell(0, 10, f'Файл datasheet не знайдено', ln=True)
+                    pdf.ln(5)
+            else:
+                logger.info("Datasheet для панелі не вказано")
+        except Exception as e:
+            logger.error(f"Помилка при отриманні datasheet: {e}")
+    
+    # Додаємо datasheet інвертора, якщо потрібно
+    if include_inverter_ds and inverter_model_id:
+        try:
+            inverter = Inverters.objects.get(id=inverter_model_id)
+            logger.info(f"Інвертор знайдено: {inverter.model}")
+            
+            if inverter.datasheet:
+                datasheet_path = str(inverter.datasheet)
+                logger.info(f"Datasheet інвертора знайдено: {datasheet_path}")
+                
+                # Перевіряємо різні можливі шляхи до файлу
+                found = False
+                paths_to_check = [
+                    datasheet_path,  # Оригінальний шлях
+                    os.path.join(settings.MEDIA_ROOT, datasheet_path) if 'settings' in globals() and hasattr(settings, 'MEDIA_ROOT') else None,  # MEDIA_ROOT + шлях
+                    os.path.join(BASE_DIR, 'media', 'datasheets', os.path.basename(datasheet_path)),  # BASE_DIR/media/datasheets + ім'я файлу
+                    os.path.join(BASE_DIR, 'media', datasheet_path),  # BASE_DIR/media + шлях
+                    os.path.join(BASE_DIR, datasheet_path),  # BASE_DIR + шлях
+                ]
+                
+                for path in paths_to_check:
+                    if path:
+                        logger.info(f"Перевірка шляху для інвертора: {path}")
+                        if os.path.exists(path):
+                            datasheet_path = path
+                            found = True
+                            logger.info(f"Знайдено файл datasheet інвертора за шляхом: {datasheet_path}")
+                            break
+                
+                if found:
+                    # Додаємо нову сторінку для datasheet
+                    pdf.add_page()
+                    
+                    # Отримуємо розширення файлу
+                    file_ext = os.path.splitext(datasheet_path)[1].lower()
+                    logger.info(f"Розширення файлу datasheet інвертора: {file_ext}")
+                    
+                    # Додаємо заголовок
+                    pdf.set_font('DejaVu', 'B', 14)
+                    pdf.cell(0, 10, f'Технічна специфікація інвертора {inverter.model}', ln=True, align='C')
+                    pdf.ln(5)
+                    
+                    if file_ext in ['.jpg', '.jpeg', '.png', '.gif']:
+                        # Якщо це зображення, додаємо його напряму
+                        logger.info(f"Файл datasheet інвертора є зображенням: {file_ext}")
+                        try:
+                            pdf.image(normalize_path(datasheet_path), x=10, w=190)
+                            logger.info("Зображення datasheet інвертора додано до PDF")
+                        except Exception as e:
+                            logger.error(f"Помилка при додаванні зображення datasheet інвертора: {e}")
+                    elif file_ext == '.pdf':
+                        # Якщо це PDF, копіюємо файл і додаємо посилання
+                        logger.info("Файл datasheet інвертора є PDF")
+                        
+                        # Копіюємо файл в директорію з результатами
+                        result_dir = os.path.join(BASE_DIR, 'media', 'results')
+                        os.makedirs(result_dir, exist_ok=True)
+                        
+                        # Генеруємо унікальне ім'я файлу
+                        filename = os.path.basename(datasheet_path)
+                        new_path = os.path.join(result_dir, f"inverter_{inverter.id}_{filename}")
+                        
+                        try:
+                            shutil.copy2(datasheet_path, new_path)
+                            logger.info(f"PDF файл інвертора скопійовано у: {new_path}")
+                            
+                            # Додаємо посилання на файл
+                            pdf.set_font('DejaVu', '', 12)
+                            pdf.cell(0, 10, f'Datasheet доступний за посиланням:', ln=True)
+                            pdf.ln(5)
+                            pdf.cell(0, 10, f'{new_path}', ln=True)
+                            pdf.ln(5)
+                        except Exception as e:
+                            logger.error(f"Помилка при копіюванні PDF файлу інвертора: {e}")
+                            pdf.set_font('DejaVu', '', 12)
+                            pdf.cell(0, 10, f'Помилка при копіюванні PDF файлу інвертора: {e}', ln=True)
+                            pdf.ln(5)
+                    else:
+                        # Непідтримуваний формат
+                        logger.error(f"Непідтримуваний формат файлу datasheet інвертора: {file_ext}")
+                        pdf.set_font('DejaVu', '', 12)
+                        pdf.cell(0, 10, f'Непідтримуваний формат файлу datasheet інвертора: {file_ext}', ln=True)
+                        pdf.ln(5)
+                else:
+                    logger.error(f"Файл datasheet інвертора не знайдено за жодним із шляхів")
+                    pdf.set_font('DejaVu', '', 12)
+                    pdf.cell(0, 10, f'Файл datasheet інвертора не знайдено', ln=True)
+                    pdf.ln(5)
+            else:
+                logger.info("Datasheet для інвертора не вказано")
+        except Exception as e:
+            logger.error(f"Помилка при отриманні datasheet інвертора: {e}")
+    
+    # Додаємо datasheet батареї, якщо потрібно
+    if include_battery_ds and battery_model_id:
+        try:
+            battery = Batteries.objects.get(id=battery_model_id)
+            logger.info(f"Батарею знайдено: {battery.model}")
+            
+            if battery.datasheet:
+                datasheet_path = str(battery.datasheet)
+                logger.info(f"Datasheet батареї знайдено: {datasheet_path}")
+                
+                # Перевіряємо різні можливі шляхи до файлу
+                found = False
+                paths_to_check = [
+                    datasheet_path,  # Оригінальний шлях
+                    os.path.join(settings.MEDIA_ROOT, datasheet_path) if 'settings' in globals() and hasattr(settings, 'MEDIA_ROOT') else None,  # MEDIA_ROOT + шлях
+                    os.path.join(BASE_DIR, 'media', 'datasheets', os.path.basename(datasheet_path)),  # BASE_DIR/media/datasheets + ім'я файлу
+                    os.path.join(BASE_DIR, 'media', datasheet_path),  # BASE_DIR/media + шлях
+                    os.path.join(BASE_DIR, datasheet_path),  # BASE_DIR + шлях
+                ]
+                
+                for path in paths_to_check:
+                    if path:
+                        logger.info(f"Перевірка шляху для батареї: {path}")
+                        if os.path.exists(path):
+                            datasheet_path = path
+                            found = True
+                            logger.info(f"Знайдено файл datasheet батареї за шляхом: {datasheet_path}")
+                            break
+                
+                if found:
+                    # Додаємо нову сторінку для datasheet
+                    pdf.add_page()
+                    
+                    # Отримуємо розширення файлу
+                    file_ext = os.path.splitext(datasheet_path)[1].lower()
+                    logger.info(f"Розширення файлу datasheet батареї: {file_ext}")
+                    
+                    # Додаємо заголовок
+                    pdf.set_font('DejaVu', 'B', 14)
+                    pdf.cell(0, 10, f'Технічна специфікація батареї {battery.model}', ln=True, align='C')
+                    pdf.ln(5)
+                    
+                    if file_ext in ['.jpg', '.jpeg', '.png', '.gif']:
+                        # Якщо це зображення, додаємо його напряму
+                        logger.info(f"Файл datasheet батареї є зображенням: {file_ext}")
+                        try:
+                            pdf.image(normalize_path(datasheet_path), x=10, w=190)
+                            logger.info("Зображення datasheet батареї додано до PDF")
+                        except Exception as e:
+                            logger.error(f"Помилка при додаванні зображення datasheet батареї: {e}")
+                    elif file_ext == '.pdf':
+                        # Якщо це PDF, копіюємо файл і додаємо посилання
+                        logger.info("Файл datasheet батареї є PDF")
+                        
+                        # Копіюємо файл в директорію з результатами
+                        result_dir = os.path.join(BASE_DIR, 'media', 'results')
+                        os.makedirs(result_dir, exist_ok=True)
+                        
+                        # Генеруємо унікальне ім'я файлу
+                        filename = os.path.basename(datasheet_path)
+                        new_path = os.path.join(result_dir, f"battery_{battery.id}_{filename}")
+                        
+                        try:
+                            shutil.copy2(datasheet_path, new_path)
+                            logger.info(f"PDF файл батареї скопійовано у: {new_path}")
+                            
+                            # Додаємо посилання на файл
+                            pdf.set_font('DejaVu', '', 12)
+                            pdf.cell(0, 10, f'Datasheet доступний за посиланням:', ln=True)
+                            pdf.ln(5)
+                            pdf.cell(0, 10, f'{new_path}', ln=True)
+                            pdf.ln(5)
+                        except Exception as e:
+                            logger.error(f"Помилка при копіюванні PDF файлу батареї: {e}")
+                            pdf.set_font('DejaVu', '', 12)
+                            pdf.cell(0, 10, f'Помилка при копіюванні PDF файлу батареї: {e}', ln=True)
+                            pdf.ln(5)
+                    else:
+                        # Непідтримуваний формат
+                        logger.error(f"Непідтримуваний формат файлу datasheet батареї: {file_ext}")
+                        pdf.set_font('DejaVu', '', 12)
+                        pdf.cell(0, 10, f'Непідтримуваний формат файлу datasheet батареї: {file_ext}', ln=True)
+                        pdf.ln(5)
+                else:
+                    logger.error(f"Файл datasheet батареї не знайдено за жодним із шляхів")
+                    pdf.set_font('DejaVu', '', 12)
+                    pdf.cell(0, 10, f'Файл datasheet батареї не знайдено', ln=True)
+                    pdf.ln(5)
+            else:
+                logger.info("Datasheet для батареї не вказано")
+        except Exception as e:
+            logger.error(f"Помилка при отриманні datasheet батареї: {e}")
     
     # Шлях для збереження PDF
     output_path = normalize_path(os.path.join(BASE_DIR, "report.pdf"))
