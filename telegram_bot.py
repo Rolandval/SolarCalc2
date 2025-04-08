@@ -7,7 +7,7 @@ import threading
 logger = logging.getLogger(__name__)
 
 # Токен бота
-BOT_TOKEN = getattr(settings, 'TELEGRAM_BOT_TOKEN', "7842998801:AAFe7CE_0ULczRdS4AQHP9_czQBv58p99Ls")
+BOT_TOKEN = getattr(settings, 'TELEGRAM_BOT_TOKEN', os.getenv('BOT_TOKEN'))
 
 # Ініціалізуємо бота
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -16,7 +16,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 user_chat_ids = {}
 
 # Додаємо chat_id за замовчуванням, якщо він вказаний в налаштуваннях
-default_chat_id = getattr(settings, 'TELEGRAM_DEFAULT_CHAT_ID', None)
+default_chat_id = getattr(settings, 'TELEGRAM_DEFAULT_CHAT_ID', os.getenv('TELEGRAM_DEFAULT_CHAT_ID'))
 if default_chat_id:
     user_chat_ids['default'] = default_chat_id
     logger.info(f"Додано chat_id за замовчуванням: {default_chat_id}")

@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Завантажуємо змінні з .env файлу
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -83,8 +87,8 @@ WKHTMLTOPDF_CMD_OPTIONS = {
 }
 
 # Налаштування для Telegram бота
-TELEGRAM_BOT_TOKEN = "7842998801:AAFe7CE_0ULczRdS4AQHP9_czQBv58p99Ls"
-TELEGRAM_DEFAULT_CHAT_ID = "280126088"  # Замініть на ваш chat_id
+TELEGRAM_BOT_TOKEN = os.getenv('BOT_TOKEN')
+TELEGRAM_DEFAULT_CHAT_ID = os.getenv('TELEGRAM_DEFAULT_CHAT_ID')
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
