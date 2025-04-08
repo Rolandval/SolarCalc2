@@ -300,9 +300,19 @@ function addNewArray() {
     arrayTitle.textContent = `Масив #${newArrayId}`;
     arrayHeader.appendChild(arrayTitle);
     
+    // Додаємо поле для назви масиву
+    const arrayNameInput = document.createElement('input');
+    arrayNameInput.type = 'text';
+    arrayNameInput.className = 'array-name-input';
+    arrayNameInput.id = `array_name_${newArrayId}`;
+    arrayNameInput.name = `array_name_${newArrayId}`;
+    arrayNameInput.placeholder = 'Назва масиву';
+    arrayNameInput.value = '';
+    arrayHeader.appendChild(arrayNameInput);
+    
     const removeButton = document.createElement('button');
     removeButton.type = 'button';
-    removeButton.id = 'remove-array-btn';
+    removeButton.name = 'remove-array-btn';
     removeButton.setAttribute('onclick', 'removeArray(this)');
     removeButton.innerHTML = '<i class="fas fa-times"></i>';
     arrayHeader.appendChild(removeButton);
@@ -956,7 +966,7 @@ function resetForm() {
     alert("Параметри форми очищено!");
 }
 
-// Додаємо обробник подій при завантаженні сторінки
+// Ініціалізуємо сторінку при завантаженні
 document.addEventListener('DOMContentLoaded', function() {
     // Ініціалізуємо селекти та обробники подій
     updateModelOptions();

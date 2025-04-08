@@ -430,6 +430,7 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
         # Отримуємо параметри масиву
         rows = int(array.get('rows', 1))
         panels_per_row = int(array.get('panels_per_row', 1))
+        array_name = array.get('name', '')
         
         # Перевірка на валідність даних
         if rows <= 0 or panels_per_row <= 0:
@@ -495,7 +496,11 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
         add_legend(draw, img_width / 2, legend_y, font)
         
         # Додаємо заголовок схеми
-        title = f"Схема розміщення панелей - Масив #{i+1} ({rows}x{panels_per_row})"
+        if array_name and array_name.strip():
+            title = f"Схема розміщення панелей - {array_name} ({rows}x{panels_per_row})"
+        else:
+            title = f"Схема розміщення панелей - Масив #{i+1} ({rows}x{panels_per_row})"
+        
         title_font = font
         if font:
             try:

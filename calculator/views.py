@@ -190,20 +190,21 @@ def calculate(request):
 
             # Обробка масивів панелей
             panel_arrays = []
+            array_index = 1
             total_panels = 0
             
-            # Збираємо дані про всі масиви панелей
-            array_index = 1
             while f'rows_{array_index}' in data:
                 rows = int(data.get(f'rows_{array_index}', 0))
                 panels_per_row = int(data.get(f'panels_per_row_{array_index}', 0))
+                array_name = data.get(f'array_name_{array_index}', f'Масив #{array_index}')
                 
                 if rows > 0 and panels_per_row > 0:
                     panel_arrays.append({
                         'id': array_index,
                         'rows': rows,
                         'panels_per_row': panels_per_row,
-                        'total': rows * panels_per_row
+                        'total': rows * panels_per_row,
+                        'name': array_name
                     })
                     total_panels += rows * panels_per_row
                 
