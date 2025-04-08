@@ -165,6 +165,28 @@ def calculate(request):
                 panel_width = float(data.get('panel_width', 0))
                 panel_height = float(data.get('panel_height', 0))
                 panel_model_name = data.get('custom_panel_model', '')  # Використовуємо введену назву
+            
+            # Ініціалізуємо змінні для наземного розміщення з значеннями за замовчуванням
+            carcase_material = None
+            column_distance = 0
+            carcase_high = 0
+            available_carcase_lengths = []
+            a = 0
+            
+            if 'ground_mounting' in data and data['ground_mounting'] == 'on':
+                # Отримуємо параметри наземного розміщення
+                if 'frame_material_1' in data:
+                    carcase_material = data.get('frame_material_1', '')
+                if 'column_distance_1' in data:
+                    column_distance = float(data.get('column_distance_1', 0))
+                if 'mounting_height_1' in data:
+                    carcase_high = float(data.get('mounting_height_1', 0))
+                if 'mounting_angle_1' in data:
+                    a = float(data.get('mounting_angle_1', 0))
+                if 'profile_carcase_lengths' in data:
+                    available_carcase_lengths = [float(x.strip()) for x in data['profile_carcase_lengths'].split(',')]
+                elif not available_carcase_lengths:  # Якщо не вказано, використовуємо значення за замовчуванням
+                    available_carcase_lengths = [3.0, 4.0, 6.0]
 
             # Обробка масивів панелей
             panel_arrays = []
@@ -206,6 +228,8 @@ def calculate(request):
 
             # Розрахунок загальної довжини профілів для всіх масивів
             total_profil_len = 0
+            total_carcase_len = 0
+            total_carcase_count = 0
             for array in panel_arrays:
                 rows = array['rows']
                 panels_per_row = array['panels_per_row']
@@ -213,8 +237,27 @@ def calculate(request):
                 array_profil_len = 0
                 if panel_arrangement == 'альбомна':
                     array_profil_len = ((panel_length * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+                    if carcase_material == 'оцинкований' or carcase_material == 'алюміній' or carcase_material == 'залізо':
+                        vertical_profile_len = (panel_width * rows) - 0.12
+                        c = vertical_profile_len - 0.12
+                        N = int(((panel_width * panels_per_row) / column_distance) + 1)
+                        K = math.sin(math.radians(a)) * c
+                        carcase_profile = (carcase_high * N * 2) + K
+                        array_profil_len += vertical_profile_len * N
+                        total_carcase_len += carcase_profile
+                        total_carcase_count += N * 2
+
                 elif panel_arrangement == 'портретна':
                     array_profil_len = ((panel_width * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+                    if carcase_material == 'оцинкований' or carcase_material == 'алюміній' or carcase_material == 'залізо':
+                        vertical_profile_len = (panel_length * rows) - 0.12
+                        c = vertical_profile_len - 0.12
+                        N = int(((panel_length * panels_per_row) / column_distance) + 1)
+                        K = math.sin(math.radians(a)) * c
+                        carcase_profile = (carcase_high * N * 2) + K
+                        array_profil_len += vertical_profile_len * N
+                        total_carcase_len += carcase_profile
+                        total_carcase_count += N * 2
                 
                 array['profil_len'] = array_profil_len
                 total_profil_len += array_profil_len
@@ -234,6 +277,24 @@ def calculate(request):
             # Підрахунок кількості кожного типу профілю
             profile_counts = {length: profiles.count(length) for length in set(profiles)}
             grouped_profiles = [{'length': length, 'count': count} for length, count in profile_counts.items()]
+
+
+
+            sorted_carcase_arr = sorted(available_carcase_lengths, reverse=True)
+            carcase_profiles = []
+            remaining_carcase_length = total_carcase_len
+            while remaining_carcase_length > 0:
+                possible_carcase_lengths = [l for l in sorted_carcase_arr if l <= remaining_carcase_length]
+                if not possible_carcase_lengths:
+                    carcase_profiles.append(sorted_carcase_arr[-1])
+                    break
+                best_length = max(possible_carcase_lengths)
+                carcase_profiles.append(best_length)
+                remaining_carcase_length -= best_length
+
+            # Підрахунок кількості кожного типу профілю
+            carcase_profile_counts = {length: carcase_profiles.count(length) for length in set(carcase_profiles)}
+            grouped_carcase_profiles = [{'length': length, 'count': count} for length, count in carcase_profile_counts.items()]
 
             # Розрахунок загальної кількості затискачів для всіх масивів
             total_g_clamps = 0
@@ -332,6 +393,8 @@ def calculate(request):
                         'string_count': data.get('string_count', ''),
                         'screw_material': data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
                         'profile_material': data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
+                        'foundation_type_1': data.get('foundation_type_1', 'забивна палка'),
+                        'grouped_carcase_profiles': grouped_carcase_profiles,
                         # Додаткові параметри (необов'язкові)
                         'inverterModel': data.get('custom_inverter_model', '') or data.get('inverter_model', ''),
                         'inverterPower': data.get('inverter_power', ''),
@@ -357,6 +420,24 @@ def calculate(request):
             print(results)
             print("Profiles dictionary:", profile_counts)
 
+            # Додаємо дані про каркас до контексту, якщо наземне розміщення активовано
+            if carcase_material:
+                results['data'].update({
+                    'carcase_material': carcase_material,
+                    'column_distance': column_distance,
+                    'carcase_high': carcase_high,
+                    'mounting_angle': a,
+                    'total_carcase_len': total_carcase_len,
+                    'total_carcase_count': total_carcase_count,
+                    'grouped_carcase_profiles': grouped_carcase_profiles
+                })
+                
+                # Додаємо тип основи
+                if 'foundation_type_1' in data:
+                    results['data']['foundation_type_1'] = data.get('foundation_type_1', 'забивна палка')
+                else:
+                    results['data']['foundation_type_1'] = 'забивна палка'
+            
             # Додаємо поточну дату та інформацію про обладнання в контекст
             results['data']['current_date'] = datetime.now().strftime('%d.%m.%Y')
             
@@ -437,6 +518,35 @@ def generate_pdf(request):
                     except (ValueError, TypeError):
                         print(f"Помилка при обробці {key}: {value}")
             
+            # Збираємо динамічні рядки для кріплень (K10n, K11n, K12n, K13n для n=0,1,2,...)
+            dynamic_mounting = []
+            
+            # Перебираємо всі ключі, які починаються з K10, K11, K12, K13 і мають довжину 4 символи (для нового формату)
+            for key, value in data.items():
+                if (key.startswith('K10') or key.startswith('K11') or key.startswith('K12') or key.startswith('K13')) and len(key) == 4 and value:
+                    # Отримуємо індекс рядка (останній символ)
+                    row_index = key[3]
+                    
+                    # Перевіряємо, чи це назва елемента (K10n)
+                    if key.startswith('K10'):
+                        name = value
+                        # Шукаємо відповідні кількість, ціну та суму
+                        quantity_key = f'K11{row_index}'
+                        price_key = f'K12{row_index}'
+                        
+                        quantity = int(data.get(quantity_key, 0) or 0)
+                        price = float(data.get(price_key, 0) or 0.0)
+                        
+                        # Додаємо до списку динамічних рядків
+                        if name and quantity > 0:
+                            dynamic_mounting.append({
+                                'name': name,
+                                'quantity': quantity,
+                                'unit': 'шт',
+                                'price': price
+                            })
+                            print(f"Додано динамічний рядок: назва={name}, кількість={quantity}, ціна={price}")
+            
             # Виведемо діагностичну інформацію
             print("K11_values keys:", [key for key in data.keys() if key.startswith('K11_')])
             
@@ -457,6 +567,31 @@ def generate_pdf(request):
             print("K11_values:", K11_values)
             print("K12_values:", K12_values)
             print("k_values:", k_values)
+            
+            # Збираємо параметри для профілів каркасу (K71_*)
+            carcase_profiles = []
+            for key, value in data.items():
+                if key.startswith('K71_') and value:
+                    length = key.replace('K71_', '')
+                    try:
+                        # Шукаємо відповідну ціну для цієї довжини
+                        # Спочатку шукаємо з комою, як в оригінальному ключі
+                        price_key = f'K72_{key.replace("K71_", "")}'
+                        price = float(data.get(price_key, 0) or 0)
+                        print(f"Профіль120 {length}м: кількість={value}, ціна_ключ={price_key}, ціна={price}")
+                        carcase_profiles.append({
+                            "length": float(length.replace(',', '.')), 
+                            "count": int(value),
+                            "price": price
+                        })
+                    except (ValueError, TypeError):
+                        print(f"Помилка при обробці {key}: {value}")
+            
+            # Виведемо діагностичну інформацію для профілів каркасу
+            print("K71_* keys:", [key for key in data.keys() if key.startswith('K71_')])
+            print("carcase_profiles:", carcase_profiles)
+            print("carcase_material:", data.get('carcase_material', ''))
+            print("foundation_type_1:", data.get('foundation_type_1', ''))
             
             # Збираємо динамічно додані рядки для кожної категорії
             dynamic_equipment = []
@@ -544,9 +679,12 @@ def generate_pdf(request):
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
                 K51=int(data.get('K51', 0) or 0), K52=float(data.get('K52', 0) or 0.0),
                 K61=int(data.get('K61', 0) or 0), K62=float(data.get('K62', 0) or 0.0),
-                K71=int(data.get('K71', 0) or 0), K72=float(data.get('K72', 0) or 0.0),
+                K71=carcase_profiles,
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
+                K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
+                K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
+                K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
                 E21=int(data.get('E21', 0) or 0), E22=float(data.get('E22', 0) or 0.0),
                 R11=int(data.get('R11', 0) or 0), R12=float(data.get('R12', 0) or 0.0),
@@ -554,7 +692,6 @@ def generate_pdf(request):
                 R31=int(data.get('R31', 0) or 0), R32=float(data.get('R32', 0) or 0.0),
                 scheme_image=normalize_path(str(data.get('scheme_image', ''))),
                 dynamic_equipment=dynamic_equipment,
-                dynamic_mounting=dynamic_mounting,
                 dynamic_electrical=dynamic_electrical,
                 dynamic_work=dynamic_work,
                 usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
@@ -573,7 +710,10 @@ def generate_pdf(request):
                 total_panels=total_panels,  # Додаємо загальну кількість панелей
                 total_rows=total_rows,  # Додаємо загальну кількість рядів
                 avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
-                panel_schemes=panel_schemes  # Додаємо схеми для кожного масиву
+                panel_schemes=panel_schemes,  # Додаємо список схем для кожного масиву
+                carcase_material=data.get('carcase_material', ''),  # Додаємо матеріал каркасу
+                foundation_type_1=data.get('foundation_type_1', ''),  # Додаємо тип основи
+                carcase_profiles=carcase_profiles  # Додаємо профілі каркасу
             )
 
             # Нормалізуємо шлях до PDF

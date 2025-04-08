@@ -76,22 +76,31 @@ class CustomPDF(FPDF):
 
 # Ініціалізуємо PDF з підтримкою UTF-8
 def generate(
-        O: bool = False, K: bool = False, E: bool = False, R: bool = False,
-        O11: int = 0, O12: float = 0, O21: int = 0, O22: float = 0,
-        O31: int = 0, O32: float = 0,
+        O: bool = True, K: bool = True, E: bool = True, R: bool = True,
+        O11: int = 0, O12: float = 0.0,
+        O21: int = 0, O22: float = 0.0,
+        O31: int = 0, O32: float = 0.0,
         K1112: list = [],
-        K21: int = 0, K22: float = 0,
-        K31: int = 0, K32: float = 0, K41: int = 0, K42: float = 0,
-        K51: int = 0, K52: float = 0, K61: int = 0, K62: float = 0,
-        K71: int = 0, K72: float = 0, K81: int = 0, K82: float = 0,
-        K91: int = 0, K92: float = 0,
-        E11: int = 0, E12: float = 0, E21: int = 0, E22: float = 0,
-        R11: int = 0, R12: float = 0, R21: int = 0, R22: float = 0,
-        R31: int = 0, R32: float = 0,
+        K21: int = 0, K22: float = 0.0,
+        K31: int = 0, K32: float = 0.0,
+        K41: int = 0, K42: float = 0.0,
+        K51: int = 0, K52: float = 0.0,
+        K61: int = 0, K62: float = 0.0,
+        K71: list = [],
+        K81: int = 0, K82: float = 0.0,
+        K91: int = 0, K92: float = 0.0,
+        K111: int = 0, K121: float = 0.0,
+        K912: int = 0, K922: float = 0.0,
+        K913: int = 0, K923: float = 0.0,
+        E11: int = 0, E12: float = 0.0,
+        E21: int = 0, E22: float = 0.0,
+        R11: int = 0, R12: float = 0.0,
+        R21: int = 0, R22: float = 0.0,
+        R31: int = 0, R32: float = 0.0,
         scheme_image: str = '',
         panel_height: int = 30,
         dynamic_equipment: list = [],
-        dynamic_mounting: list = [],
+        dynamic_mounting: list = [],  # Додаємо динамічні рядки кріплень
         dynamic_electrical: list = [],
         dynamic_other: list = [],
         dynamic_work: list = [],
@@ -110,7 +119,10 @@ def generate(
         total_panels: int = 0,  # Додаємо загальну кількість панелей
         total_rows: int = 0,  # Додаємо загальну кількість рядів
         avg_panels_per_row: float = 0,  # Додаємо середню кількість панелей в ряді
-        panel_schemes: list = []  # Додаємо список схем для кожного масиву
+        panel_schemes: list = [],  # Додаємо список схем для кожного масиву
+        carcase_material: str = '',  # Додаємо матеріал каркасу
+        foundation_type_1: str = '',  # Додаємо тип основи
+        carcase_profiles: list = []  # Додаємо профілі каркасу
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -232,16 +244,38 @@ def generate(
         [f'Міжпанельні V-образні зажими ({panel_height} мм)', f'{K31}', 'компл.', f'{K32}', f'{K31 * K32}'],
         [f'Гвинт шуруп М10*200 комплект ({screw_material})', f'{K41}', 'компл.', f'{K42}', f'{K41 * K42}'],
         ['Комплект з\'єднувача профілів (ЗОВНІШНІЙ)', f'{K51}', 'компл.', f'{K52}', f'{K51 * K52}'],
-        ['Конектори МС4', f'{K61}', 'пара.', f'{K62}', f'{K61 * K62}'],
-        ['Кабель', f'{K71}', 'м.', f'{K72}', f'{K71 * K72}']
+        ['Комплект з\'єднувача профілів (ВНУТРІШНІЙ)', f'{K61}', 'компл.', f'{K62}', f'{K61 * K62}'],
+        ['Конектори МС4', f'{K91}', 'пара.', f'{K92}', f'{K91 * K92}'],
+        ['Кабель', f'{K111}', 'м.', f'{K121}', f'{K111 * K121}']
     ])
     
-    # Додаємо стійки тільки якщо їх кількість більше 0
-    if K81 > 0:
-        mounting.append(['Стійка 8', f'{K81}', 'шт.', f'{K82}', f'{K81 * K82}'])
+    # Додаємо профілі каркасу та тип основи, якщо вказано матеріал каркасу
+    if carcase_material:
+        # Виведемо діагностичну інформацію
+        print("PDF: carcase_material:", carcase_material)
+        print("PDF: foundation_type_1:", foundation_type_1)
+        print("PDF: carcase_profiles:", carcase_profiles)
+        
+        # Додаємо профілі каркасу з K71 (carcase_profiles)
+        if isinstance(K71, list) and len(K71) > 0:
+            for profile in K71:
+                length = profile.get('length', 0)
+                count = profile.get('count', 0)
+                price = profile.get('price', 0)
+                # Обчислюємо суму як кількість * ціна * метри (відповідно до MEMORY[2d85b207-b263-492c-a6ea-5dbfb4924d50])
+                total = count * price * length
+                mounting.append([f'Профіль120 {length}м ({carcase_material})', f'{count}', 'шт.', f'{price}/м', f'{total}'])
+        
+        # Додаємо тип основи
+        if foundation_type_1 and K81 > 0:
+            mounting.append([f'Основа ({foundation_type_1})', f'{K81}', 'шт.', f'{K82}', f'{K81 * K82}'])
     
-    if K91 > 0:
-        mounting.append(['Стійка 12', f'{K91}', 'шт.', f'{K92}', f'{K91 * K92}'])
+    # Додаємо стійки тільки якщо їх кількість більше 0
+    if K912 > 0:
+        mounting.append(['Стійка 8', f'{K912}', 'шт.', f'{K922}', f'{K912 * K922}'])
+    
+    if K913 > 0:
+        mounting.append(['Стійка 12', f'{K913}', 'шт.', f'{K923}', f'{K913 * K923}'])
     
     # Додаємо динамічно створені рядки кріплення
     for item in dynamic_mounting:

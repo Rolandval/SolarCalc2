@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/table.css">
-
 </head>
 <body>
 <div id="tables">
@@ -300,39 +299,69 @@
                             <td><input type="number" name="K53" value="0"></td>
                         </tr>
                         <tr>
-                            <td>Конектори МС4</td>
-                            <td><input type="number" name="K61" value="{{ data.connectors }}"></td>
-                            <td>шт</td>
+                            <td>Комплект з'єднувача профілів (ВНУТРІШНІЙ)</td>
+                            <td><input type="number" name="K61" value="{{ data.inner_connectors }}"></td>
+                            <td>компл</td>
                             <td><input type="number" name="Z9" value="0"></td>
                             <td><input type="number" name="K62" value="0"></td>
                             <td><input type="number" name="K63" value="0"></td>
                         </tr>
+                        
+                        {% if data.carcase_material %}
+                        <!-- Додаткові рядки для наземного розміщення -->
+                        {% for profile in data.grouped_carcase_profiles %}
+                        <tr>
+                            <td>Профіль120 {{ profile.length }} м ({{ data.carcase_material }})</td>
+                            <td><input type="number" name="K71_{{ profile.length }}" value="{{ profile.count }}"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z10_{{ profile.length }}" value="0"></td>
+                            <td><input type="number" name="K72_{{ profile.length }}" value="{{ profile.price|default:0 }}"></td>
+                            <td><input type="number" name="K73_{{ profile.length }}" value="0" data-length="{{ profile.length }}"></td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>Основа ({{ data.foundation_type_1 }})</td>
+                            <td><input type="number" name="K81" value="{{ data.total_carcase_count }}"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z11" value="0"></td>
+                            <td><input type="number" name="K82" value="0"></td>
+                            <td><input type="number" name="K83" value="0"></td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td>Конектори МС4</td>
+                            <td><input type="number" name="K91" value="{{ data.connectors }}"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z12" value="0"></td>
+                            <td><input type="number" name="K92" value="0"></td>
+                            <td><input type="number" name="K93" value="0"></td>
+                        </tr>
                         <tr>
                             <td>Кабель</td>
-                            <td><input type="number" name="K71" value="0"></td>
+                            <td><input type="number" name="K111" value="0"></td>
                             <td>м</td>
-                            <td><input type="number" name="Z10" value="0"></td>
-                            <td><input type="number" name="K72" value="0"></td>
-                            <td><input type="number" name="K73" value="0"></td>
+                            <td><input type="number" name="Z13" value="0"></td>
+                            <td><input type="number" name="K121" value="0"></td>
+                            <td><input type="number" name="K131" value="0"></td>
                         </tr>
                         {% if data.batteryIsStand8 == 'Так' %}
                         <tr>
                             <td>Стійка 8</td>
-                            <td><input type="number" name="K81" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                            <td><input type="number" name="K912" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z31" value="0"></td>
-                            <td><input type="number" name="K82" value="0"></td>
-                            <td><input type="number" name="K83" value="0"></td>
+                            <td><input type="number" name="Z14" value="0"></td>
+                            <td><input type="number" name="K922" value="0"></td>
+                            <td><input type="number" name="K932" value="0"></td>
                         </tr>
                         {% endif %}
                         {% if data.batteryIsStand12 == 'Так' %}
                         <tr>
                             <td>Стійка 12</td>
-                            <td><input type="number" name="K91" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                            <td><input type="number" name="K913" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z32" value="0"></td>
-                            <td><input type="number" name="K92" value="0"></td>
-                            <td><input type="number" name="K93" value="0"></td>
+                            <td><input type="number" name="Z15" value="0"></td>
+                            <td><input type="number" name="K923" value="0"></td>
+                            <td><input type="number" name="K933" value="0"></td>
                         </tr>
                         {% endif %}
                     </tbody>
@@ -361,7 +390,7 @@
                             <td>Коробки з автоматами</td>
                             <td><input type="number" name="E11" value="0"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z11" value="0"></td>
+                            <td><input type="number" name="Z16" value="0"></td>
                             <td><input type="number" name="E12" value="0"></td>
                             <td><input type="number" name="E13" value="0"></td>
                         </tr>
@@ -369,13 +398,13 @@
                             <td>Блискавкозахист</td>
                             <td><input type="number" name="E21" value="0"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z12" value="0"></td>
+                            <td><input type="number" name="Z17" value="0"></td>
                             <td><input type="number" name="E22" value="0"></td>
                             <td><input type="number" name="E23" value="0"></td>
                         </tr>
                     </tbody>
                 </table>
-                <button type="button" class="add-row-btn" data-table="electricity" data-prefix="E" data-z-start="20">+</button>
+                <button type="button" class="add-row-btn" data-table="electricity" data-prefix="E" data-z-start="18">+</button>
                 <div class="table-summary">
                     <p>Сума електрики:<span id="electricity-sum">0</span>грн</p>
                 </div>
@@ -399,7 +428,7 @@
                             <td>Доставка</td>
                             <td><input type="number" name="R11" value="0"></td>
                             <td>км</td>
-                            <td><input type="number" name="Z13" value="0"></td>
+                            <td><input type="number" name="Z18" value="0"></td>
                             <td><input type="number" name="R12" value="0"></td>
                             <td><input type="number" name="R13" value="0"></td>
                         </tr>
@@ -407,7 +436,7 @@
                             <td>Роботи електрика</td>
                             <td><input type="number" name="R21" value="0"></td>
                             <td>послуга</td>
-                            <td><input type="number" name="Z14" value="0"></td>
+                            <td><input type="number" name="Z19" value="0"></td>
                             <td><input type="number" name="R22" value="0"></td>
                             <td><input type="number" name="R23" value="0"></td>
                         </tr>
@@ -415,13 +444,13 @@
                             <td>Монтаж</td>
                             <td><input type="number" name="R31" value="0"></td>
                             <td>послуга</td>
-                            <td><input type="number" name="Z15" value="0"></td>
+                            <td><input type="number" name="Z20" value="0"></td>
                             <td><input type="number" name="R32" value="0"></td>
                             <td><input type="number" name="R33" value="0"></td>
                         </tr>
                     </tbody>
                 </table>
-                <button type="button" class="add-row-btn" data-table="work" data-prefix="R" data-z-start="25">+</button>
+                <button type="button" class="add-row-btn" data-table="work" data-prefix="R" data-z-start="21">+</button>
                 <div class="table-summary">
                     <p>Сума роботи:<span id="work-sum">0</span>грн</p>
                 </div>
@@ -469,6 +498,14 @@
             <!-- Додаємо приховане поле для передачі даних про схеми панелей -->
             {% if data.panel_schemes_json %}
             <input type="hidden" name="panel_schemes" value="{{ data.panel_schemes_json }}">
+            {% endif %}
+
+            <!-- Приховані поля для передачі параметрів наземного розміщення -->
+            {% if data.carcase_material %}
+            <input type="hidden" name="carcase_material" value="{{ data.carcase_material }}">
+            {% endif %}
+            {% if data.foundation_type_1 %}
+            <input type="hidden" name="foundation_type_1" value="{{ data.foundation_type_1 }}">
             {% endif %}
 
             <div style="text-align: center; margin: 30px 0;">
@@ -542,6 +579,6 @@
     </div>
 </div>
 
-<script src="/static/js/table.js"></script>
+<script src="/static/js/table.js?v={% now 'U' %}"></script>
 </body>
 </html>

@@ -307,7 +307,7 @@ button:hover {
     background-color: #ef4444;
     color: white;
     border: none;
-    border-radius: 50%;
+    border-radius: 4px;
     width: 24px;
     height: 24px;
     display: flex;
@@ -315,6 +315,17 @@ button:hover {
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.remove-array-btn i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .remove-array-btn:hover {
@@ -432,15 +443,119 @@ button:hover {
     letter-spacing: 0.5px;
 }
 
-.calc-btn:hover {
-    background-color: var(--secondary-dark);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 10px rgba(0, 0, 0, 0.1);
+/* Стилі для чекбоксу наземного розміщення */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
-.calc-btn i {
+.checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
     margin-right: 10px;
-    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.checkbox-container label {
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.checkbox-container label i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+/* Стилі для контейнера з параметрами наземного розміщення */
+#ground_mounting_params {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+#ground_mounting_params .form-group {
+    margin-bottom: 10px;
+}
+
+/* Стилі для полів наземного розміщення в ряд */
+.ground-mounting-container {
+    background-color: rgba(52, 152, 219, 0.05);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ground-mounting-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+.ground-mounting-title i {
+    margin-right: 5px;
+}
+
+.ground-mounting-fields {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    width: 100% !important;
+}
+
+.ground-mounting-fields .form-group {
+    flex: 1 1 150px !important;
+    min-width: 150px !important;
+    margin-bottom: 0 !important;
+    display: block !important;
+}
+
+.ground-mounting-fields label {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.ground-mounting-fields input,
+.ground-mounting-fields select {
+    border-color: rgba(52, 152, 219, 0.3);
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.ground-mounting-fields input:focus,
+.ground-mounting-fields select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.panel-array .ground-mounting-fields {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
 }
 
 /* Стилі для кнопки очищення форми */

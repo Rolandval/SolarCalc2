@@ -14,11 +14,11 @@ function calculateRowSum(row) {
     inputs.forEach(input => {
         const name = input.name;
         
-        // Перевіряємо, чи це інпут для кількості профілю (починається з K11_)
-        if (name.startsWith('K11_')) {
+        // Перевіряємо, чи це інпут для кількості профілю (починається з K11_ або K71_)
+        if (name.startsWith('K11_') || name.startsWith('K71_')) {
             isProfileRow = true;
-            // Витягуємо довжину профілю з імені інпута (K11_3 -> 3)
-            const lengthMatch = name.match(/K11_(\d+\.?\d*)/);
+            // Витягуємо довжину профілю з імені інпута (K11_3 -> 3 або K71_3 -> 3)
+            const lengthMatch = name.match(/K\d+_(\d+\.?\d*)/);
             if (lengthMatch) {
                 profileLength = parseFloat(lengthMatch[1]) || 1;
             }
@@ -29,8 +29,8 @@ function calculateRowSum(row) {
             quantityInput = input;
         }
         
-        // Перевіряємо, чи це інпут для ціни профілю (починається з K12_)
-        if (name.startsWith('K12_')) {
+        // Перевіряємо, чи це інпут для ціни профілю (починається з K12_ або K72_)
+        if (name.startsWith('K12_') || name.startsWith('K72_')) {
             priceInput = input;
         }
         // Перевіряємо, чи це інпут для ціни (3-й символ == 2)
@@ -38,8 +38,8 @@ function calculateRowSum(row) {
             priceInput = input;
         }
         
-        // Перевіряємо, чи це інпут для суми профілю (починається з K13_)
-        if (name.startsWith('K13_')) {
+        // Перевіряємо, чи це інпут для суми профілю (починається з K13_ або K73_)
+        if (name.startsWith('K13_') || name.startsWith('K73_')) {
             sumInput = input;
         }
         // Перевіряємо, чи це інпут для суми (3-й символ == 3)
@@ -59,6 +59,11 @@ function calculateRowSum(row) {
             // Для профілю: кількість * ціна * метри
             sum = quantity * price * profileLength;
             console.log('Профіль, Довжина:', profileLength, 'Кількість:', quantity, 'Ціна:', price, 'Сума:', sum);
+        } else if (sumInput.hasAttribute('data-length')) {
+            // Для профілю120: кількість * ціна * метри (використовуємо атрибут data-length)
+            const length = parseFloat(sumInput.getAttribute('data-length')) || 1;
+            sum = quantity * price * length;
+            console.log('Профіль120, Довжина:', length, 'Кількість:', quantity, 'Ціна:', price, 'Сума:', sum);
         } else {
             // Для інших рядків: кількість * ціна
             sum = quantity * price;
@@ -88,11 +93,11 @@ function calculatePurchase(row) {
     inputs.forEach(input => {
         const name = input.name;
         
-        // Перевіряємо, чи це інпут для кількості профілю (починається з K11_)
-        if (name.startsWith('K11_')) {
+        // Перевіряємо, чи це інпут для кількості профілю (починається з K11_ або K71_)
+        if (name.startsWith('K11_') || name.startsWith('K71_')) {
             isProfileRow = true;
-            // Витягуємо довжину профілю з імені інпута (K11_3 -> 3)
-            const lengthMatch = name.match(/K11_(\d+\.?\d*)/);
+            // Витягуємо довжину профілю з імені інпута (K11_3 -> 3 або K71_3 -> 3)
+            const lengthMatch = name.match(/K\d+_(\d+\.?\d*)/);
             if (lengthMatch) {
                 profileLength = parseFloat(lengthMatch[1]) || 1;
             }
@@ -103,8 +108,8 @@ function calculatePurchase(row) {
             quantityInput = input;
         }
         
-        // Перевіряємо, чи це інпут для закупки профілю (починається з Z4_)
-        if (name.startsWith('Z4_')) {
+        // Перевіряємо, чи це інпут для закупки профілю (починається з Z4_ або Z10_)
+        if (name.startsWith('Z4_') || name.startsWith('Z10_')) {
             purchaseInput = input;
         }
         // Перевіряємо, чи це інпут для закупки (починається з "Z")
@@ -120,8 +125,19 @@ function calculatePurchase(row) {
         
         let totalPurchase = 0;
         
-        // Для всіх рядків: кількість * закупка
-        totalPurchase = quantity * purchasePrice;
+        if (isProfileRow) {
+            // Для профілів: кількість * закупка * метри
+            totalPurchase = quantity * purchasePrice * profileLength;
+            console.log('Профіль закупка, Довжина:', profileLength, 'Кількість:', quantity, 'Закупка:', purchasePrice, 'Загальна закупка:', totalPurchase);
+        } else if (purchaseInput.hasAttribute('data-length') || quantityInput.hasAttribute('data-length')) {
+            // Для профілю120: кількість * закупка * метри (використовуємо атрибут data-length)
+            const length = parseFloat(purchaseInput.getAttribute('data-length') || quantityInput.getAttribute('data-length')) || 1;
+            totalPurchase = quantity * purchasePrice * length;
+            console.log('Профіль120 закупка, Довжина:', length, 'Кількість:', quantity, 'Закупка:', purchasePrice, 'Загальна закупка:', totalPurchase);
+        } else {
+            // Для інших рядків: кількість * закупка
+            totalPurchase = quantity * purchasePrice;
+        }
         
         return totalPurchase; // Повертаємо загальну вартість закупки
     }
@@ -231,11 +247,30 @@ function addNewRow(tableId, prefix, zIndex) {
     // Створюємо новий рядок
     const newRow = document.createElement('tr');
     
+    // Формуємо правильні індекси для полів
+    let nameIndex, quantityIndex, priceIndex, sumIndex;
+    
+    if (rowCount < 10) {
+        // Для рядків 1-9 використовуємо старий формат: К10, К11, К12, К13
+        nameIndex = rowCount + '0';
+        quantityIndex = rowCount + '1';
+        priceIndex = rowCount + '2';
+        sumIndex = rowCount + '3';
+    } else {
+        // Для рядків 10+ використовуємо новий формат: К11n, К12n, К13n
+        // де n - номер рядка (для рядка 10: n=0, для рядка 11: n=1, і т.д.)
+        const n = rowCount - 10; // Отримуємо зміщення від 10 (0, 1, 2, ...)
+        quantityIndex = '11' + n; // prefix + 11 + n для кількості
+        priceIndex = '12' + n;    // prefix + 12 + n для ціни
+        sumIndex = '13' + n;      // prefix + 13 + n для суми
+        nameIndex = '10' + n;     // prefix + 10 + n для назви
+    }
+    
     // Додаємо комірку для назви
     const nameCell = document.createElement('td');
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
-    nameInput.name = prefix + rowCount + '0'; // Додаємо поле для назви
+    nameInput.name = prefix + nameIndex; // Додаємо поле для назви
     nameInput.placeholder = 'Назва';
     nameInput.style.fontFamily = "'Montserrat', sans-serif";
     nameInput.style.fontSize = '0.95rem';
@@ -245,7 +280,7 @@ function addNewRow(tableId, prefix, zIndex) {
     const quantityCell = document.createElement('td');
     const quantityInput = document.createElement('input');
     quantityInput.type = 'number';
-    quantityInput.name = prefix + rowCount + '1';
+    quantityInput.name = prefix + quantityIndex;
     quantityInput.value = '0';
     quantityInput.addEventListener('input', calculateTotal);
     quantityCell.appendChild(quantityInput);
@@ -280,7 +315,7 @@ function addNewRow(tableId, prefix, zIndex) {
     const priceCell = document.createElement('td');
     const priceInput = document.createElement('input');
     priceInput.type = 'number';
-    priceInput.name = prefix + rowCount + '2';
+    priceInput.name = prefix + priceIndex;
     priceInput.value = '0';
     priceInput.addEventListener('input', calculateTotal);
     priceCell.appendChild(priceInput);
@@ -289,7 +324,7 @@ function addNewRow(tableId, prefix, zIndex) {
     const sumCell = document.createElement('td');
     const sumInput = document.createElement('input');
     sumInput.type = 'number';
-    sumInput.name = prefix + rowCount + '3';
+    sumInput.name = prefix + sumIndex;
     sumInput.value = '0';
     sumInput.readOnly = true;
     

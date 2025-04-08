@@ -283,34 +283,248 @@ function addNewArray() {
     const arrays = container.querySelectorAll('.panel-array');
     const newArrayId = arrays.length + 1;
     
+    // Перевіряємо, чи активовано чекбокс наземного розміщення
+    const groundMountingEnabled = document.getElementById('ground_mounting') && 
+                                 document.getElementById('ground_mounting').checked;
+    
     // Створюємо новий масив
     const newArray = document.createElement('div');
     newArray.className = 'panel-array';
     newArray.dataset.arrayId = newArrayId;
     
-    newArray.innerHTML = `
-        <div class="array-header">
-            <h4>Масив #${newArrayId}</h4>
-            <button type="button" class="remove-array-btn" onclick="removeArray(this)">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="array-content">
-            <div class="form-group">
-                <label for="rows_${newArrayId}"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
-                <input type="number" id="rows_${newArrayId}" name="rows_${newArrayId}" value="2" required min="1" onchange="calculateTotalPanels()">
-            </div>
-            <div class="form-group">
-                <label for="panels_per_row_${newArrayId}"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
-                <input type="number" id="panels_per_row_${newArrayId}" name="panels_per_row_${newArrayId}" value="3" required min="1" onchange="calculateTotalPanels()">
-            </div>
-            <div class="form-group">
-                <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
-                <span class="array-total">6</span>
-            </div>
-        </div>
-    `;
+    // Створюємо заголовок масиву
+    const arrayHeader = document.createElement('div');
+    arrayHeader.className = 'array-header';
     
+    const arrayTitle = document.createElement('h4');
+    arrayTitle.textContent = `Масив #${newArrayId}`;
+    arrayHeader.appendChild(arrayTitle);
+    
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.id = 'remove-array-btn';
+    removeButton.setAttribute('onclick', 'removeArray(this)');
+    removeButton.innerHTML = '<i class="fas fa-times"></i>';
+    arrayHeader.appendChild(removeButton);
+    
+    newArray.appendChild(arrayHeader);
+    
+    // Створюємо контент масиву
+    const arrayContent = document.createElement('div');
+    arrayContent.className = 'array-content';
+    
+    // Додаємо поля для кількості рядів
+    const rowsGroup = document.createElement('div');
+    rowsGroup.className = 'form-group';
+    
+    const rowsLabel = document.createElement('label');
+    rowsLabel.setAttribute('for', `rows_${newArrayId}`);
+    rowsLabel.innerHTML = '<i class="fas fa-grip-lines"></i> Кількість рядів:';
+    rowsGroup.appendChild(rowsLabel);
+    
+    const rowsInput = document.createElement('input');
+    rowsInput.type = 'number';
+    rowsInput.id = `rows_${newArrayId}`;
+    rowsInput.name = `rows_${newArrayId}`;
+    rowsInput.value = '2';
+    rowsInput.required = true;
+    rowsInput.min = '1';
+    rowsInput.setAttribute('onchange', 'calculateTotalPanels()');
+    rowsGroup.appendChild(rowsInput);
+    
+    arrayContent.appendChild(rowsGroup);
+    
+    // Додаємо поля для кількості панелей на ряд
+    const panelsGroup = document.createElement('div');
+    panelsGroup.className = 'form-group';
+    
+    const panelsLabel = document.createElement('label');
+    panelsLabel.setAttribute('for', `panels_per_row_${newArrayId}`);
+    panelsLabel.innerHTML = '<i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:';
+    panelsGroup.appendChild(panelsLabel);
+    
+    const panelsInput = document.createElement('input');
+    panelsInput.type = 'number';
+    panelsInput.id = `panels_per_row_${newArrayId}`;
+    panelsInput.name = `panels_per_row_${newArrayId}`;
+    panelsInput.value = '3';
+    panelsInput.required = true;
+    panelsInput.min = '1';
+    panelsInput.setAttribute('onchange', 'calculateTotalPanels()');
+    panelsGroup.appendChild(panelsInput);
+    
+    arrayContent.appendChild(panelsGroup);
+    
+    // Додаємо поле для відображення загальної кількості панелей у масиві
+    const totalGroup = document.createElement('div');
+    totalGroup.className = 'form-group';
+    
+    const totalLabel = document.createElement('label');
+    totalLabel.innerHTML = '<i class="fas fa-calculator"></i> Панелей у масиві:';
+    totalGroup.appendChild(totalLabel);
+    
+    const totalSpan = document.createElement('span');
+    totalSpan.className = 'array-total';
+    totalSpan.textContent = '6';
+    totalGroup.appendChild(totalSpan);
+    
+    arrayContent.appendChild(totalGroup);
+    
+    // Якщо активовано наземне розміщення, додаємо поля для параметрів
+    if (groundMountingEnabled) {
+        // Створюємо контейнер для полів наземного розміщення
+        const groundMountingWrapper = document.createElement('div');
+        groundMountingWrapper.className = 'ground-mounting-wrapper';
+        
+        // Створюємо контейнер для полів
+        const groundMountingContainer = document.createElement('div');
+        groundMountingContainer.className = 'ground-mounting-container';
+        
+        // Створюємо заголовок
+        const title = document.createElement('div');
+        title.className = 'ground-mounting-title';
+        title.innerHTML = '<i class="fas fa-mountain"></i> Параметри наземного розміщення';
+        groundMountingContainer.appendChild(title);
+        
+        // Створюємо контейнер для полів
+        const fieldsContainer = document.createElement('div');
+        fieldsContainer.className = 'ground-mounting-fields';
+        
+        // Додаємо поля
+        // 1. Висота конструкції
+        const heightGroup = document.createElement('div');
+        heightGroup.className = 'form-group';
+        
+        const heightLabel = document.createElement('label');
+        heightLabel.htmlFor = `mounting_height_${newArrayId}`;
+        heightLabel.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Висота конструкції (м):';
+        heightGroup.appendChild(heightLabel);
+        
+        const heightInput = document.createElement('input');
+        heightInput.type = 'number';
+        heightInput.id = `mounting_height_${newArrayId}`;
+        heightInput.name = `mounting_height_${newArrayId}`;
+        heightInput.value = '1';
+        heightInput.min = '0.1';
+        heightInput.step = '0.1';
+        heightGroup.appendChild(heightInput);
+        
+        fieldsContainer.appendChild(heightGroup);
+        
+        // 2. Кут нахилу
+        const angleGroup = document.createElement('div');
+        angleGroup.className = 'form-group';
+        
+        const angleLabel = document.createElement('label');
+        angleLabel.htmlFor = `mounting_angle_${newArrayId}`;
+        angleLabel.innerHTML = '<i class="fas fa-ruler-combined"></i> Кут нахилу (градусів):';
+        angleGroup.appendChild(angleLabel);
+        
+        const angleInput = document.createElement('input');
+        angleInput.type = 'number';
+        angleInput.id = `mounting_angle_${newArrayId}`;
+        angleInput.name = `mounting_angle_${newArrayId}`;
+        angleInput.value = '30';
+        angleInput.min = '0';
+        angleInput.max = '90';
+        angleInput.step = '1';
+        angleGroup.appendChild(angleInput);
+        
+        fieldsContainer.appendChild(angleGroup);
+        
+        // 3. Відстань між стовпцями
+        const distanceGroup = document.createElement('div');
+        distanceGroup.className = 'form-group';
+        
+        const distanceLabel = document.createElement('label');
+        distanceLabel.htmlFor = `column_distance_${newArrayId}`;
+        distanceLabel.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Відстань між стовпцями (м):';
+        distanceGroup.appendChild(distanceLabel);
+        
+        const distanceInput = document.createElement('input');
+        distanceInput.type = 'number';
+        distanceInput.id = `column_distance_${newArrayId}`;
+        distanceInput.name = `column_distance_${newArrayId}`;
+        distanceInput.value = '2';
+        distanceInput.min = '0.5';
+        distanceInput.step = '0.1';
+        distanceGroup.appendChild(distanceInput);
+        
+        fieldsContainer.appendChild(distanceGroup);
+        
+        // 4. Матеріал каркасу
+        const materialGroup = document.createElement('div');
+        materialGroup.className = 'form-group';
+        
+        const materialLabel = document.createElement('label');
+        materialLabel.htmlFor = `frame_material_${newArrayId}`;
+        materialLabel.innerHTML = '<i class="fas fa-cubes"></i> Матеріал каркасу:';
+        materialGroup.appendChild(materialLabel);
+        
+        const materialSelect = document.createElement('select');
+        materialSelect.id = `frame_material_${newArrayId}`;
+        materialSelect.name = `frame_material_${newArrayId}`;
+        
+        const materialOption1 = document.createElement('option');
+        materialOption1.value = 'оцинкований';
+        materialOption1.textContent = 'Оцинкований';
+        materialSelect.appendChild(materialOption1);
+        
+        const materialOption2 = document.createElement('option');
+        materialOption2.value = 'алюміній';
+        materialOption2.textContent = 'Алюміній';
+        materialSelect.appendChild(materialOption2);
+        
+        const materialOption3 = document.createElement('option');
+        materialOption3.value = 'залізо';
+        materialOption3.textContent = 'Залізо';
+        materialSelect.appendChild(materialOption3);
+        
+        materialGroup.appendChild(materialSelect);
+        fieldsContainer.appendChild(materialGroup);
+        
+        // 5. Тип основи
+        const foundationGroup = document.createElement('div');
+        foundationGroup.className = 'form-group';
+        
+        const foundationLabel = document.createElement('label');
+        foundationLabel.htmlFor = `foundation_type_${newArrayId}`;
+        foundationLabel.innerHTML = '<i class="fas fa-hammer"></i> Тип основи:';
+        foundationGroup.appendChild(foundationLabel);
+        
+        const foundationSelect = document.createElement('select');
+        foundationSelect.id = `foundation_type_${newArrayId}`;
+        foundationSelect.name = `foundation_type_${newArrayId}`;
+        
+        const foundationOption1 = document.createElement('option');
+        foundationOption1.value = 'забивна палка';
+        foundationOption1.textContent = 'Забивна палка';
+        foundationSelect.appendChild(foundationOption1);
+        
+        const foundationOption2 = document.createElement('option');
+        foundationOption2.value = 'геошуруп';
+        foundationOption2.textContent = 'Геошуруп';
+        foundationSelect.appendChild(foundationOption2);
+        
+        const foundationOption3 = document.createElement('option');
+        foundationOption3.value = 'бетонування';
+        foundationOption3.textContent = 'Бетонування';
+        foundationSelect.appendChild(foundationOption3);
+        
+        foundationGroup.appendChild(foundationSelect);
+        fieldsContainer.appendChild(foundationGroup);
+        
+        // Додаємо контейнер полів до контейнера наземного розміщення
+        groundMountingContainer.appendChild(fieldsContainer);
+        
+        // Додаємо контейнер наземного розміщення до обгортки
+        groundMountingWrapper.appendChild(groundMountingContainer);
+        
+        // Додаємо обгортку до контенту масиву
+        arrayContent.appendChild(groundMountingWrapper);
+    }
+    
+    newArray.appendChild(arrayContent);
     container.appendChild(newArray);
     
     // Показуємо кнопку видалення для першого масиву, якщо тепер є більше одного масиву
@@ -447,66 +661,327 @@ function updateOrientationIcon() {
     }
 }
 
-// Ініціалізуємо іконку при завантаженні сторінки
-document.addEventListener('DOMContentLoaded', function() {
+// Функція для відображення/приховування параметрів наземного розміщення
+function toggleGroundMountingParams() {
+    console.log("toggleGroundMountingParams викликано");
+    const groundMountingCheckbox = document.getElementById('ground_mounting');
+    const groundMountingParams = document.getElementById('ground_mounting_params');
+    const profileCarcaseLengthsContainer = document.getElementById('profile_carcase_lengths_container');
+    
+    console.log("Чекбокс:", groundMountingCheckbox);
+    console.log("Параметри:", groundMountingParams);
+    console.log("Стан чекбоксу:", groundMountingCheckbox ? groundMountingCheckbox.checked : "не знайдено");
+    
+    if (groundMountingCheckbox) {
+        if (groundMountingCheckbox.checked) {
+            console.log("Показуємо параметри");
+            if (groundMountingParams) {
+                groundMountingParams.style.display = 'block';
+            }
+            if (profileCarcaseLengthsContainer) {
+                profileCarcaseLengthsContainer.style.display = 'flex';
+            }
+        } else {
+            console.log("Приховуємо параметри");
+            if (groundMountingParams) {
+                groundMountingParams.style.display = 'none';
+            }
+            if (profileCarcaseLengthsContainer) {
+                profileCarcaseLengthsContainer.style.display = 'none';
+            }
+        }
+    } else {
+        console.log("Елементи не знайдено");
+    }
+    
+    // Оновлюємо всі існуючі масиви панелей
+    updateArraysGroundMountingFields();
+    
+    // Додатково застосовуємо стилі до всіх полів наземного розміщення
+    setTimeout(function() {
+        const allGroundMountingFields = document.querySelectorAll('.ground-mounting-fields');
+        allGroundMountingFields.forEach(field => {
+            field.style.display = 'flex';
+            field.style.flexDirection = 'row';
+            field.style.flexWrap = 'wrap';
+            field.style.gap = '15px';
+            field.style.width = '100%';
+            
+            // Стилізуємо всі групи полів всередині
+            const formGroups = field.querySelectorAll('.form-group');
+            formGroups.forEach(group => {
+                group.style.flex = '1 1 150px';
+                group.style.minWidth = '150px';
+                group.style.marginBottom = '0';
+                
+                // Стилізуємо всі поля вводу всередині
+                const inputs = group.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.style.width = '100%';
+                });
+            });
+        });
+        
+        console.log("Застосовано додаткові стилі до всіх полів наземного розміщення");
+    }, 100); // Невелика затримка для гарантії, що DOM оновлено
+}
+
+// Функція для оновлення полів наземного розміщення у всіх масивах панелей
+function updateArraysGroundMountingFields() {
+    const groundMountingEnabled = document.getElementById('ground_mounting') && 
+                                 document.getElementById('ground_mounting').checked;
+    
+    console.log("updateArraysGroundMountingFields викликано, наземне розміщення: " + groundMountingEnabled);
+    
+    // Отримуємо всі масиви панелей
+    const arrays = document.querySelectorAll('.panel-array');
+    
+    arrays.forEach(array => {
+        const arrayId = array.dataset.arrayId;
+        const arrayContent = array.querySelector('.array-content');
+        
+        // Видаляємо існуючі поля наземного розміщення (всі можливі класи)
+        const existingFields = array.querySelectorAll('.array-ground-mounting, .ground-mounting-container, .ground-mounting-wrapper');
+        existingFields.forEach(field => field.remove());
+        
+        // Якщо наземне розміщення активовано, додаємо нові поля
+        if (groundMountingEnabled) {
+            // Створюємо контейнер для полів
+            const groundMountingWrapper = document.createElement('div');
+            groundMountingWrapper.className = 'ground-mounting-wrapper';
+            groundMountingWrapper.style.width = '100%';
+            
+            // Створюємо HTML для полів
+            const groundMountingContainer = document.createElement('div');
+            groundMountingContainer.className = 'ground-mounting-container';
+            
+            // Створюємо заголовок
+            const title = document.createElement('div');
+            title.className = 'ground-mounting-title';
+            title.innerHTML = '<i class="fas fa-mountain"></i> Параметри наземного розміщення';
+            groundMountingContainer.appendChild(title);
+            
+            // Створюємо контейнер для полів
+            const fieldsContainer = document.createElement('div');
+            fieldsContainer.className = 'ground-mounting-fields';
+            fieldsContainer.style.display = 'flex';
+            fieldsContainer.style.flexDirection = 'row';
+            fieldsContainer.style.flexWrap = 'wrap';
+            fieldsContainer.style.gap = '15px';
+            fieldsContainer.style.width = '100%';
+            
+            // Додаємо поля
+            // 1. Висота конструкції
+            const heightGroup = document.createElement('div');
+            heightGroup.className = 'form-group';
+            heightGroup.style.flex = '1 1 150px';
+            heightGroup.style.minWidth = '150px';
+            heightGroup.style.marginBottom = '0';
+            
+            const heightLabel = document.createElement('label');
+            heightLabel.htmlFor = `mounting_height_${arrayId}`;
+            heightLabel.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Висота конструкції (м):';
+            heightGroup.appendChild(heightLabel);
+            
+            const heightInput = document.createElement('input');
+            heightInput.type = 'number';
+            heightInput.id = `mounting_height_${arrayId}`;
+            heightInput.name = `mounting_height_${arrayId}`;
+            heightInput.value = '1';
+            heightInput.min = '0.1';
+            heightInput.step = '0.1';
+            heightInput.style.width = '100%';
+            heightGroup.appendChild(heightInput);
+            
+            fieldsContainer.appendChild(heightGroup);
+            
+            // 2. Кут нахилу
+            const angleGroup = document.createElement('div');
+            angleGroup.className = 'form-group';
+            angleGroup.style.flex = '1 1 150px';
+            angleGroup.style.minWidth = '150px';
+            angleGroup.style.marginBottom = '0';
+            
+            const angleLabel = document.createElement('label');
+            angleLabel.htmlFor = `mounting_angle_${arrayId}`;
+            angleLabel.innerHTML = '<i class="fas fa-ruler-combined"></i> Кут нахилу (градусів):';
+            angleGroup.appendChild(angleLabel);
+            
+            const angleInput = document.createElement('input');
+            angleInput.type = 'number';
+            angleInput.id = `mounting_angle_${arrayId}`;
+            angleInput.name = `mounting_angle_${arrayId}`;
+            angleInput.value = '30';
+            angleInput.min = '0';
+            angleInput.max = '90';
+            angleInput.step = '1';
+            angleInput.style.width = '100%';
+            angleGroup.appendChild(angleInput);
+            
+            fieldsContainer.appendChild(angleGroup);
+            
+            // 3. Відстань між стовпцями
+            const distanceGroup = document.createElement('div');
+            distanceGroup.className = 'form-group';
+            distanceGroup.style.flex = '1 1 150px';
+            distanceGroup.style.minWidth = '150px';
+            distanceGroup.style.marginBottom = '0';
+            
+            const distanceLabel = document.createElement('label');
+            distanceLabel.htmlFor = `column_distance_${arrayId}`;
+            distanceLabel.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Відстань між стовпцями (м):';
+            distanceGroup.appendChild(distanceLabel);
+            
+            const distanceInput = document.createElement('input');
+            distanceInput.type = 'number';
+            distanceInput.id = `column_distance_${arrayId}`;
+            distanceInput.name = `column_distance_${arrayId}`;
+            distanceInput.value = '2';
+            distanceInput.min = '0.5';
+            distanceInput.step = '0.1';
+            distanceInput.style.width = '100%';
+            distanceGroup.appendChild(distanceInput);
+            
+            fieldsContainer.appendChild(distanceGroup);
+            
+            // 4. Матеріал каркасу
+            const materialGroup = document.createElement('div');
+            materialGroup.className = 'form-group';
+            materialGroup.style.flex = '1 1 150px';
+            materialGroup.style.minWidth = '150px';
+            materialGroup.style.marginBottom = '0';
+            
+            const materialLabel = document.createElement('label');
+            materialLabel.htmlFor = `frame_material_${arrayId}`;
+            materialLabel.innerHTML = '<i class="fas fa-cubes"></i> Матеріал каркасу:';
+            materialGroup.appendChild(materialLabel);
+            
+            const materialSelect = document.createElement('select');
+            materialSelect.id = `frame_material_${arrayId}`;
+            materialSelect.name = `frame_material_${arrayId}`;
+            materialSelect.style.width = '100%';
+            
+            const materialOption1 = document.createElement('option');
+            materialOption1.value = 'оцинкований';
+            materialOption1.textContent = 'Оцинкований';
+            materialSelect.appendChild(materialOption1);
+            
+            const materialOption2 = document.createElement('option');
+            materialOption2.value = 'алюміній';
+            materialOption2.textContent = 'Алюміній';
+            materialSelect.appendChild(materialOption2);
+            
+            const materialOption3 = document.createElement('option');
+            materialOption3.value = 'залізо';
+            materialOption3.textContent = 'Залізо';
+            materialSelect.appendChild(materialOption3);
+            
+            materialGroup.appendChild(materialSelect);
+            fieldsContainer.appendChild(materialGroup);
+            
+            // 5. Тип основи
+            const foundationGroup = document.createElement('div');
+            foundationGroup.className = 'form-group';
+            foundationGroup.style.flex = '1 1 150px';
+            foundationGroup.style.minWidth = '150px';
+            foundationGroup.style.marginBottom = '0';
+            
+            const foundationLabel = document.createElement('label');
+            foundationLabel.htmlFor = `foundation_type_${arrayId}`;
+            foundationLabel.innerHTML = '<i class="fas fa-hammer"></i> Тип основи:';
+            foundationGroup.appendChild(foundationLabel);
+            
+            const foundationSelect = document.createElement('select');
+            foundationSelect.id = `foundation_type_${arrayId}`;
+            foundationSelect.name = `foundation_type_${arrayId}`;
+            foundationSelect.style.width = '100%';
+            
+            const foundationOption1 = document.createElement('option');
+            foundationOption1.value = 'забивна палка';
+            foundationOption1.textContent = 'Забивна палка';
+            foundationSelect.appendChild(foundationOption1);
+            
+            const foundationOption2 = document.createElement('option');
+            foundationOption2.value = 'геошуруп';
+            foundationOption2.textContent = 'Геошуруп';
+            foundationSelect.appendChild(foundationOption2);
+            
+            const foundationOption3 = document.createElement('option');
+            foundationOption3.value = 'бетонування';
+            foundationOption3.textContent = 'Бетонування';
+            foundationSelect.appendChild(foundationOption3);
+            
+            foundationGroup.appendChild(foundationSelect);
+            fieldsContainer.appendChild(foundationGroup);
+            
+            // Додаємо контейнер полів до контейнера наземного розміщення
+            groundMountingContainer.appendChild(fieldsContainer);
+            
+            // Додаємо контейнер наземного розміщення до обгортки
+            groundMountingWrapper.appendChild(groundMountingContainer);
+            
+            // Додаємо обгортку до контенту масиву
+            arrayContent.appendChild(groundMountingWrapper);
+        }
+    });
+    
+    console.log("Оновлено поля наземного розміщення для всіх масивів, кількість масивів: " + arrays.length);
+}
+
+// Функція для очищення форми
+function resetForm() {
+    // Підтвердження від користувача
+    if (!confirm("Ви впевнені, що хочете очистити всі параметри форми?")) {
+        return;
+    }
+    
+    // Очищаємо всі поля форми
+    document.getElementById('calculator-form').reset();
+    
+    // Скидаємо селекти до початкового стану
+    updateModelOptions();
+    updateInverterOptions();
+    updateBatteryOptions();
+    
+    // Оновлюємо іконку орієнтації
     updateOrientationIcon();
     
-    // Додаємо обробник події для зміни орієнтації
-    document.getElementById('orientation').addEventListener('change', updateOrientationIcon);
-});
-
-// Ініціалізуємо загальну кількість панелей при завантаженні сторінки
-calculateTotalPanels();
-
-// Обробник для кнопки очищення параметрів
-document.getElementById('reset-form-btn').addEventListener('click', function() {
-    // Отримуємо всі елементи форми
-    const form = document.getElementById('calculator-form');
+    // Оновлюємо стан параметрів наземного розміщення
+    toggleGroundMountingParams();
     
-    // Скидаємо значення для всіх полів вводу
-    const inputs = form.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], textarea');
-    inputs.forEach(input => {
-        // Встановлюємо значення за замовчуванням, якщо воно є
-        if (input.hasAttribute('data-default')) {
-            input.value = input.getAttribute('data-default');
-        } else {
-            // Інакше просто очищаємо
-            input.value = input.defaultValue || '';
-        }
-    });
-    
-    // Скидаємо значення для всіх випадаючих списків
-    const selects = form.querySelectorAll('select');
-    selects.forEach(select => {
-        // Встановлюємо перший елемент як вибраний
-        select.selectedIndex = 0;
-        
-        // Якщо це select для моделі панелі, оновлюємо його
-        if (select.id === 'panel_model') {
-            updateModelOptions();
-        }
-        if (select.id === 'inverter_model') {
-            updateInverterModelOptions();
-        }
-        if (select.id === 'battery_model') {
-            updateBatteryModelOptions();
-        }
-    });
-    
-    // Скидаємо значення для всіх чекбоксів і радіокнопок
-    const checkboxes = form.querySelectorAll('input[type="checkbox"], input[type="radio"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = checkbox.defaultChecked;
-    });
-    
-    // Оновлюємо залежні поля
-    updatePanelDimensions();
-    
-    // Приховуємо поля для ручного введення моделей
-    document.getElementById('custom-model-container').style.display = 'none';
-    document.getElementById('custom-inverter-model-container').style.display = 'none';
-    document.getElementById('custom-battery-model-container').style.display = 'none';
+    // Оновлюємо загальну кількість панелей
+    calculateTotalPanels();
     
     // Відображаємо повідомлення про успішне очищення
-    alert('Параметри форми очищено!');
+    alert("Параметри форми очищено!");
+}
+
+// Додаємо обробник подій при завантаженні сторінки
+document.addEventListener('DOMContentLoaded', function() {
+    // Ініціалізуємо селекти та обробники подій
+    updateModelOptions();
+    updateInverterOptions();
+    updateBatteryOptions();
+    
+    // Ініціалізуємо іконку орієнтації
+    updateOrientationIcon();
+    
+    // Додаємо обробник для зміни орієнтації
+    const orientationElement = document.getElementById('orientation');
+    if (orientationElement) {
+        orientationElement.addEventListener('change', updateOrientationIcon);
+    }
+    
+    // Додаємо обробник для чекбоксу наземного розміщення
+    const groundMountingCheckbox = document.getElementById('ground_mounting');
+    if (groundMountingCheckbox) {
+        groundMountingCheckbox.addEventListener('change', toggleGroundMountingParams);
+        console.log("Встановлено обробник подій для чекбоксу наземного розміщення");
+    }
+    
+    // Ініціалізуємо поля наземного розміщення
+    toggleGroundMountingParams();
+    
+    // Ініціалізуємо загальну кількість панелей
+    calculateTotalPanels();
 });

@@ -192,6 +192,15 @@
                 <div class="section-title"><i class="fas fa-th"></i> Параметри розміщення</div>
                 <div class="form-section">
                     <div class="form-grid">
+                        <!-- Додаємо чекбокс для наземного розміщення -->
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="ground_mounting" name="ground_mounting">
+                                <label for="ground_mounting"><i class="fas fa-mountain"></i> Наземне розміщення</label>
+                            </div>
+                        </div>
+                    
+                        
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label><i class="fas fa-layer-group"></i> Масиви панелей:</label>
                             <div id="panel-arrays-container">
@@ -215,6 +224,7 @@
                                             <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
                                             <span class="array-total">12</span>
                                         </div>
+                                        <!-- Поля для наземного розміщення будуть додані динамічно через JavaScript -->
                                     </div>
                                 </div>
                             </div>
@@ -231,6 +241,10 @@
                         <div class="form-group">
                             <label for="profile_lengths" style="white-space: nowrap;"><i class="fas fa-ruler-horizontal"></i> Доступні довжини профілів (м):</label>
                             <input type="text" id="profile_lengths" name="profile_lengths" value="2,3,4" required placeholder="Введіть через кому, наприклад: 2,3,4">
+                        </div>
+                        <div class="form-group" id="profile_carcase_lengths_container" style="display: none;">
+                            <label for="profile_carcase_lengths" style="white-space: nowrap;"><i class="fas fa-ruler-horizontal"></i> Доступні довжини каркасу (м):</label>
+                            <input type="text" id="profile_carcase_lengths" name="profile_carcase_lengths" value="3,4,6" placeholder="Введіть через кому, наприклад: 3,4,6">
                         </div>
                         <div class="form-group">
                             <label for="profile_material" style="white-space: nowrap;"><i class="fas fa-cubes"></i> Матеріал профілю:</label>
