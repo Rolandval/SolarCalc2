@@ -97,6 +97,8 @@ def generate(
         K81: int = 0, K82: float = 0.0,
         K91: int = 0, K92: float = 0.0,
         K111: int = 0, K121: float = 0.0,
+        K112: int = 0, K122: float = 0.0,
+        K113: int = 0, K123: float = 0.0,
         K912: int = 0, K922: float = 0.0,
         K913: int = 0, K923: float = 0.0,
         E11: int = 0, E12: float = 0.0,

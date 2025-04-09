@@ -468,11 +468,13 @@ def generate_pdf(request):
             # Отримуємо дані з параметрів запиту
             data = request.POST.dict()
             print("Отримані дані:", data)
-            param_o = request.POST.get('param-o')
-            param_k = request.POST.get('param-k')
-            param_e = request.POST.get('param-e')
-            param_r = request.POST.get('param-r')
-            param_usd = request.POST.get('param-usd')
+            param_o = request.POST.get('param-o', 'true')
+            param_k = request.POST.get('param-k', 'true')
+            param_e = request.POST.get('param-e', 'true')
+            param_r = request.POST.get('param-r', 'true')
+            param_usd = request.POST.get('param-usd', 'false')
+            
+            print(f"Параметри для Email PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
             
             # Отримуємо параметри для включення datasheet
             include_panel_ds = request.POST.get('include_panel_ds') == 'on'
@@ -704,6 +706,8 @@ def generate_pdf(request):
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
+                K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
+                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -772,11 +776,13 @@ def send_pdf_telegram(request):
             # Отримуємо дані з параметрів запиту
             data = request.POST.dict()
             print("Отримані дані для Telegram:", data)
-            param_o = request.POST.get('param-o')
-            param_k = request.POST.get('param-k')
-            param_e = request.POST.get('param-e')
-            param_r = request.POST.get('param-r')
-            param_usd = request.POST.get('param-usd')
+            param_o = request.POST.get('param-o', 'true')
+            param_k = request.POST.get('param-k', 'true')
+            param_e = request.POST.get('param-e', 'true')
+            param_r = request.POST.get('param-r', 'true')
+            param_usd = request.POST.get('param-usd', 'false')
+            
+            print(f"Параметри для Email PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
             
             # Отримуємо параметри для включення datasheet
             include_panel_ds = request.POST.get('include_panel_ds') == 'on'
@@ -1008,6 +1014,8 @@ def send_pdf_telegram(request):
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
+                K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
+                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -1099,11 +1107,13 @@ def send_pdf_email(request):
         # Отримуємо дані з параметрів запиту
         data = request.POST.dict()
         print("Отримані дані для Email:", data)
-        param_o = request.POST.get('param-o')
-        param_k = request.POST.get('param-k')
-        param_e = request.POST.get('param-e')
-        param_r = request.POST.get('param-r')
-        param_usd = request.POST.get('param-usd')
+        param_o = request.POST.get('param-o', 'true')
+        param_k = request.POST.get('param-k', 'true')
+        param_e = request.POST.get('param-e', 'true')
+        param_r = request.POST.get('param-r', 'true')
+        param_usd = request.POST.get('param-usd', 'false')
+        
+        print(f"Параметри для Email PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
         
         # Отримуємо параметри для включення datasheet
         include_panel_ds = request.POST.get('include_panel_ds') == 'on'
@@ -1321,7 +1331,7 @@ def send_pdf_email(request):
 
             # Викликаємо функцію generate з отриманими даними
             pdf_path = generate(
-                O=param_o == 'true', K=param_k == 'true', E=param_e == 'true', R=param_r == 'true',
+                O=param_o, K=param_k, E=param_e, R=param_r,
                 O11=int(data.get('O11', 0) or 0), O12=float(data.get('O12', 0) or 0.0),
                 O21=int(data.get('O21', 0) or 0), O22=float(data.get('O22', 0) or 0.0),
                 O31=int(data.get('O31', 0) or 0), O32=float(data.get('O32', 0) or 0.0),
@@ -1335,6 +1345,8 @@ def send_pdf_email(request):
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
+                K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
+                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -1412,6 +1424,7 @@ def send_pdf_to_email(pdf_path, recipient_email):
             
         # Використовуємо Django EmailMessage для відправки
         from django.core.mail import EmailMessage
+        from email.mime.application import MIMEApplication
         
         # Створюємо об'єкт повідомлення
         subject = "Звіт про сонячну електростанцію"
@@ -1435,13 +1448,31 @@ def send_pdf_to_email(pdf_path, recipient_email):
         
         # Додаємо PDF як вкладення
         print(f"Додавання вкладення: {pdf_path}")
-        with open(pdf_path, 'rb') as f:
-            email.attach(os.path.basename(pdf_path), f.read(), 'application/pdf')
+        
+        # Створюємо копію PDF файлу з новим ім'ям
+        new_pdf_path = pdf_path.replace('.pdf', '_email.pdf')
+        shutil.copy2(pdf_path, new_pdf_path)
+        print(f"Створено копію PDF для email: {new_pdf_path}")
+        
+        # Додаємо PDF як вкладення з явними заголовками
+        with open(new_pdf_path, 'rb') as f:
+            pdf_content = f.read()
+            # Використовуємо MIMEApplication для кращої сумісності з поштовими клієнтами
+            pdf_attachment = MIMEApplication(pdf_content, _subtype='pdf')
+            pdf_attachment.add_header('Content-Disposition', 'attachment', 
+                                     filename=os.path.basename(new_pdf_path))
+            email.attach(pdf_attachment)
         
         # Відправляємо email
         print("Відправка email...")
         email.send(fail_silently=False)
         print(f"Email успішно відправлено на {recipient_email}")
+        
+        # Видаляємо тимчасовий файл
+        if os.path.exists(new_pdf_path):
+            os.remove(new_pdf_path)
+            print(f"Видалено тимчасовий файл: {new_pdf_path}")
+            
         return True
     
     except Exception as e:
