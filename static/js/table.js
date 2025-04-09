@@ -236,6 +236,37 @@ function calculateTotal() {
     
     // Виводимо у консоль значення прихованого інпута
     console.log('Значення прихованого інпута з сумою в доларах:', document.getElementById('hidden-total-usd').value);
+    
+    // Розраховуємо суму з відсотком, якщо чекбокс активний
+    calculatePercentage();
+}
+
+// Функція для розрахунку суми з відсотком
+function calculatePercentage() {
+    const checkbox = document.getElementById('add-percentage-checkbox');
+    const percentageInputs = document.getElementById('percentage-inputs');
+    const percentageValue = document.getElementById('percentage-value');
+    const totalWithPercentage = document.getElementById('total-with-percentage');
+    
+    // Перевіряємо, чи всі елементи існують
+    if (!checkbox || !percentageInputs || !percentageValue || !totalWithPercentage) {
+        return;
+    }
+    
+    // Показуємо/приховуємо поля для відсотка в залежності від стану чекбоксу
+    percentageInputs.style.display = checkbox.checked ? 'block' : 'none';
+    
+    // Якщо чекбокс активний, розраховуємо суму з відсотком
+    if (checkbox.checked) {
+        const totalSum = parseFloat(document.getElementById('total-sum').textContent) || 0;
+        const percentage = parseFloat(percentageValue.value) || 0;
+        
+        // Розраховуємо суму з відсотком
+        const sumWithPercentage = totalSum * (1 + percentage / 100);
+        
+        // Оновлюємо відображення суми з відсотком
+        totalWithPercentage.textContent = sumWithPercentage.toFixed(2);
+    }
 }
 
 // Функція для додавання нових рядків
@@ -815,6 +846,18 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Кнопка копіювання натиснута в table.js');
             copyTableToClipboard();
         });
+    }
+    
+    // Додаємо обробники подій для чекбоксу та поля з відсотком
+    const checkbox = document.getElementById('add-percentage-checkbox');
+    const percentageValue = document.getElementById('percentage-value');
+    
+    if (checkbox) {
+        checkbox.addEventListener('change', calculatePercentage);
+    }
+    
+    if (percentageValue) {
+        percentageValue.addEventListener('input', calculatePercentage);
     }
     
     // Перераховуємо загальну суму

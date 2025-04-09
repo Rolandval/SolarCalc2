@@ -503,153 +503,224 @@
                     </span>
                 </p>
                 <p>Сума в доларах: <span id="total-usd">0</span></p>
-                
-                <!-- Приховані поля для передачі курсу долара та суми в доларах у PDF-звіт -->
-                <input type="hidden" name="usd_rate" id="hidden-usd-rate" value="{{ data.usd_rate }}">
-                <input type="hidden" name="total_usd" id="hidden-total-usd" value="0">
-            </div>
-
-            
-            <h2><i class="fas fa-file-pdf"></i> Налаштування PDF-звіту</h2>
-            <div class="pdf-options">
-                <div class="checkbox-group">
-                    <label><input type="checkbox" name="param-o" checked> <i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</label>
-                    <label><input type="checkbox" name="param-k" checked> <i class="fas fa-wrench"></i> КРІПЛЕННЯ</label>
-                    <label><input type="checkbox" name="param-e" checked> <i class="fas fa-bolt"></i> ЕЛЕКТРИКА</label>
-                    <label><input type="checkbox" name="param-r" checked> <i class="fas fa-hard-hat"></i> РОБОТА</label>
-                    <label><input type="checkbox" name="param-usd" checked> <i class="fas fa-dollar-sign"></i> СУМА В ДОЛАРАХ</label>
-                </div>
-                <div class="pdf-options-grid">
-                    <div class="pdf-option">
-                        <input type="checkbox" id="include_panel_ds" name="include_panel_ds" {% if data.panelModelId %}{% else %}disabled{% endif %}>
-                        <label for="include_panel_ds">Включити datasheet панелі</label>
+                <div class="percentage-block" style="margin-top: 15px; padding: 10px; background-color: #f5f5f5; border-radius: 5px; border-left: 3px solid var(--primary-color);">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <input type="checkbox" id="add-percentage-checkbox" style="margin-right: 10px; width: 18px; height: 18px;">
+                        <label for="add-percentage-checkbox" style="font-weight: 600; color: var(--primary-dark);">Додати відсоток до загальної суми</label>
                     </div>
-                    <div class="pdf-option">
-                        <input type="checkbox" id="include_inverter_ds" name="include_inverter_ds" {% if data.inverterModelId %}{% else %}disabled{% endif %}>
-                        <label for="include_inverter_ds">Включити datasheet інвертора</label>
-                    </div>
-                    <div class="pdf-option">
-                        <input type="checkbox" id="include_battery_ds" name="include_battery_ds" {% if data.batteryModelId %}{% else %}disabled{% endif %}>
-                        <label for="include_battery_ds">Включити datasheet батареї</label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Додаємо приховані поля для ідентифікаторів моделей для datasheet -->
-            {% if data.panelModelId %}
-            <input type="hidden" name="panelModelId" value="{{ data.panelModelId }}">
-            {% endif %}
-            {% if data.inverterModelId %}
-            <input type="hidden" name="inverterModelId" value="{{ data.inverterModelId }}">
-            {% endif %}
-            {% if data.batteryModelId %}
-            <input type="hidden" name="batteryModelId" value="{{ data.batteryModelId }}">
-            {% endif %}
-
-            <!-- Додаємо приховані поля для передачі шляху до зображення схеми -->
-            {% if data.scheme_file_path %}
-            <input type="hidden" name="scheme_image" value="{{ data.scheme_file_path }}">
-            {% endif %}
-
-            <!-- Додаємо приховані поля для передачі даних про схеми панелей -->
-            {% if data.panel_schemes_json %}
-            <input type="hidden" name="panel_schemes" value="{{ data.panel_schemes_json }}">
-            {% endif %}
-
-            <!-- Приховані поля для передачі параметрів наземного розміщення -->
-            {% if data.carcase_material %}
-            <input type="hidden" name="carcase_material" value="{{ data.carcase_material }}">
-            {% endif %}
-            {% if data.foundation_type_1 %}
-            <input type="hidden" name="foundation_type_1" value="{{ data.foundation_type_1 }}">
-            {% endif %}
-
-            <div style="text-align: center; margin: 30px 0;">
-                <button type="submit" class="pdf-btn">
-                    <i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт
-                </button>
-                <button type="button" id="send-telegram-btn" class="telegram-btn" style="margin-left: 15px; background-color: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-                    <i class="fab fa-telegram"></i> Відправити в Telegram
-                </button>
-                <button type="button" id="send-email-btn" style="margin-left: 15px; background-color: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <i class="fas fa-envelope"></i> Відправити на Email
-                </button>
-                <button type="button" id="copy-table-btn" class="copy-table-btn" style="margin-left: 15px;">
-                    <i class="fas fa-copy"></i> Копіювати таблицю
-                </button>
-            </div>
-            
-            <!-- Модальне вікно для введення email -->
-            <div id="email-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
-                <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-                    <h2 style="margin-top: 0; color: #333;">Відправити PDF звіт на Email</h2>
-                    <div style="margin: 20px 0;">
-                        <label for="email-input" style="display: block; margin-bottom: 10px; font-weight: bold;">Введіть email-адресу:</label>
-                        <input type="email" id="email-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;" placeholder="example@email.com" required>
-                    </div>
-                    <div style="text-align: right;">
-                        <button id="cancel-email-btn" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Скасувати</button>
-                        <button id="confirm-email-btn" style="background-color: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Відправити</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Додаємо розділ для схеми панелей -->
-            <div id="panel-scheme-container">
-                <h2><i class="fas fa-th"></i> Схема розташування панелей</h2>
-                
-                <!-- Відображаємо окремі схеми для кожного масиву, якщо вони є -->
-                {% if data.panel_schemes %}
-                    {% for scheme in data.panel_schemes %}
-                    <div class="panel-scheme-item" style="margin-bottom: 30px;">
-                        <h3 style="margin-bottom: 15px; color: var(--primary-dark);">
-                            <i class="fas fa-solar-panel"></i> Масив #{{ scheme.array_id|add:1 }} ({{ scheme.rows }}x{{ scheme.panels_per_row }})
-                        </h3>
-                        <div class="panel-scheme">
-                            <img src="data:image/png;base64,{{ scheme.image_base64 }}" alt="Схема масиву #{{ scheme.array_id|add:1 }}" 
-                                 style="width: 100%; max-width: 100%; height: auto;">
+                    <div id="percentage-inputs" style="display: none; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <label for="percentage-value" style="margin-right: 10px; width: 150px;">Відсоток:</label>
+                            <input type="number" id="percentage-value" value="15" min="0" max="100" step="1" style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;"> %
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <label for="total-with-percentage" style="margin-right: 10px; width: 150px; font-weight: 600;">Сума з відсотком:</label>
+                            <span id="total-with-percentage" style="font-weight: 600; color: var(--primary-dark); padding: 5px 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 4px;">0</span> грн
                         </div>
                     </div>
-                    {% endfor %}
-                <!-- Відображаємо загальну схему, якщо немає окремих схем -->
-                {% elif data.scheme_image %}
-                <div id="panel-scheme">
-                    <img src="{{ data.scheme_image }}" alt="Схема розташування панелей" style="width: 100%; max-width: 100%; height: auto;">
                 </div>
-                {% else %}
-                <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
-                {% endif %}
                 
-                <div class="legend" style="display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 15px; gap: 10px;">
-                    <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                        <div class="legend-color" style="background-color: #60a5fa; width: 25px; height: 25px; margin-right: 10px;"></div>
-                        <span style="font-size: 14px;">Профілі</span>
-                    </div>
-                    <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                        <div class="legend-color" style="position: relative; width: 25px; height: 25px; margin-right: 10px;">
-                            <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
-                                <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(45deg); position: absolute;"></div>
-                                <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(-45deg); position: absolute;"></div>
+                <!-- Додаємо розділ для схеми панелей -->
+                <div id="panel-scheme-container">
+                    <h2><i class="fas fa-th"></i> Схема розташування панелей</h2>
+                    
+                    <!-- Відображаємо окремі схеми для кожного масиву, якщо вони є -->
+                    {% if data.panel_schemes %}
+                        {% for scheme in data.panel_schemes %}
+                        <div class="panel-scheme-item" style="margin-bottom: 30px;">
+                            <h3 style="margin-bottom: 15px; color: var(--primary-dark);">
+                                <i class="fas fa-solar-panel"></i> Масив #{{ scheme.array_id|add:1 }} ({{ scheme.rows }}x{{ scheme.panels_per_row }})
+                            </h3>
+                            <div class="panel-scheme">
+                                <img src="data:image/png;base64,{{ scheme.image_base64 }}" alt="Схема масиву #{{ scheme.array_id|add:1 }}" 
+                                     style="width: 100%; max-width: 100%; height: auto;">
                             </div>
                         </div>
-                        <span style="font-size: 14px;">З'єднання профілів</span>
+                        {% endfor %}
+                    <!-- Відображаємо загальну схему, якщо немає окремих схем -->
+                    {% elif data.scheme_image %}
+                    <div id="panel-scheme">
+                        <img src="{{ data.scheme_image }}" alt="Схема розташування панелей" style="width: 100%; max-width: 100%; height: auto;">
                     </div>
-                    <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                        <div class="legend-color" style="background-color: #15803d; width: 25px; height: 25px; margin-right: 10px;"></div>
-                        <span style="font-size: 14px;">Крайні зажими</span>
-                    </div>
-                    <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                        <div class="legend-color" style="background-color: #dc2626; width: 25px; height: 25px; margin-right: 10px;"></div>
-                        <span style="font-size: 14px;">Міжпанельні зажими</span>
-                    </div>
-                    <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                        <div class="legend-color" style="background-color: rgba(100, 100, 100, 0.4); width: 25px; height: 25px; margin-right: 10px; border: 1px solid #333;"></div>
-                        <span style="font-size: 14px;">Панелі</span>
+                    {% else %}
+                    <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
+                    {% endif %}
+                    
+                    <div class="legend" style="display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 15px; gap: 10px;">
+                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                            <div class="legend-color" style="background-color: #60a5fa; width: 25px; height: 25px; margin-right: 10px;"></div>
+                            <span style="font-size: 14px;">Профілі</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                            <div class="legend-color" style="position: relative; width: 25px; height: 25px; margin-right: 10px;">
+                                <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                                    <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(45deg); position: absolute;"></div>
+                                    <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(-45deg); position: absolute;"></div>
+                                </div>
+                            </div>
+                            <span style="font-size: 14px;">З'єднання профілів</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                            <div class="legend-color" style="background-color: #15803d; width: 25px; height: 25px; margin-right: 10px;"></div>
+                            <span style="font-size: 14px;">Крайні зажими</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                            <div class="legend-color" style="background-color: #dc2626; width: 25px; height: 25px; margin-right: 10px;"></div>
+                            <span style="font-size: 14px;">Міжпанельні зажими</span>
+                        </div>
+                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                            <div class="legend-color" style="background-color: rgba(100, 100, 100, 0.4); width: 25px; height: 25px; margin-right: 10px; border: 1px solid #333;"></div>
+                            <span style="font-size: 14px;">Панелі</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </form>
+            
+            <!-- Приховані поля для передачі курсу долара та суми в доларах у PDF-звіт -->
+            <input type="hidden" name="usd_rate" id="hidden-usd-rate" value="{{ data.usd_rate }}">
+            <input type="hidden" name="total_usd" id="hidden-total-usd" value="0">
+        </div>
+
+        
+        <h2><i class="fas fa-file-pdf"></i> Налаштування PDF-звіту</h2>
+        <div class="pdf-options">
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="param-o" checked> <i class="fas fa-solar-panel"></i> ОБЛАДНАННЯ</label>
+                <label><input type="checkbox" name="param-k" checked> <i class="fas fa-wrench"></i> КРІПЛЕННЯ</label>
+                <label><input type="checkbox" name="param-e" checked> <i class="fas fa-bolt"></i> ЕЛЕКТРИКА</label>
+                <label><input type="checkbox" name="param-r" checked> <i class="fas fa-hard-hat"></i> РОБОТА</label>
+                <label><input type="checkbox" name="param-usd" checked> <i class="fas fa-dollar-sign"></i> СУМА В ДОЛАРАХ</label>
+            </div>
+            <div class="pdf-options-grid">
+                <div class="pdf-option">
+                    <input type="checkbox" id="include_panel_ds" name="include_panel_ds" {% if data.panelModelId %}{% else %}disabled{% endif %}>
+                    <label for="include_panel_ds">Включити datasheet панелі</label>
+                </div>
+                <div class="pdf-option">
+                    <input type="checkbox" id="include_inverter_ds" name="include_inverter_ds" {% if data.inverterModelId %}{% else %}disabled{% endif %}>
+                    <label for="include_inverter_ds">Включити datasheet інвертора</label>
+                </div>
+                <div class="pdf-option">
+                    <input type="checkbox" id="include_battery_ds" name="include_battery_ds" {% if data.batteryModelId %}{% else %}disabled{% endif %}>
+                    <label for="include_battery_ds">Включити datasheet батареї</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Додаємо приховані поля для ідентифікаторів моделей для datasheet -->
+        {% if data.panelModelId %}
+        <input type="hidden" name="panelModelId" value="{{ data.panelModelId }}">
+        {% endif %}
+        {% if data.inverterModelId %}
+        <input type="hidden" name="inverterModelId" value="{{ data.inverterModelId }}">
+        {% endif %}
+        {% if data.batteryModelId %}
+        <input type="hidden" name="batteryModelId" value="{{ data.batteryModelId }}">
+        {% endif %}
+
+        <!-- Додаємо приховані поля для передачі шляху до зображення схеми -->
+        {% if data.scheme_file_path %}
+        <input type="hidden" name="scheme_image" value="{{ data.scheme_file_path }}">
+        {% endif %}
+
+        <!-- Додаємо приховані поля для передачі даних про схеми панелей -->
+        {% if data.panel_schemes_json %}
+        <input type="hidden" name="panel_schemes" value="{{ data.panel_schemes_json }}">
+        {% endif %}
+
+        <!-- Приховані поля для передачі параметрів наземного розміщення -->
+        {% if data.carcase_material %}
+        <input type="hidden" name="carcase_material" value="{{ data.carcase_material }}">
+        {% endif %}
+        {% if data.foundation_type_1 %}
+        <input type="hidden" name="foundation_type_1" value="{{ data.foundation_type_1 }}">
+        {% endif %}
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button type="submit" class="pdf-btn">
+                <i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт
+            </button>
+            <button type="button" id="send-telegram-btn" class="telegram-btn" style="margin-left: 15px; background-color: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                <i class="fab fa-telegram"></i> Відправити в Telegram
+            </button>
+            <button type="button" id="send-email-btn" style="margin-left: 15px; background-color: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <i class="fas fa-envelope"></i> Відправити на Email
+            </button>
+            <button type="button" id="copy-table-btn" class="copy-table-btn" style="margin-left: 15px;">
+                <i class="fas fa-copy"></i> Копіювати таблицю
+            </button>
+        </div>
+        
+        <!-- Модальне вікно для введення email -->
+        <div id="email-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+            <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                <h2 style="margin-top: 0; color: #333;">Відправити PDF звіт на Email</h2>
+                <div style="margin: 20px 0;">
+                    <label for="email-input" style="display: block; margin-bottom: 10px; font-weight: bold;">Введіть email-адресу:</label>
+                    <input type="email" id="email-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;" placeholder="example@email.com" required>
+                </div>
+                <div style="text-align: right;">
+                    <button id="cancel-email-btn" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Скасувати</button>
+                    <button id="confirm-email-btn" style="background-color: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Відправити</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Додаємо розділ для схеми панелей -->
+        <div id="panel-scheme-container">
+            <h2><i class="fas fa-th"></i> Схема розташування панелей</h2>
+            
+            <!-- Відображаємо окремі схеми для кожного масиву, якщо вони є -->
+            {% if data.panel_schemes %}
+                {% for scheme in data.panel_schemes %}
+                <div class="panel-scheme-item" style="margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary-dark);">
+                        <i class="fas fa-solar-panel"></i> Масив #{{ scheme.array_id|add:1 }} ({{ scheme.rows }}x{{ scheme.panels_per_row }})
+                    </h3>
+                    <div class="panel-scheme">
+                        <img src="data:image/png;base64,{{ scheme.image_base64 }}" alt="Схема масиву #{{ scheme.array_id|add:1 }}" 
+                             style="width: 100%; max-width: 100%; height: auto;">
+                    </div>
+                </div>
+                {% endfor %}
+            <!-- Відображаємо загальну схему, якщо немає окремих схем -->
+            {% elif data.scheme_image %}
+            <div id="panel-scheme">
+                <img src="{{ data.scheme_image }}" alt="Схема розташування панелей" style="width: 100%; max-width: 100%; height: auto;">
+            </div>
+            {% else %}
+            <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
+            {% endif %}
+            
+            <div class="legend" style="display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 15px; gap: 10px;">
+                <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                    <div class="legend-color" style="background-color: #60a5fa; width: 25px; height: 25px; margin-right: 10px;"></div>
+                    <span style="font-size: 14px;">Профілі</span>
+                </div>
+                <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                    <div class="legend-color" style="position: relative; width: 25px; height: 25px; margin-right: 10px;">
+                        <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+                            <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(45deg); position: absolute;"></div>
+                            <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(-45deg); position: absolute;"></div>
+                        </div>
+                    </div>
+                    <span style="font-size: 14px;">З'єднання профілів</span>
+                </div>
+                <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                    <div class="legend-color" style="background-color: #15803d; width: 25px; height: 25px; margin-right: 10px;"></div>
+                    <span style="font-size: 14px;">Крайні зажими</span>
+                </div>
+                <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                    <div class="legend-color" style="background-color: #dc2626; width: 25px; height: 25px; margin-right: 10px;"></div>
+                    <span style="font-size: 14px;">Міжпанельні зажими</span>
+                </div>
+                <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
+                    <div class="legend-color" style="background-color: rgba(100, 100, 100, 0.4); width: 25px; height: 25px; margin-right: 10px; border: 1px solid #333;"></div>
+                    <span style="font-size: 14px;">Панелі</span>
+                </div>
+            </div>
+        </div>
     </div>
     
     <!-- Кнопка "Повернутись назад" внизу сторінки -->
