@@ -1,0 +1,446 @@
+  // Перевіряємо, чи є canvas для схеми
+    const canvas = document.getElementById('layoutCanvas');
+    if (!canvas) {
+        console.error("Canvas для схеми не знайдено");
+        
+        // Створюємо canvas програмно, якщо його немає
+        const resultElement = document.getElementById('result');
+        if (resultElement) {
+            console.log("Створюємо canvas програмно");
+            const canvasContainer = document.createElement('div');
+            canvasContainer.className = 'layout-container';
+            
+            const newCanvas = document.createElement('canvas');
+            newCanvas.id = 'layoutCanvas';
+            newCanvas.width = 800;
+            newCanvas.height = 600;
+            
+            canvasContainer.appendChild(newCanvas);
+            resultElement.parentNode.insertBefore(canvasContainer, resultElement.nextSibling);
+        }
+    }
+});
+
+function drawLayout(panelLength, panelWidth, rows, panelsPerRow, orientation, lClamps, vClamps, availableProfiles, profileQuantities) {
+    // Зберігаємо параметри для можливого перемальовування при зміні розміру вікна
+    window.lastDrawParams = {
+        panelLength, panelWidth, rows, panelsPerRow, orientation, lClamps, vClamps, availableProfiles, profileQuantities
+    };
+    
+    console.log("Виклик функції drawLayout з параметрами:", {
+        panelLength, panelWidth, rows, panelsPerRow, orientation
+    });
+    
+    // Перевірка вхідних параметрів
+    if (!panelLength || !panelWidth || !rows || !panelsPerRow) {
+        console.error("Відсутні необхідні параметри для drawLayout");
+        return;
+    }
+    
+    // Перевірка наявності availableProfiles
+    if (!availableProfiles || !Array.isArray(availableProfiles) || availableProfiles.length === 0) {
+        console.error("Відсутні або некоректні дані про доступні профілі");
+        return;
+    }
+    
+    const canvas = document.getElementById('layoutCanvas');
+    if (!canvas) {
+        console.error("Canvas для схеми не знайдено");
+        return;
+    }
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error("Не вдалося отримати контекст canvas");
+        return;
+    }
+    
+    // Отримуємо розміри контейнера для canvas
+    const container = canvas.parentElement;
+    const containerWidth = container.clientWidth - 20; // Враховуємо padding контейнера
+    
+    // Визначаємо розміри панелі для малювання
+    let actualPanelWidth, actualPanelHeight;
+    if (orientation === 'landscape') {
+        actualPanelWidth = panelLength;
+        actualPanelHeight = panelWidth;
+    } else {
+        actualPanelWidth = panelWidth;
+        actualPanelHeight = panelLength;
+    }
+
+    // Додаємо запас для профілів (мінімум 5см з кожного боку)
+    const profileExtension = 0.05; // 5 см
+    // Додаємо пробіли між панелями (2 см)
+    const panelGap = 0.02; // 2 см
+    
+    // Розраховуємо загальну ширину ряду з урахуванням пробілів між панелями
+    const totalRowWidth = (actualPanelWidth * panelsPerRow) + (panelGap * (panelsPerRow - 1));
+    const totalProfileWidth = totalRowWidth + (profileExtension * 2);
+
+    // Розрахунок масштабу для відображення
+    // Використовуємо containerWidth замість фіксованого значення
+    const maxWidth = containerWidth || 800;
+    const maxHeight = 600;
+    // Враховуємо пробіли між рядами при розрахунку висоти
+    const totalHeight = (actualPanelHeight * rows) + (panelGap * (rows - 1));
+    
+    // Збільшуємо масштаб, щоб схема займала весь доступний простір
+    // Використовуємо майже всю ширину контейнера (98%)
+    const scale = Math.min(
+        (maxWidth - 10) / totalProfileWidth, 
+        (maxHeight - 80) / totalHeight
+    ) * 0.98; // Збільшуємо коефіцієнт заповнення до 98%
+
+    // Встановлюємо розміри canvas з урахуванням відступів
+    // Використовуємо всю доступну ширину контейнера
+    canvas.width = containerWidth;
+    canvas.height = totalHeight * scale + 100;
+
+    // Очищаємо canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Відступи для центрування - центруємо схему
+    const offsetX = (canvas.width - totalProfileWidth * scale) / 2;
+    const offsetY = (canvas.height - totalHeight * scale - 50) / 2; // Зменшуємо відступ знизу для легенди
+
+    // Функція для розрахунку розташування профілів в ряду
+    function calculateRailPositions(rowWidth) {
+        console.log("calculateRailPositions викликана з шириною:", rowWidth);
+        const positions = [];
+        let currentPosition = 0;
+        
+        // Захист від нескінченного циклу
+        let iterations = 0;
+        const maxIterations = 100;
+        
+        // Сортуємо профілі за довжиною від найдовшого до найкоротшого
+        const sortedProfiles = [...availableProfiles].sort((a, b) => b - a);
+        let remainingWidth = rowWidth;
+        
+        // Розраховуємо позиції міжпанельних кріплень (в метрах)
+        const panelConnectorPositions = [];
+        for (let panel = 0; panel < panelsPerRow - 1; panel++) {
+            const connectorPos = profileExtension + (panel + 1) * actualPanelWidth + panel * panelGap;
+            panelConnectorPositions.push(connectorPos);
+        }
+        
+        // Мінімальна відстань між з'єднанням профілів та міжпанельним кріпленням (15 см)
+        const minDistance = 0.15; // 15 см в метрах
+        
+        while (remainingWidth > 0.01 && iterations < maxIterations) {
+            iterations++;
+            let foundProfile = false;
+            
+            for (const profileLength of sortedProfiles) {
+                if (profileLength <= remainingWidth + 0.01) {
+                    // Перевіряємо, чи кінець профілю не буде занадто близько до міжпанельного кріплення
+                    const potentialEnd = currentPosition + profileLength;
+                    let isTooClose = false;
+                    
+                    for (const connectorPos of panelConnectorPositions) {
+                        if (Math.abs(potentialEnd - connectorPos) < minDistance) {
+                            isTooClose = true;
+                            break;
+                        }
+                    }
+                    
+                    // Якщо профіль закінчується занадто близько до кріплення, спробуємо коротший профіль
+                    if (isTooClose) {
+                        continue;
+                    }
+                    
+                    positions.push({
+                        start: currentPosition,
+                        length: profileLength
+                    });
+                    currentPosition += profileLength;
+                    remainingWidth -= profileLength;
+                    foundProfile = true;
+                    break;
+                }
+            }
+            
+            // Якщо не знайдено відповідного профілю, використовуємо найкоротший
+            if (!foundProfile) {
+                console.warn("Не знайдено відповідного профілю для залишкової ширини:", remainingWidth);
+                // Додаємо найменший профіль для залишку
+                const smallestProfile = sortedProfiles[sortedProfiles.length - 1];
+                positions.push({
+                    start: currentPosition,
+                    length: smallestProfile
+                });
+                break;
+            }
+        }
+        
+        if (iterations >= maxIterations) {
+            console.error("Досягнуто максимальної кількості ітерацій при розрахунку позицій профілів");
+        }
+        
+        console.log("Розраховані позиції профілів:", positions);
+        return positions;
+    }
+
+    // Функція для малювання профілів з урахуванням золотого перетину
+    function drawRailsForRow(rowY) {
+        const panelHeight = actualPanelHeight * scale;
+        
+        // Розраховуємо реальні позиції профілів
+        const railPositions = calculateRailPositions(totalProfileWidth);
+        
+        // Зберігаємо інформацію про профілі для використання пізніше
+        if (!window.allRailPositions) {
+            window.allRailPositions = [];
+        }
+        window.allRailPositions.push(railPositions);
+        
+        // Верхній і нижній профілі
+        const upperRailY = rowY + panelHeight * 0.33;
+        const lowerRailY = rowY + panelHeight * 0.67;
+        
+        // Розраховуємо позиції міжпанельних кріплень
+        const panelConnectorPositions = [];
+        for (let panel = 0; panel < panelsPerRow - 1; panel++) {
+            const connectorX = offsetX + profileExtension * scale + 
+                              (panel + 1) * actualPanelWidth * scale + 
+                              panel * panelGap * scale;
+            panelConnectorPositions.push(connectorX);
+        }
+        
+        // Малюємо профілі
+        railPositions.forEach((position, index) => {
+            const startX = offsetX + position.start * scale;
+            const railLength = position.length * scale;
+            
+            // Верхній профіль - товстіший і блакитний
+            ctx.beginPath();
+            ctx.moveTo(startX, upperRailY);
+            ctx.lineTo(startX + railLength, upperRailY);
+            ctx.strokeStyle = '#4dabf7'; // Блакитний колір
+            ctx.lineWidth = 9; // Товщина в 3 рази більша
+            ctx.stroke();
+            
+            // Нижній профіль - товстіший і блакитний
+            ctx.beginPath();
+            ctx.moveTo(startX, lowerRailY);
+            ctx.lineTo(startX + railLength, lowerRailY);
+            ctx.stroke();
+            
+            // Розрахунок довжини профілю, що виступає за межі панелей
+            const panelsEndX = offsetX + (profileExtension + totalRowWidth) * scale;
+            const profileEndX = startX + railLength;
+            
+            if (profileEndX > panelsEndX) {
+                const extraLength = (profileEndX - panelsEndX) / scale;
+                const extraLengthCm = Math.round(extraLength * 100);
+                
+                // Зберігаємо інформацію про профіль, що виступає, для відображення пізніше
+                if (!window.protrudingProfiles) {
+                    window.protrudingProfiles = [];
+                }
+                window.protrudingProfiles.push({
+                    x: panelsEndX,
+                    y: upperRailY,
+                    extraLengthCm: extraLengthCm,
+                    cutLength: extraLengthCm - 15,
+                    profileLength: position.length
+                });
+            }
+            
+            // Малюємо з'єднання в кінці кожного профілю (крім останнього) - темно-синій хрестик
+            if (startX + railLength < offsetX + totalProfileWidth * scale - 1) {
+                const connX = startX + railLength;
+                
+                // Перевіряємо, чи з'єднання не знаходиться занадто близько до міжпанельних кріплень
+                let isTooClose = false;
+                const minDistance = 0.15 * scale; // 15 см в масштабі
+                
+                for (const connectorX of panelConnectorPositions) {
+                    if (Math.abs(connX - connectorX) < minDistance) {
+                        isTooClose = true;
+                        break;
+                    }
+                }
+                
+                // Якщо з'єднання занадто близько до кріплення, додаємо попередження
+                if (isTooClose) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillText('!', connX, upperRailY - 15);
+                    ctx.fillText('!', connX, lowerRailY - 15);
+                }
+                
+                // Верхній конектор - темно-синій хрестик
+                ctx.strokeStyle = isTooClose ? '#ff0000' : '#00008B'; // Червоний, якщо занадто близько
+                ctx.lineWidth = 3;
+                
+                // Малюємо хрестик для верхнього з'єднання
+                ctx.beginPath();
+                ctx.moveTo(connX - 6, upperRailY - 6);
+                ctx.lineTo(connX + 6, upperRailY + 6);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(connX + 6, upperRailY - 6);
+                ctx.lineTo(connX - 6, upperRailY + 6);
+                ctx.stroke();
+                
+                // Малюємо хрестик для нижнього з'єднання
+                ctx.beginPath();
+                ctx.moveTo(connX - 6, lowerRailY - 6);
+                ctx.lineTo(connX + 6, lowerRailY + 6);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(connX + 6, lowerRailY - 6);
+                ctx.lineTo(connX - 6, lowerRailY + 6);
+                ctx.stroke();
+            }
+        });
+    }
+
+    // Малюємо панелі та профілі для кожного ряду
+    for (let row = 0; row < rows; row++) {
+        // Враховуємо пробіли між рядами
+        const rowY = offsetY + row * (actualPanelHeight * scale + panelGap * scale);
+        
+        // Спочатку малюємо профілі
+        drawRailsForRow(rowY);
+        
+        // Потім малюємо панелі з пробілами
+        for (let panel = 0; panel < panelsPerRow; panel++) {
+            // Враховуємо пробіли між панелями
+            const x = offsetX + profileExtension * scale + panel * (actualPanelWidth * scale + panelGap * scale);
+            const y = rowY;
+
+            // Панель (темно-сіра з прозорістю)
+            ctx.fillStyle = 'rgba(64, 64, 64, 0.7)';
+            ctx.fillRect(x, y, actualPanelWidth * scale, actualPanelHeight * scale);
+            
+            // Тонша окантовка панелей
+            ctx.strokeStyle = '#333333';
+            ctx.lineWidth = 1; // Тонша в 3 рази
+            ctx.strokeRect(x, y, actualPanelWidth * scale, actualPanelHeight * scale);
+
+            // Малюємо крайні зажими (зелені)
+            if (panel === 0 || panel === panelsPerRow - 1) {
+                ctx.fillStyle = '#00cc00';
+                ctx.fillRect(x + (panel === 0 ? 0 : actualPanelWidth * scale - 10), 
+                           y + actualPanelHeight * scale * 0.33 - 5, 10, 10);
+                ctx.fillRect(x + (panel === 0 ? 0 : actualPanelWidth * scale - 10), 
+                           y + actualPanelHeight * scale * 0.67 - 5, 10, 10);
+            }
+
+            // Малюємо міжпанельні зажими (червоні)
+            if (panel < panelsPerRow - 1) {
+                ctx.fillStyle = '#cc0000';
+                ctx.fillRect(x + actualPanelWidth * scale - 5, 
+                           y + actualPanelHeight * scale * 0.33 - 5, 10, 10);
+                ctx.fillRect(x + actualPanelWidth * scale - 5, 
+                           y + actualPanelHeight * scale * 0.67 - 5, 10, 10);
+            }
+        }
+    }
+
+    // Оновлена легенда - горизонтальне розташування
+    const legend = [
+        { color: '#4dabf7', text: 'Профілі' },
+        { color: '#00008B', text: 'З\'єднання профілів' },
+        { color: '#00cc00', text: 'Крайні зажими' },
+        { color: '#cc0000', text: 'Міжпанельні зажими' },
+        { color: 'rgb(64, 64, 64)', text: 'Панелі' }
+    ];
+
+    // Розрахунок розмірів для легенди
+    ctx.font = '14px Arial';
+    const legendPadding = 20;
+    const legendItemWidth = (canvas.width - 40) / legend.length;
+    const legendY = canvas.height - 25; // Підняли легенду ще вище
+
+    // Малюємо легенду горизонтально
+    legend.forEach((item, index) => {
+        const legendX = (legendItemWidth * index) + legendPadding;
+        
+        // Квадрат з кольором або хрестик для з'єднань
+        if (item.text === 'З\'єднання профілів') {
+            // Малюємо хрестик для з'єднань
+            ctx.strokeStyle = item.color;
+            ctx.lineWidth = 3;
+            
+            ctx.beginPath();
+            ctx.moveTo(legendX - 6, legendY + 7 - 6);
+            ctx.lineTo(legendX + 6, legendY + 7 + 6);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(legendX + 6, legendY + 7 - 6);
+            ctx.lineTo(legendX - 6, legendY + 7 + 6);
+            ctx.stroke();
+        } else {
+            // Квадрат з кольором для інших елементів
+            ctx.fillStyle = item.color;
+            ctx.fillRect(legendX, legendY, 15, 15);
+        }
+        
+        // Текст
+        ctx.fillStyle = '#000000';
+        ctx.fillText(item.text, legendX + 20, legendY + 12);
+    });
+    
+    // Відображаємо інформацію про профілі, що виступають
+    if (window.protrudingProfiles && window.protrudingProfiles.length > 0) {
+        ctx.font = 'bold 14px Arial';
+        
+        // Беремо тільки перший профіль, що виступає, для відображення
+        const profile = window.protrudingProfiles[0];
+        
+        // Надпис "Обрізати ХХХсм" - внизу справа під схемою
+        ctx.fillStyle = '#cc0000';
+        ctx.fillText(`Обрізати ${profile.cutLength}см`, canvas.width - 150, legendY - 30);
+        
+        // Надпис "+ХХсм" - вище над схемою справа
+        ctx.fillStyle = '#000000';
+        ctx.font = '12px Arial';
+        // Розміщуємо надпис вище, але в межах рамки
+        const topMargin = 20; // Відступ від верхнього краю рамки
+        ctx.fillText(`стирчить +${profile.extraLengthCm - 5}см`, canvas.width - 150, offsetY + topMargin);
+        
+        // Очищаємо масив для наступного малювання
+        window.protrudingProfiles = [];
+    }
+    
+    // Додаємо надпис про довжину профілю внизу по центру
+    if (window.allRailPositions && window.allRailPositions.length > 0) {
+        // Беремо перший ряд профілів для розрахунку (всі ряди мають однакову довжину)
+        const railPositions = window.allRailPositions[0];
+        const totalProfileLength = railPositions.reduce((sum, profile) => sum + profile.length, 0);
+        const totalProfileLengthCm = Math.round(totalProfileLength * 100);
+        
+        ctx.font = 'bold 14px Arial';
+        ctx.fillStyle = '#000000';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Довжина профілю ${totalProfileLengthCm}см`, canvas.width / 2, canvas.height - 50);
+        ctx.textAlign = 'left'; // Повертаємо значення за замовчуванням
+        
+        // Очищаємо масив для наступного малювання
+        window.allRailPositions = [];
+    }
+    
+    // Додаємо підписи розмірів поля панелей
+    // Довжина ряду зверху схеми
+    const rowWidthCm = Math.round(totalRowWidth * 100);
+    ctx.font = 'bold 14px Arial';
+    ctx.fillStyle = '#000000';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Довжина ряду ${rowWidthCm}см (${panelsPerRow} панелей)`, canvas.width / 2, offsetY - 10);
+    
+    // Ширина ряду зліва по центру схеми (вертикально)
+    const rowHeightCm = Math.round(totalHeight * 100);
+    ctx.save(); // Зберігаємо поточний стан контексту
+    ctx.translate(offsetX - 30, offsetY + (totalHeight * scale) / 2);
+    ctx.rotate(-Math.PI / 2); // Повертаємо на 90 градусів проти годинникової стрілки
+    ctx.textAlign = 'center';
+    ctx.fillText(`Ширина ряду ${rowHeightCm}см (${rows} рядів)`, 0, 0);
+    ctx.restore(); // Відновлюємо попередній стан контексту
+}

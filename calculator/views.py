@@ -246,7 +246,7 @@ def calculate(request):
                 
                 array_profil_len = 0
                 if panel_arrangement == 'альбомна':
-                    array_profil_len = ((panel_length * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+                    array_profil_len = (((panel_length * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows) * 2
                     if carcase_material == 'оцинкований' or carcase_material == 'алюміній' or carcase_material == 'залізо':
                         vertical_profile_len = (panel_width * rows) - 0.12
                         c = vertical_profile_len - 0.12
@@ -258,7 +258,7 @@ def calculate(request):
                         total_carcase_count += N * 2
 
                 elif panel_arrangement == 'портретна':
-                    array_profil_len = ((panel_width * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows
+                    array_profil_len = (((panel_width * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows) * 2
                     if carcase_material == 'оцинкований' or carcase_material == 'алюміній' or carcase_material == 'залізо':
                         vertical_profile_len = (panel_length * rows) - 0.12
                         c = vertical_profile_len - 0.12
