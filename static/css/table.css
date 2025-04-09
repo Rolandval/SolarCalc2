@@ -405,6 +405,33 @@ tr:hover {
     color: var(--text-color);
 }
 
+/* Стилі для кнопки "Копіювати таблицю" */
+.copy-table-btn {
+    background-color: #1e293b; /* Темно-синій колір */
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 18px 40px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    margin: 25px 0;
+    letter-spacing: 0.5px;
+}
+
+.copy-table-btn:hover {
+    background-color: #0f172a; /* Ще темніший синій при наведенні */
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15), 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+
+.copy-table-btn i {
+    margin-right: 10px;
+    font-size: 1.4rem;
+}
+
 @media (max-width: 768px) {
     table {
         display: block;

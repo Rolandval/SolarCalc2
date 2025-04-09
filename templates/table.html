@@ -7,8 +7,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/base.css">
-    <link rel="stylesheet" href="/static/css/table.css">
-    <script src="/static/js/table.js"></script>
+    <link rel="stylesheet" href="/static/css/table.css?v={% now 'U' %}">
+    <script src="/static/js/table.js?v={% now 'U' %}"></script>
+    <style>
+        /* Стилі для кнопки "Копіювати таблицю" */
+        .copy-table-btn {
+            background-color: #1e293b !important; /* Темно-синій колір */
+            color: white !important;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 10px 20px !important;
+            font-size: 1rem !important;
+            font-weight: normal !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+            margin: 0 !important;
+            letter-spacing: normal !important;
+        }
+
+        .copy-table-btn:hover {
+            background-color: #0f172a !important; /* Ще темніший синій при наведенні */
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .copy-table-btn i {
+            margin-right: 5px !important;
+            font-size: 1rem !important;
+        }
+    </style>
 </head>
 <body>
 <div id="tables">
@@ -546,7 +574,7 @@
                 <button type="button" id="send-email-btn" style="margin-left: 15px; background-color: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                     <i class="fas fa-envelope"></i> Відправити на Email
                 </button>
-                <button type="button" id="copy-table-btn" style="margin-left: 15px; background-color: #27ae60; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <button type="button" id="copy-table-btn" class="copy-table-btn" style="margin-left: 15px;">
                     <i class="fas fa-copy"></i> Копіювати таблицю
                 </button>
             </div>
