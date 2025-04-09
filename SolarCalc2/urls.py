@@ -10,6 +10,7 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('calculator.urls')),
+    path('calculator/', include('calculator.urls')),  # Додаємо шлях з префіксом 'calculator/'
 ]
 
 if settings.DEBUG:

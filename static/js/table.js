@@ -771,11 +771,65 @@ document.addEventListener('DOMContentLoaded', function() {
             // Отримуємо форму
             const form = document.getElementById('pdf-form');
             
-            // Змінюємо action форми
-            form.action = '/calculator/send_pdf_to_telegram/';
+            // Створюємо об'єкт FormData з форми
+            const formData = new FormData(form);
             
-            // Відправляємо форму
-            form.submit();
+            // Показуємо повідомлення про відправку
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            notificationDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Відправка PDF через Telegram...</p>';
+            document.body.appendChild(notificationDiv);
+            
+            // Відправляємо AJAX запит
+            fetch('/calculator/send_pdf_to_telegram/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Видаляємо повідомлення про відправку
+                document.body.removeChild(notificationDiv);
+                
+                // Створюємо повідомлення про результат
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'notification ' + (data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    resultDiv.innerHTML = '<p><i class="fas fa-check-circle"></i> ' + (data.message || 'PDF успішно відправлено через Telegram') + '</p>';
+                } else {
+                    resultDiv.innerHTML = '<p><i class="fas fa-exclamation-circle"></i> ' + (data.error || 'Помилка при відправці PDF через Telegram') + '</p>';
+                }
+                
+                // Додаємо повідомлення на сторінку
+                document.body.appendChild(resultDiv);
+                
+                // Видаляємо повідомлення через 5 секунд
+                setTimeout(() => {
+                    document.body.removeChild(resultDiv);
+                }, 5000);
+            })
+            .catch(error => {
+                // Видаляємо повідомлення про відправку
+                document.body.removeChild(notificationDiv);
+                
+                // Створюємо повідомлення про помилку
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'notification error';
+                errorDiv.innerHTML = '<p><i class="fas fa-exclamation-circle"></i> Помилка при відправці PDF через Telegram</p>';
+                
+                // Додаємо повідомлення на сторінку
+                document.body.appendChild(errorDiv);
+                
+                // Видаляємо повідомлення через 5 секунд
+                setTimeout(() => {
+                    document.body.removeChild(errorDiv);
+                }, 5000);
+                
+                console.error('Помилка при відправці PDF через Telegram:', error);
+            });
         });
     }
     
