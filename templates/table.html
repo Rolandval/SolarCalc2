@@ -520,61 +520,6 @@
                     </div>
                 </div>
                 
-                <!-- Додаємо розділ для схеми панелей -->
-                <div id="panel-scheme-container">
-                    <h2><i class="fas fa-th"></i> Схема розташування панелей</h2>
-                    
-                    <!-- Відображаємо окремі схеми для кожного масиву, якщо вони є -->
-                    {% if data.panel_schemes %}
-                        {% for scheme in data.panel_schemes %}
-                        <div class="panel-scheme-item" style="margin-bottom: 30px;">
-                            <h3 style="margin-bottom: 15px; color: var(--primary-dark);">
-                                <i class="fas fa-solar-panel"></i> Масив #{{ scheme.array_id|add:1 }} ({{ scheme.rows }}x{{ scheme.panels_per_row }})
-                            </h3>
-                            <div class="panel-scheme">
-                                <img src="data:image/png;base64,{{ scheme.image_base64 }}" alt="Схема масиву #{{ scheme.array_id|add:1 }}" 
-                                     style="width: 100%; max-width: 100%; height: auto;">
-                            </div>
-                        </div>
-                        {% endfor %}
-                    <!-- Відображаємо загальну схему, якщо немає окремих схем -->
-                    {% elif data.scheme_image %}
-                    <div id="panel-scheme">
-                        <img src="{{ data.scheme_image }}" alt="Схема розташування панелей" style="width: 100%; max-width: 100%; height: auto;">
-                    </div>
-                    {% else %}
-                    <p style="text-align: center; padding: 2rem;">Схема недоступна</p>
-                    {% endif %}
-                    
-                    <div class="legend" style="display: flex; flex-wrap: wrap; justify-content: space-around; margin-top: 15px; gap: 10px;">
-                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                            <div class="legend-color" style="background-color: #60a5fa; width: 25px; height: 25px; margin-right: 10px;"></div>
-                            <span style="font-size: 14px;">Профілі</span>
-                        </div>
-                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                            <div class="legend-color" style="position: relative; width: 25px; height: 25px; margin-right: 10px;">
-                                <div style="position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
-                                    <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(45deg); position: absolute;"></div>
-                                    <div style="width: 18px; height: 3px; background-color: #1e40af; transform: rotate(-45deg); position: absolute;"></div>
-                                </div>
-                            </div>
-                            <span style="font-size: 14px;">З'єднання профілів</span>
-                        </div>
-                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                            <div class="legend-color" style="background-color: #15803d; width: 25px; height: 25px; margin-right: 10px;"></div>
-                            <span style="font-size: 14px;">Крайні зажими</span>
-                        </div>
-                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                            <div class="legend-color" style="background-color: #dc2626; width: 25px; height: 25px; margin-right: 10px;"></div>
-                            <span style="font-size: 14px;">Міжпанельні зажими</span>
-                        </div>
-                        <div class="legend-item" style="display: flex; align-items: center; margin: 5px 10px;">
-                            <div class="legend-color" style="background-color: rgba(100, 100, 100, 0.4); width: 25px; height: 25px; margin-right: 10px; border: 1px solid #333;"></div>
-                            <span style="font-size: 14px;">Панелі</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
             
             <!-- Приховані поля для передачі курсу долара та суми в доларах у PDF-звіт -->
             <input type="hidden" name="usd_rate" id="hidden-usd-rate" value="{{ data.usd_rate }}">
