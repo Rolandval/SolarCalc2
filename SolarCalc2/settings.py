@@ -90,6 +90,19 @@ WKHTMLTOPDF_CMD_OPTIONS = {
 TELEGRAM_BOT_TOKEN = os.getenv('BOT_TOKEN')
 TELEGRAM_DEFAULT_CHAT_ID = os.getenv('TELEGRAM_DEFAULT_CHAT_ID')
 
+# Налаштування для відправки Email
+EMAIL_USER = os.getenv('EMAIL_USER')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+
+# Налаштування для Django Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = EMAIL_USER
+EMAIL_HOST_PASSWORD = EMAIL_PASSWORD
+DEFAULT_FROM_EMAIL = EMAIL_USER
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 

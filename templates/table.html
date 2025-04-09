@@ -542,6 +542,25 @@
                 <button type="button" id="send-telegram-btn" class="telegram-btn" style="margin-left: 15px; background-color: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
                     <i class="fab fa-telegram"></i> Відправити в Telegram
                 </button>
+                <button type="button" id="send-email-btn" class="email-btn" style="margin-left: 15px; background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                    <i class="fas fa-envelope"></i> Відправити на Email
+                </button>
+            </div>
+            
+            <!-- Модальне вікно для введення email -->
+            <div id="email-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+                <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                    <h2 style="margin-top: 0; color: #333;">Відправити PDF звіт на Email</h2>
+                    <div style="margin: 20px 0;">
+                        <label for="email-input" style="display: block; margin-bottom: 10px; font-weight: bold;">Введіть email-адресу:</label>
+                        <input type="email" id="email-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;" placeholder="example@email.com" required>
+                    </div>
+                    <div style="text-align: right;">
+                        <button id="cancel-email-btn" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Скасувати</button>
+                        <button id="confirm-email-btn" style="background-color: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Відправити</button>
+                    </div>
+                </div>
             </div>
             
             <!-- Додаємо розділ для схеми панелей -->
@@ -635,6 +654,81 @@
             console.error('Помилка:', error);
             alert('Виникла помилка при відправці PDF через Telegram');
         });
+    });
+    
+    // Функція для відправки PDF звіту на Email
+    document.getElementById('send-email-btn').addEventListener('click', function() {
+        // Відкриваємо модальне вікно для введення email-адреси
+        document.getElementById('email-modal').style.display = 'block';
+    });
+    
+    // Функція для перевірки коректності email-адреси
+    function isValidEmail(email) {
+        var re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    }
+    
+    // Функція для відправки PDF звіту на Email після введення email-адреси
+    document.getElementById('confirm-email-btn').addEventListener('click', function(event) {
+        // Запобігаємо стандартній поведінці форми (запобігаємо завантаженню PDF)
+        event.preventDefault();
+        
+        // Отримуємо email-адресу з модального вікна
+        var email = document.getElementById('email-input').value;
+        
+        // Перевіряємо, чи введено email
+        if (!email || !isValidEmail(email)) {
+            alert('Будь ласка, введіть коректну email-адресу');
+            return;
+        }
+        
+        // Закриваємо модальне вікно після відправки
+        document.getElementById('email-modal').style.display = 'none';
+        
+        // Показуємо повідомлення про генерацію PDF
+        alert('Генерація PDF звіту та відправка на Email...');
+        
+        // Створюємо FormData з форми
+        var formData = new FormData(document.querySelector('form'));
+        // Додаємо email до FormData
+        formData.append('email', email);
+        
+        // Відправляємо запит на генерацію PDF та відправку на Email
+        fetch('{% url "calculator:send_pdf_email" %}', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('PDF звіт успішно відправлено на ' + email);
+            } else {
+                alert('Помилка при відправці PDF на Email: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Помилка:', error);
+            alert('Виникла помилка при відправці PDF на Email');
+        });
+    });
+    
+    // Функція для закриття модального вікна при натисканні на кнопку "Скасувати"
+    document.getElementById('cancel-email-btn').addEventListener('click', function() {
+        document.getElementById('email-modal').style.display = 'none';
+    });
+    
+    // Функція для закриття модального вікна при натисканні поза ним
+    window.addEventListener('click', function(event) {
+        var modal = document.getElementById('email-modal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    // Функція для закриття модального вікна при натисканні на хрестик
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('email-modal').style.display = 'none';
     });
 </script>
 </body>
