@@ -310,9 +310,29 @@
                             <td><input type="number" name="O32" value="0"></td>
                             <td><input type="number" name="O33" value="0"></td>
                         </tr>
+                        {% if data.batteryIsStand8 == 'Так' %}
+                        <tr>
+                            <td>Стійка 8</td>
+                            <td><input type="number" name="K912" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z4" value="0"></td>
+                            <td><input type="number" name="K922" value="0"></td>
+                            <td><input type="number" name="K932" value="0"></td>
+                        </tr>
+                        {% endif %}
+                        {% if data.batteryIsStand12 == 'Так' %}
+                        <tr>
+                            <td>Стійка 12</td>
+                            <td><input type="number" name="K913" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
+                            <td>шт</td>
+                            <td><input type="number" name="Z5" value="0"></td>
+                            <td><input type="number" name="K923" value="0"></td>
+                            <td><input type="number" name="K933" value="0"></td>
+                        </tr>
+                        {% endif %}
                     </tbody>
                 </table>
-                <button type="button" class="add-row-btn" data-table="equipment" data-prefix="O" data-z-start="4">+</button>
+                <button type="button" class="add-row-btn" data-table="equipment" data-prefix="O" data-z-start="6">+</button>
                 <div class="table-summary">
                     <p>Сума обладнання:<span id="equipment-sum">0</span>грн</p>
                 </div>
@@ -337,7 +357,7 @@
                             <td>Профіль {{ profile.length }} м ({{ data.profile_material }})</td>
                             <td><input type="number" name="K11_{{ profile.length }}" value="{{ profile.count }}"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z4_{{ profile.length }}" value="0"></td>
+                            <td><input type="number" name="Z6_{{ profile.length }}" value="0"></td>
                             <td><input type="number" name="K12_{{ profile.length }}" value="0"></td>
                             <td><input type="number" name="K13_{{ profile.length }}" value="0"></td>
                         </tr>
@@ -346,7 +366,7 @@
                             <td>Бокові Г-образні зажими ({{ data.panel_height }} мм)</td>
                             <td><input type="number" name="K21" value="{{ data.g_clamps}}"></td>
                             <td>компл</td>
-                            <td><input type="number" name="Z5" value="0"></td>
+                            <td><input type="number" name="Z7" value="0"></td>
                             <td><input type="number" name="K22" value="0"></td>
                             <td><input type="number" name="K23" value="0"></td>
                         </tr>
@@ -354,7 +374,7 @@
                             <td>Міжпанельні V-образні зажими ({{ data.panel_height }} мм)</td>
                             <td><input type="number" name="K31" value="{{ data.v_clamps }}"></td>
                             <td>компл</td>
-                            <td><input type="number" name="Z6" value="0"></td>
+                            <td><input type="number" name="Z8" value="0"></td>
                             <td><input type="number" name="K32" value="0"></td>
                             <td><input type="number" name="K33" value="0"></td>
                         </tr>
@@ -362,7 +382,7 @@
                             <td>Гвинт шуруп М10*200 комплект ({{ data.screw_material }})</td>
                             <td><input type="number" name="K41" value="{{ data.m_sh }}"></td>
                             <td>компл</td>
-                            <td><input type="number" name="Z7" value="0"></td>
+                            <td><input type="number" name="Z9" value="0"></td>
                             <td><input type="number" name="K42" value="0"></td>
                             <td><input type="number" name="K43" value="0"></td>
                         </tr>
@@ -370,7 +390,7 @@
                             <td>Комплект з'єднувача профілів (ЗОВНІШНІЙ)</td>
                             <td><input type="number" name="K51" value="{{ data.front_connectors }}"></td>
                             <td>компл</td>
-                            <td><input type="number" name="Z8" value="0"></td>
+                            <td><input type="number" name="Z10" value="0"></td>
                             <td><input type="number" name="K52" value="0"></td>
                             <td><input type="number" name="K53" value="0"></td>
                         </tr>
@@ -378,7 +398,7 @@
                             <td>Комплект з'єднувача профілів (ВНУТРІШНІЙ)</td>
                             <td><input type="number" name="K61" value="{{ data.inner_connectors }}"></td>
                             <td>компл</td>
-                            <td><input type="number" name="Z9" value="0"></td>
+                            <td><input type="number" name="Z11" value="0"></td>
                             <td><input type="number" name="K62" value="0"></td>
                             <td><input type="number" name="K63" value="0"></td>
                         </tr>
@@ -390,7 +410,7 @@
                             <td>Профіль120 {{ profile.length }} м ({{ data.carcase_material }})</td>
                             <td><input type="number" name="K71_{{ profile.length }}" value="{{ profile.count }}"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z10_{{ profile.length }}" value="0"></td>
+                            <td><input type="number" name="Z12_{{ profile.length }}" value="0"></td>
                             <td><input type="number" name="K72_{{ profile.length }}" value="{{ profile.price|default:0 }}"></td>
                             <td><input type="number" name="K73_{{ profile.length }}" value="0" data-length="{{ profile.length }}"></td>
                         </tr>
@@ -399,7 +419,7 @@
                             <td>Основа ({{ data.foundation_type_1 }})</td>
                             <td><input type="number" name="K81" value="{{ data.total_carcase_count }}"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z11" value="0"></td>
+                            <td><input type="number" name="Z13" value="0"></td>
                             <td><input type="number" name="K82" value="0"></td>
                             <td><input type="number" name="K83" value="0"></td>
                         </tr>
@@ -408,7 +428,7 @@
                             <td>Конектори МС4</td>
                             <td><input type="number" name="K91" value="{{ data.connectors }}"></td>
                             <td>шт</td>
-                            <td><input type="number" name="Z12" value="0"></td>
+                            <td><input type="number" name="Z14" value="0"></td>
                             <td><input type="number" name="K92" value="0"></td>
                             <td><input type="number" name="K93" value="0"></td>
                         </tr>
@@ -416,30 +436,10 @@
                             <td>Кабель</td>
                             <td><input type="number" name="K111" value="0"></td>
                             <td>м</td>
-                            <td><input type="number" name="Z13" value="0"></td>
+                            <td><input type="number" name="Z15" value="0"></td>
                             <td><input type="number" name="K121" value="0"></td>
                             <td><input type="number" name="K131" value="0"></td>
                         </tr>
-                        {% if data.batteryIsStand8 == 'Так' %}
-                        <tr>
-                            <td>Стійка 8</td>
-                            <td><input type="number" name="K912" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
-                            <td>шт</td>
-                            <td><input type="number" name="Z14" value="0"></td>
-                            <td><input type="number" name="K922" value="0"></td>
-                            <td><input type="number" name="K932" value="0"></td>
-                        </tr>
-                        {% endif %}
-                        {% if data.batteryIsStand12 == 'Так' %}
-                        <tr>
-                            <td>Стійка 12</td>
-                            <td><input type="number" name="K913" value="1" min="0" onchange="if(parseInt(this.value) <= 0) this.closest('tr').style.display = 'none';"></td>
-                            <td>шт</td>
-                            <td><input type="number" name="Z15" value="0"></td>
-                            <td><input type="number" name="K923" value="0"></td>
-                            <td><input type="number" name="K933" value="0"></td>
-                        </tr>
-                        {% endif %}
                     </tbody>
                 </table>
                 <button type="button" class="add-row-btn" data-table="mounting" data-prefix="K" data-z-start="16">+</button>
@@ -866,285 +866,296 @@
                     let textContent = '';
                     let totalSum = 0;
                     
-                    // Обробляємо секцію обладнання (завжди включаємо її)
-                    textContent += '**Обладнання**\n';
-                    textContent += '-**Назва**-**Кількість**-**Ціна**-**Сума**\n';
+                    // Перевіряємо стан чекбоксів для розділів
+                    const paramO = document.querySelector('input[name="param-o"]').checked;
+                    const paramK = document.querySelector('input[name="param-k"]').checked;
+                    const paramE = document.querySelector('input[name="param-e"]').checked;
+                    const paramR = document.querySelector('input[name="param-r"]').checked;
                     
-                    // Отримуємо рядки таблиці обладнання
-                    const equipmentRows = document.querySelectorAll('#equipment-table tbody tr');
-                    
-                    // Перевіряємо, чи є рядки в таблиці обладнання
-                    if (equipmentRows.length > 0) {
-                        // Проходимо по кожному рядку
-                        equipmentRows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            let name = '';
-                            let quantity = '';
-                            let price = '';
-                            let sum = '';
-                            
-                            // Отримуємо значення з комірок
-                            if (cells[0]) {
-                                if (cells[0].querySelector('input[type="text"]')) {
-                                    name = cells[0].querySelector('input[type="text"]').value;
-                                } else {
-                                    name = cells[0].textContent.trim();
+                    // Обробляємо секцію обладнання (тільки якщо відповідний чекбокс відмічений)
+                    if (paramO) {
+                        textContent += '*Обладнання*\n';
+                        textContent += '-Назва-Кількість-Ціна-Сума\n';
+
+                        
+                        // Отримуємо рядки таблиці обладнання
+                        const equipmentRows = document.querySelectorAll('#equipment-table tbody tr');
+                        
+                        // Перевіряємо, чи є рядки в таблиці обладнання
+                        if (equipmentRows.length > 0) {
+                            // Проходимо по кожному рядку
+                            equipmentRows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                let name = '';
+                                let quantity = '';
+                                let price = '';
+                                let sum = '';
+                                
+                                // Отримуємо значення з комірок
+                                if (cells[0]) {
+                                    if (cells[0].querySelector('input[type="text"]')) {
+                                        name = cells[0].querySelector('input[type="text"]').value;
+                                    } else {
+                                        name = cells[0].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[1]) {
-                                if (cells[1].querySelector('input[type="number"]')) {
-                                    quantity = cells[1].querySelector('input[type="number"]').value;
-                                } else {
-                                    quantity = cells[1].textContent.trim();
+                                
+                                if (cells[1]) {
+                                    if (cells[1].querySelector('input[type="number"]')) {
+                                        quantity = cells[1].querySelector('input[type="number"]').value;
+                                    } else {
+                                        quantity = cells[1].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[4]) {
-                                if (cells[4].querySelector('input[type="number"]')) {
-                                    price = cells[4].querySelector('input[type="number"]').value;
-                                } else {
-                                    price = cells[4].textContent.trim();
+                                
+                                if (cells[4]) {
+                                    if (cells[4].querySelector('input[type="number"]')) {
+                                        price = cells[4].querySelector('input[type="number"]').value;
+                                    } else {
+                                        price = cells[4].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[5]) {
-                                if (cells[5].querySelector('input[type="number"]')) {
-                                    sum = cells[5].querySelector('input[type="number"]').value;
-                                } else {
-                                    sum = cells[5].textContent.trim();
+                                
+                                if (cells[5]) {
+                                    if (cells[5].querySelector('input[type="number"]')) {
+                                        sum = cells[5].querySelector('input[type="number"]').value;
+                                    } else {
+                                        sum = cells[5].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
-                            textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
-                        });
-                    } else {
-                        // Якщо немає рядків, додаємо стандартні елементи
-                        textContent += `-Інвертор-1-0-0.00\n`;
-                        textContent += `-Акумулятор-1-0-0.00\n`;
-                        textContent += `-Сонячна панель-12-0-0.00\n`;
+                                
+                                // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
+                                textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
+                            });
+                        } else {
+                            // Якщо немає рядків, додаємо стандартні елементи
+                            textContent += `-Інвертор-0-0-0.00\n`;
+                            textContent += `-Акумулятор-0-0-0.00\n`;
+                            textContent += `-Сонячна панель-0-0-0.00\n`;
+                        }
+                        
+                        // Додаємо суму обладнання
+                        const equipmentSumElement = document.getElementById('equipment-sum');
+                        let equipmentSum = 0;
+                        if (equipmentSumElement) {
+                            equipmentSum = parseFloat(equipmentSumElement.textContent) || 0;
+                        }
+                        textContent += `Сума обладнання: ${equipmentSum.toFixed(2)} грн\n\n`;
+                        totalSum += equipmentSum;
                     }
                     
-                    // Додаємо суму обладнання
-                    const equipmentSumElement = document.getElementById('equipment-sum');
-                    let equipmentSum = 0;
-                    if (equipmentSumElement) {
-                        equipmentSum = parseFloat(equipmentSumElement.textContent) || 0;
-                    }
-                    textContent += `Сума обладнання: ${equipmentSum.toFixed(2)} грн\n\n`;
-                    totalSum += equipmentSum;
-                    
-                    // Обробляємо секцію кріплення (завжди включаємо її)
-                    textContent += '**Кріплення**\n';
-                    textContent += '-**Назва**-**Кількість**-**Ціна**-**Сума**\n';
-                    
-                    // Отримуємо рядки таблиці кріплення
-                    const mountingRows = document.querySelectorAll('#mounting-table tbody tr');
-                    
-                    // Перевіряємо, чи є рядки в таблиці кріплення
-                    if (mountingRows.length > 0) {
-                        // Проходимо по кожному рядку
-                        mountingRows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            let name = '';
-                            let quantity = '';
-                            let price = '';
-                            let sum = '';
-                            
-                            // Отримуємо значення з комірок
-                            if (cells[0]) {
-                                if (cells[0].querySelector('input[type="text"]')) {
-                                    name = cells[0].querySelector('input[type="text"]').value;
-                                } else {
-                                    name = cells[0].textContent.trim();
+                    // Обробляємо секцію кріплення (тільки якщо відповідний чекбокс відмічений)
+                    if (paramK) {
+                        textContent += '*Кріплення*\n';
+                        
+                        // Отримуємо рядки таблиці кріплення
+                        const mountingRows = document.querySelectorAll('#mounting-table tbody tr');
+                        
+                        // Перевіряємо, чи є рядки в таблиці кріплення
+                        if (mountingRows.length > 0) {
+                            // Проходимо по кожному рядку
+                            mountingRows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                let name = '';
+                                let quantity = '';
+                                let price = '';
+                                let sum = '';
+                                
+                                // Отримуємо значення з комірок
+                                if (cells[0]) {
+                                    if (cells[0].querySelector('input[type="text"]')) {
+                                        name = cells[0].querySelector('input[type="text"]').value;
+                                    } else {
+                                        name = cells[0].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[1]) {
-                                if (cells[1].querySelector('input[type="number"]')) {
-                                    quantity = cells[1].querySelector('input[type="number"]').value;
-                                } else {
-                                    quantity = cells[1].textContent.trim();
+                                
+                                if (cells[1]) {
+                                    if (cells[1].querySelector('input[type="number"]')) {
+                                        quantity = cells[1].querySelector('input[type="number"]').value;
+                                    } else {
+                                        quantity = cells[1].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[4]) {
-                                if (cells[4].querySelector('input[type="number"]')) {
-                                    price = cells[4].querySelector('input[type="number"]').value;
-                                } else {
-                                    price = cells[4].textContent.trim();
+                                
+                                if (cells[4]) {
+                                    if (cells[4].querySelector('input[type="number"]')) {
+                                        price = cells[4].querySelector('input[type="number"]').value;
+                                    } else {
+                                        price = cells[4].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[5]) {
-                                if (cells[5].querySelector('input[type="number"]')) {
-                                    sum = cells[5].querySelector('input[type="number"]').value;
-                                } else {
-                                    sum = cells[5].textContent.trim();
+                                
+                                if (cells[5]) {
+                                    if (cells[5].querySelector('input[type="number"]')) {
+                                        sum = cells[5].querySelector('input[type="number"]').value;
+                                    } else {
+                                        sum = cells[5].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
-                            textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
-                        });
-                    } else {
-                        // Якщо немає рядків, додаємо стандартні елементи
-                        textContent += `-Профіль 2,0 м (алюміній)-1-0-0.00\n`;
-                        textContent += `-Профіль 4,0 м (алюміній)-5-0-0.00\n`;
-                        textContent += `-Бокові Г-образні зажими (30,0 мм)-12-0-0.00\n`;
-                        textContent += `-Міжпанельні V-образні зажими (30,0 мм)-22-0-0.00\n`;
-                        textContent += `-Гвинт шуруп М10*200 комплект (оцинковані)-24-0-0.00\n`;
-                        textContent += `-Комплект з'єднувача профілів (ЗОВНІШНІЙ)-9-0-0.00\n`;
-                        textContent += `-Комплект з'єднувача профілів (ВНУТРІШНІЙ)-0-0-0.00\n`;
-                        textContent += `-Конектори МС4-5-0-0.00\n`;
-                        textContent += `-Кабель-0-0-0.00\n`;
-                    }
-                    
-                    // Додаємо суму кріплення
-                    const mountingSumElement = document.getElementById('mounting-sum');
-                    let mountingSum = 0;
-                    if (mountingSumElement) {
-                        mountingSum = parseFloat(mountingSumElement.textContent) || 0;
-                    }
-                    textContent += `Сума кріплення: ${mountingSum.toFixed(2)} грн\n\n`;
-                    totalSum += mountingSum;
-                    
-                    // Обробляємо секцію електрики (завжди включаємо її)
-                    textContent += '**Електрика**\n';
-                    textContent += '-**Назва**-**Кількість**-**Ціна**-**Сума**\n';
-                    
-                    // Отримуємо рядки таблиці електрики
-                    const electricalRows = document.querySelectorAll('#electrical-table tbody tr');
-                    
-                    // Перевіряємо, чи є рядки в таблиці електрики
-                    if (electricalRows.length > 0) {
-                        // Проходимо по кожному рядку
-                        electricalRows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            let name = '';
-                            let quantity = '';
-                            let price = '';
-                            let sum = '';
-                            
-                            // Отримуємо значення з комірок
-                            if (cells[0]) {
-                                if (cells[0].querySelector('input[type="text"]')) {
-                                    name = cells[0].querySelector('input[type="text"]').value;
-                                } else {
-                                    name = cells[0].textContent.trim();
-                                }
-                            }
-                            
-                            if (cells[1]) {
-                                if (cells[1].querySelector('input[type="number"]')) {
-                                    quantity = cells[1].querySelector('input[type="number"]').value;
-                                } else {
-                                    quantity = cells[1].textContent.trim();
-                                }
-                            }
-                            
-                            if (cells[4]) {
-                                if (cells[4].querySelector('input[type="number"]')) {
-                                    price = cells[4].querySelector('input[type="number"]').value;
-                                } else {
-                                    price = cells[4].textContent.trim();
-                                }
-                            }
-                            
-                            if (cells[5]) {
-                                if (cells[5].querySelector('input[type="number"]')) {
-                                    sum = cells[5].querySelector('input[type="number"]').value;
-                                } else {
-                                    sum = cells[5].textContent.trim();
-                                }
-                            }
-                            
-                            // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
-                            textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
-                        });
+                                
+                                // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
+                                textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
+                            });
+                        } else {
+                            // Якщо немає рядків, додаємо стандартні елементи
+                            textContent += `-Профіль 2,0 м (алюміній)-1-0-0.00\n`;
+                            textContent += `-Профіль 4,0 м (алюміній)-5-0-0.00\n`;
+                            textContent += `-Бокові Г-образні зажими (30,0 мм)-12-0-0.00\n`;
+                            textContent += `-Міжпанельні V-образні зажими (30,0 мм)-22-0-0.00\n`;
+                            textContent += `-Гвинт шуруп М10*200 комплект (оцинковані)-24-0-0.00\n`;
+                            textContent += `-Комплект з'єднувача профілів (ЗОВНІШНІЙ)-9-0-0.00\n`;
+                            textContent += `-Конектори МС4-5-0-0.00\n`;
+                            textContent += `-Кабель-0-0-0.00\n`;
+                        }
+                        
+                        // Додаємо суму кріплення
+                        const mountingSumElement = document.getElementById('mounting-sum');
+                        let mountingSum = 0;
+                        if (mountingSumElement) {
+                            mountingSum = parseFloat(mountingSumElement.textContent) || 0;
+                        }
+                        textContent += `Сума кріплення: ${mountingSum.toFixed(2)} грн\n\n`;
+                        totalSum += mountingSum;
                     }
                     
-                    // Додаємо суму електрики
-                    const electricalSumElement = document.getElementById('electrical-sum');
-                    let electricalSum = 0;
-                    if (electricalSumElement) {
-                        electricalSum = parseFloat(electricalSumElement.textContent) || 0;
-                    }
-                    textContent += `Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
-                    totalSum += electricalSum;
-                    
-                    // Обробляємо секцію роботи (завжди включаємо її)
-                    textContent += '**Робота**\n';
-                    textContent += '-**Назва**-**Кількість**-**Ціна**-**Сума**\n';
-                    
-                    // Отримуємо рядки таблиці роботи
-                    const workRows = document.querySelectorAll('#work-table tbody tr');
-                    
-                    // Перевіряємо, чи є рядки в таблиці роботи
-                    if (workRows.length > 0) {
-                        // Проходимо по кожному рядку
-                        workRows.forEach(row => {
-                            const cells = row.querySelectorAll('td');
-                            let name = '';
-                            let quantity = '';
-                            let price = '';
-                            let sum = '';
-                            
-                            // Отримуємо значення з комірок
-                            if (cells[0]) {
-                                if (cells[0].querySelector('input[type="text"]')) {
-                                    name = cells[0].querySelector('input[type="text"]').value;
-                                } else {
-                                    name = cells[0].textContent.trim();
+                    // Обробляємо секцію електрики (тільки якщо відповідний чекбокс відмічений)
+                    if (paramE) {
+                        textContent += '*Електрика*\n';
+                        
+                        // Отримуємо рядки таблиці електрики
+                        const electricalRows = document.querySelectorAll('#electrical-table tbody tr');
+                        
+                        // Перевіряємо, чи є рядки в таблиці електрики
+                        if (electricalRows.length > 0) {
+                            // Проходимо по кожному рядку
+                            electricalRows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                let name = '';
+                                let quantity = '';
+                                let price = '';
+                                let sum = '';
+                                
+                                // Отримуємо значення з комірок
+                                if (cells[0]) {
+                                    if (cells[0].querySelector('input[type="text"]')) {
+                                        name = cells[0].querySelector('input[type="text"]').value;
+                                    } else {
+                                        name = cells[0].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[1]) {
-                                if (cells[1].querySelector('input[type="number"]')) {
-                                    quantity = cells[1].querySelector('input[type="number"]').value;
-                                } else {
-                                    quantity = cells[1].textContent.trim();
+                                
+                                if (cells[1]) {
+                                    if (cells[1].querySelector('input[type="number"]')) {
+                                        quantity = cells[1].querySelector('input[type="number"]').value;
+                                    } else {
+                                        quantity = cells[1].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[4]) {
-                                if (cells[4].querySelector('input[type="number"]')) {
-                                    price = cells[4].querySelector('input[type="number"]').value;
-                                } else {
-                                    price = cells[4].textContent.trim();
+                                
+                                if (cells[4]) {
+                                    if (cells[4].querySelector('input[type="number"]')) {
+                                        price = cells[4].querySelector('input[type="number"]').value;
+                                    } else {
+                                        price = cells[4].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            if (cells[5]) {
-                                if (cells[5].querySelector('input[type="number"]')) {
-                                    sum = cells[5].querySelector('input[type="number"]').value;
-                                } else {
-                                    sum = cells[5].textContent.trim();
+                                
+                                if (cells[5]) {
+                                    if (cells[5].querySelector('input[type="number"]')) {
+                                        sum = cells[5].querySelector('input[type="number"]').value;
+                                    } else {
+                                        sum = cells[5].textContent.trim();
+                                    }
                                 }
-                            }
-                            
-                            // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
-                            textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
-                        });
-                    } else {
-                        // Якщо немає рядків, додаємо стандартні елементи
-                        textContent += `-Доставка-0-0-0.00\n`;
-                        textContent += `-Роботи електрика-0-0-0.00\n`;
-                        textContent += `-Монтаж-0-0-0.00\n`;
+                                
+                                // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
+                                textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
+                            });
+                        }
+                        
+                        // Додаємо суму електрики
+                        const electricalSumElement = document.getElementById('electrical-sum');
+                        let electricalSum = 0;
+                        if (electricalSumElement) {
+                            electricalSum = parseFloat(electricalSumElement.textContent) || 0;
+                        }
+                        textContent += `Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
+                        totalSum += electricalSum;
                     }
                     
-                    // Додаємо суму роботи
-                    const workSumElement = document.getElementById('work-sum');
-                    let workSum = 0;
-                    if (workSumElement) {
-                        workSum = parseFloat(workSumElement.textContent) || 0;
+                    // Обробляємо секцію роботи (тільки якщо відповідний чекбокс відмічений)
+                    if (paramR) {
+                        textContent += '*Робота*\n';
+                        
+                        // Отримуємо рядки таблиці роботи
+                        const workRows = document.querySelectorAll('#work-table tbody tr');
+                        
+                        // Перевіряємо, чи є рядки в таблиці роботи
+                        if (workRows.length > 0) {
+                            // Проходимо по кожному рядку
+                            workRows.forEach(row => {
+                                const cells = row.querySelectorAll('td');
+                                let name = '';
+                                let quantity = '';
+                                let price = '';
+                                let sum = '';
+                                
+                                // Отримуємо значення з комірок
+                                if (cells[0]) {
+                                    if (cells[0].querySelector('input[type="text"]')) {
+                                        name = cells[0].querySelector('input[type="text"]').value;
+                                    } else {
+                                        name = cells[0].textContent.trim();
+                                    }
+                                }
+                                
+                                if (cells[1]) {
+                                    if (cells[1].querySelector('input[type="number"]')) {
+                                        quantity = cells[1].querySelector('input[type="number"]').value;
+                                    } else {
+                                        quantity = cells[1].textContent.trim();
+                                    }
+                                }
+                                
+                                if (cells[4]) {
+                                    if (cells[4].querySelector('input[type="number"]')) {
+                                        price = cells[4].querySelector('input[type="number"]').value;
+                                    } else {
+                                        price = cells[4].textContent.trim();
+                                    }
+                                }
+                                
+                                if (cells[5]) {
+                                    if (cells[5].querySelector('input[type="number"]')) {
+                                        sum = cells[5].querySelector('input[type="number"]').value;
+                                    } else {
+                                        sum = cells[5].textContent.trim();
+                                    }
+                                }
+                                
+                                // Додаємо рядок до текстового вмісту (навіть якщо кількість 0)
+                                textContent += `-${name}-${quantity}-${price}-${parseFloat(sum || 0).toFixed(2)}\n`;
+                            });
+                        } else {
+                            // Якщо немає рядків, додаємо стандартні елементи
+                            textContent += `-Доставка-0-0-0.00\n`;
+                            textContent += `-Роботи електрика-0-0-0.00\n`;
+                            textContent += `-Монтаж-0-0-0.00\n`;
+                        }
+                        
+                        // Додаємо суму роботи
+                        const workSumElement = document.getElementById('work-sum');
+                        let workSum = 0;
+                        if (workSumElement) {
+                            workSum = parseFloat(workSumElement.textContent) || 0;
+                        }
+                        textContent += `Сума роботи: ${workSum.toFixed(2)} грн\n\n`;
+                        totalSum += workSum;
                     }
-                    textContent += `Сума роботи: ${workSum.toFixed(2)} грн\n\n`;
-                    totalSum += workSum;
                     
                     // Додаємо загальну суму
-                    textContent += `**Загальна сума: ${totalSum.toFixed(2)} грн**`;
+                    textContent += `*Загальна сума: ${totalSum.toFixed(2)} грн*`;
                     
                     console.log('Текст для копіювання:', textContent);
                     
