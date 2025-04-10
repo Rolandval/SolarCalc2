@@ -33,6 +33,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.100', 'solarcalc2.onrender.com']
 PORT = 8000
 
+# Додаємо CSRF_TRUSTED_ORIGINS для вирішення проблеми з CSRF на Render
+CSRF_TRUSTED_ORIGINS = ['https://solarcalc2.onrender.com']
+
 # Application definition
 
 INSTALLED_APPS = [
