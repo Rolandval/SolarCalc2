@@ -469,13 +469,16 @@ def generate_pdf(request):
             # Отримуємо дані з параметрів запиту
             data = request.POST.dict()
             print("Отримані дані:", data)
-            param_o = request.POST.get('param-o', 'true')
-            param_k = request.POST.get('param-k', 'true')
-            param_e = request.POST.get('param-e', 'true')
-            param_r = request.POST.get('param-r', 'true')
-            param_usd = request.POST.get('param-usd', 'false')
             
-            print(f"Параметри для Email PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
+            # Правильно обробляємо чекбокси
+            # Якщо чекбокс відмічений, він буде присутній у request.POST зі значенням 'on'
+            param_o = 'param-o' in request.POST
+            param_k = 'param-k' in request.POST
+            param_e = 'param-e' in request.POST
+            param_r = 'param-r' in request.POST
+            param_usd = 'param-usd' in request.POST
+            
+            print(f"Параметри для PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
             
             # Отримуємо параметри для включення datasheet
             include_panel_ds = request.POST.get('include_panel_ds') == 'on'
@@ -777,11 +780,14 @@ def send_pdf_telegram(request):
             # Отримуємо дані з параметрів запиту
             data = request.POST.dict()
             print("Отримані дані для Telegram:", data)
-            param_o = request.POST.get('param-o', 'true')
-            param_k = request.POST.get('param-k', 'true')
-            param_e = request.POST.get('param-e', 'true')
-            param_r = request.POST.get('param-r', 'true')
-            param_usd = request.POST.get('param-usd', 'false')
+            
+            # Правильно обробляємо чекбокси
+            # Якщо чекбокс відмічений, він буде присутній у request.POST зі значенням 'on'
+            param_o = 'param-o' in request.POST
+            param_k = 'param-k' in request.POST
+            param_e = 'param-e' in request.POST
+            param_r = 'param-r' in request.POST
+            param_usd = 'param-usd' in request.POST
             
             print(f"Параметри для Telegram PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
             
@@ -1113,11 +1119,14 @@ def send_pdf_email(request):
         # Отримуємо дані з параметрів запиту
         data = request.POST.dict()
         print("Отримані дані для Email:", data)
-        param_o = request.POST.get('param-o', 'true')
-        param_k = request.POST.get('param-k', 'true')
-        param_e = request.POST.get('param-e', 'true')
-        param_r = request.POST.get('param-r', 'true')
-        param_usd = request.POST.get('param-usd', 'false')
+        
+        # Правильно обробляємо чекбокси
+        # Якщо чекбокс відмічений, він буде присутній у request.POST зі значенням 'on'
+        param_o = 'param-o' in request.POST
+        param_k = 'param-k' in request.POST
+        param_e = 'param-e' in request.POST
+        param_r = 'param-r' in request.POST
+        param_usd = 'param-usd' in request.POST
         
         print(f"Параметри для Email PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
         
@@ -1784,11 +1793,14 @@ def send_pdf_telegram(request):
             # Отримуємо дані з параметрів запиту
             data = request.POST.dict()
             print("Отримані дані для Telegram:", data)
-            param_o = request.POST.get('param-o', 'true')
-            param_k = request.POST.get('param-k', 'true')
-            param_e = request.POST.get('param-e', 'true')
-            param_r = request.POST.get('param-r', 'true')
-            param_usd = request.POST.get('param-usd', 'false')
+            
+            # Правильно обробляємо чекбокси
+            # Якщо чекбокс відмічений, він буде присутній у request.POST зі значенням 'on'
+            param_o = 'param-o' in request.POST
+            param_k = 'param-k' in request.POST
+            param_e = 'param-e' in request.POST
+            param_r = 'param-r' in request.POST
+            param_usd = 'param-usd' in request.POST
             
             print(f"Параметри для Telegram PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
             
