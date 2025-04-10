@@ -86,181 +86,181 @@
     </style>
 </head>
 <body>
-<div id="tables">
-    <div class="header">
-        <h1>Результати розрахунку</h1>
-        <p>Детальна інформація про необхідні матеріали та їх вартість</p>
-    </div>
-    
-    <!-- Кнопка "Повернутись назад" зверху сторінки -->
-    <div class="back-button-container">
-        <a href="{% url 'calculator:index' %}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Повернутись назад
-        </a>
-    </div>
-    
-    <!-- Секція з параметрами розрахунку -->
-    <div class="parameters-container">
-        <div class="parameters-header">
-            <h2><i class="fas fa-cogs"></i> Параметри розрахунку</h2>
-            <button type="button" id="toggle-parameters" class="toggle-btn" onclick="toggleParameters()">
-                <i class="fas fa-chevron-down"></i> Показати параметри
-            </button>
+<form id="pdf-form" action="{% url 'calculator:generate_pdf' %}" method="post">
+    {% csrf_token %}
+    <div id="tables">
+        <div class="header">
+            <h1>Результати розрахунку</h1>
+            <p>Детальна інформація про необхідні матеріали та їх вартість</p>
         </div>
         
-        <div class="parameters-content" id="parameters-content" style="display: none;">
-            <div class="parameters-grid">
-                <!-- Параметри панелей -->
-                <div class="parameter-section">
-                    <h3><i class="fas fa-solar-panel"></i> Параметри сонячних панелей</h3>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Бренд панелі:</div>
-                        <div class="parameter-value">{{ data.panel_brand }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Модель панелі:</div>
-                        <div class="parameter-value">
-                            {{ data.panelModelName }}
-                            {% if data.panelModelId %}
-                            <a href="{% url 'calculator:download_datasheet' data.panelModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
-                                <i class="fas fa-file-pdf"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Тип панелі:</div>
-                        <div class="parameter-value">{{ data.panel_type }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Ширина панелі (м):</div>
-                        <div class="parameter-value">{{ data.panel_width }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Довжина панелі (м):</div>
-                        <div class="parameter-value">{{ data.panel_length }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Висота панелі (мм):</div>
-                        <div class="parameter-value">{{ data.panel_height }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Орієнтація:</div>
-                        <div class="parameter-value">{{ data.panel_arrangement }}</div>
-                    </div>
-                    
-                </div>
-                
-                <!-- Параметри розміщення -->
-                <div class="parameter-section">
-                    <h3><i class="fas fa-th"></i> Параметри розміщення</h3>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Кількість рядків:</div>
-                        <div class="parameter-value">{{ data.rows }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Кількість панелей на рядок:</div>
-                        <div class="parameter-value">{{ data.panels_per_row }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Загальна кількість панелей:</div>
-                        <div class="parameter-value">{{ data.total_panels }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Доступні довжини профілів (м):</div>
-                        <div class="parameter-value">{{ data.profile_lengths }}</div>
-                    </div>
-                    <div class="parameter-row">
-                        <div class="parameter-label">Кількість стрінгів:</div>
-                        <div class="parameter-value">{{ data.string_count }}</div>
-                    </div>
-                </div>
-                
-                <!-- Електричні параметри -->
-                <div class="parameter-section">
-                    <h3><i class="fas fa-bolt"></i> Інвертор</h3>
-                    {% if data.inverterModel %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Модель інвертора:</div>
-                        <div class="parameter-value">
-                            {{ data.inverterModelName }}
-                            {% if data.inverterModelId %}
-                            <a href="{% url 'calculator:download_inverter_datasheet' data.inverterModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
-                                <i class="fas fa-file-pdf"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if data.inverterBrand %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Бренд інвертора:</div>
-                        <div class="parameter-value">{{ data.inverterBrand }}</div>
-                    </div>
-                    {% endif %}
-                    {% if data.inverterPower %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Потужність інвертора (кВт):</div>
-                        <div class="parameter-value">{{ data.inverterPower }}</div>
-                    </div>
-                    {% endif %}
-                    {% if data.inverterPhases %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Кількість фаз інвертора:</div>
-                        <div class="parameter-value">{{ data.inverterPhases }}</div>
-                    </div>
-                    {% endif %}
-                    
-                </div>
-                
-                <!-- Додаткові компоненти -->
-                <div class="parameter-section">
-                    <h3><i class="fas fa-plug"></i> Акумулятор</h3>
-                    {% if data.batteryModel %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Модель акумулятора:</div>
-                        <div class="parameter-value">
-                            {{ data.batteryModelName }}
-                            {% if data.batteryModelId %}
-                            <a href="{% url 'calculator:download_battery_datasheet' data.batteryModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
-                                <i class="fas fa-file-pdf"></i>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endif %}
-                    {% if data.batteryBrand %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Бренд акумулятора:</div>
-                        <div class="parameter-value">{{ data.batteryBrand }}</div>
-                    </div>
-                    {% endif %}
-                    {% if data.batteryPower %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Ємність акумулятора (кВт):</div>
-                        <div class="parameter-value">{{ data.batteryPower }}</div>
-                    </div>
-                    {% endif %}
-                    {% if data.batteryIsHead %}
-                    <div class="parameter-row">
-                        <div class="parameter-label">Наявність голови:</div>
-                        <div class="parameter-value">{{ data.batteryIsHead|yesno:"Так,Ні" }}</div>
-                    </div>
-                    {% endif %}
-                </div>
+        <!-- Кнопка "Повернутись назад" зверху сторінки -->
+        <div class="back-button-container">
+            <a href="{% url 'calculator:index' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Повернутись назад
+            </a>
+        </div>
+        
+        <!-- Секція з параметрами розрахунку -->
+        <div class="parameters-container">
+            <div class="parameters-header">
+                <h2><i class="fas fa-cogs"></i> Параметри розрахунку</h2>
+                <button type="button" id="toggle-parameters" class="toggle-btn" onclick="toggleParameters()">
+                    <i class="fas fa-chevron-down"></i> Показати параметри
+                </button>
             </div>
             
-            <div class="parameters-actions">
-                <a href="{% url 'calculator:index' %}" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Повернутися до калькулятора
-                </a>
+            <div class="parameters-content" id="parameters-content" style="display: none;">
+                <div class="parameters-grid">
+                    <!-- Параметри панелей -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-solar-panel"></i> Параметри сонячних панелей</h3>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд панелі:</div>
+                            <div class="parameter-value">{{ data.panel_brand }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Модель панелі:</div>
+                            <div class="parameter-value">
+                                {{ data.panelModelName }}
+                                {% if data.panelModelId %}
+                                <a href="{% url 'calculator:download_datasheet' data.panelModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Тип панелі:</div>
+                            <div class="parameter-value">{{ data.panel_type }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Ширина панелі (м):</div>
+                            <div class="parameter-value">{{ data.panel_width }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Довжина панелі (м):</div>
+                            <div class="parameter-value">{{ data.panel_length }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Висота панелі (мм):</div>
+                            <div class="parameter-value">{{ data.panel_height }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Орієнтація:</div>
+                            <div class="parameter-value">{{ data.panel_arrangement }}</div>
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Параметри розміщення -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-th"></i> Параметри розміщення</h3>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Кількість рядків:</div>
+                            <div class="parameter-value">{{ data.rows }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Кількість панелей на рядок:</div>
+                            <div class="parameter-value">{{ data.panels_per_row }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Загальна кількість панелей:</div>
+                            <div class="parameter-value">{{ data.total_panels }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Доступні довжини профілів (м):</div>
+                            <div class="parameter-value">{{ data.profile_lengths }}</div>
+                        </div>
+                        <div class="parameter-row">
+                            <div class="parameter-label">Кількість стрінгів:</div>
+                            <div class="parameter-value">{{ data.string_count }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Електричні параметри -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-bolt"></i> Інвертор</h3>
+                        {% if data.inverterModel %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Модель інвертора:</div>
+                            <div class="parameter-value">
+                                {{ data.inverterModelName }}
+                                {% if data.inverterModelId %}
+                                <a href="{% url 'calculator:download_inverter_datasheet' data.inverterModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterBrand %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд інвертора:</div>
+                            <div class="parameter-value">{{ data.inverterBrand }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterPower %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Потужність інвертора (кВт):</div>
+                            <div class="parameter-value">{{ data.inverterPower }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterPhases %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Кількість фаз інвертора:</div>
+                            <div class="parameter-value">{{ data.inverterPhases }}</div>
+                        </div>
+                        {% endif %}
+                        
+                    </div>
+                    
+                    <!-- Додаткові компоненти -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-plug"></i> Акумулятор</h3>
+                        {% if data.batteryModel %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Модель акумулятора:</div>
+                            <div class="parameter-value">
+                                {{ data.batteryModelName }}
+                                {% if data.batteryModelId %}
+                                <a href="{% url 'calculator:download_battery_datasheet' data.batteryModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryBrand %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд акумулятора:</div>
+                            <div class="parameter-value">{{ data.batteryBrand }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryPower %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Ємність акумулятора (кВт):</div>
+                            <div class="parameter-value">{{ data.batteryPower }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryIsHead %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Наявність голови:</div>
+                            <div class="parameter-value">{{ data.batteryIsHead|yesno:"Так,Ні" }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="parameters-actions">
+                    <a href="{% url 'calculator:index' %}" class="back-btn">
+                        <i class="fas fa-arrow-left"></i> Повернутися до калькулятора
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="content-container">
-        <form id="pdf-form" action="{% url 'calculator:generate_pdf' %}" method="post">
-            {% csrf_token %}
+        
+        <div class="content-container">
             
             <!-- Чекбокси для контролю відображення блоків таблиці -->
             <div class="table-controls">
@@ -629,7 +629,7 @@
         {% endif %}
 
         <div style="text-align: center; margin: 30px 0;">
-            <button type="submit" class="pdf-btn">
+            <button type="button" id="download-pdf-btn" class="pdf-btn">
                 <i class="fas fa-file-pdf"></i> Роздрукувати PDF звіт
             </button>
             <button type="button" id="send-telegram-btn" class="telegram-btn" style="margin-left: 15px; background-color: #0088cc; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
@@ -646,16 +646,22 @@
         <!-- Модальне вікно для введення email -->
         <div id="email-modal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
             <div class="modal-content" style="background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 5px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <span class="close" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+                <span class="close" id="close-email-modal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
                 <h2 style="margin-top: 0; color: #333;">Відправити PDF звіт на Email</h2>
-                <div style="margin: 20px 0;">
-                    <label for="email-input" style="display: block; margin-bottom: 10px; font-weight: bold;">Введіть email-адресу:</label>
-                    <input type="email" id="email-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;" placeholder="example@email.com" required>
-                </div>
-                <div style="text-align: right;">
-                    <button id="cancel-email-btn" style="background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-right: 10px;">Скасувати</button>
-                    <button id="confirm-email-btn" style="background-color: #9b59b6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">Відправити</button>
-                </div>
+                <form id="email-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="email-input">Введіть Email-адресу:</label>
+                        <input type="email" id="email-input" name="email" required placeholder="example@example.com">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="cancel-email-btn" class="cancel-btn">
+                            Скасувати
+                        </button>
+                        <button type="button" id="confirm-email-btn" class="confirm-btn">
+                            Відправити
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
         
@@ -721,20 +727,30 @@
             <i class="fas fa-arrow-left"></i> Повернутись назад
         </a>
     </div>
-</div>
-
-<script src="/static/js/table.js?v={% now 'U' %}"></script>
+</form>
 
 <script>
+    // Функція для завантаження PDF звіту
+    document.getElementById('download-pdf-btn').addEventListener('click', function() {
+        // Показуємо повідомлення про генерацію PDF
+        alert('Генерація PDF звіту...');
+        
+        // Відправляємо форму для завантаження PDF
+        document.getElementById('pdf-form').submit();
+    });
+
     // Функція для відправки PDF звіту через Telegram
     document.getElementById('send-telegram-btn').addEventListener('click', function() {
         // Показуємо повідомлення про генерацію PDF
         alert('Генерація PDF звіту та відправка в Telegram...');
         
+        // Створюємо копію форми для відправки в Telegram
+        var formData = new FormData(document.getElementById('pdf-form'));
+        
         // Відправляємо запит на генерацію PDF та відправку через Telegram
         fetch('{% url "calculator:send_pdf_telegram" %}', {
             method: 'POST',
-            body: new FormData(document.querySelector('form')),
+            body: formData,
             credentials: 'same-origin'
         })
         .then(response => response.json())
@@ -783,8 +799,8 @@
         // Показуємо повідомлення про генерацію PDF
         alert('Генерація PDF звіту та відправка на Email...');
         
-        // Створюємо FormData з форми
-        var formData = new FormData(document.querySelector('form'));
+        // Створюємо копію форми для відправки на Email
+        var formData = new FormData(document.getElementById('pdf-form'));
         // Додаємо email до FormData
         formData.append('email', email);
         
@@ -792,7 +808,10 @@
         fetch('{% url "calculator:send_pdf_email" %}', {
             method: 'POST',
             body: formData,
-            credentials: 'same-origin'
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         })
         .then(response => response.json())
         .then(data => {
@@ -820,14 +839,12 @@
             modal.style.display = 'none';
         }
     });
-    
-    // Функція для закриття модального вікна при натисканні на хрестик
-    document.querySelector('.close').addEventListener('click', function() {
+
+    // Додаємо обробник для закриття модального вікна при натисканні на хрестик
+    document.getElementById('close-email-modal').addEventListener('click', function() {
         document.getElementById('email-modal').style.display = 'none';
     });
-</script>
-
-<script>
+    
     // Додаємо тестовий скрипт для перевірки роботи кнопки копіювання
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM повністю завантажений');

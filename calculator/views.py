@@ -25,6 +25,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from django.core.mail import EmailMessage
+from django.contrib import messages
 
 register = template.Library()
 
@@ -782,7 +783,7 @@ def send_pdf_telegram(request):
             param_r = request.POST.get('param-r', 'true')
             param_usd = request.POST.get('param-usd', 'false')
             
-            print(f"Параметри для Email PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
+            print(f"Параметри для Telegram PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
             
             # Отримуємо параметри для включення datasheet
             include_panel_ds = request.POST.get('include_panel_ds') == 'on'
@@ -1097,6 +1098,11 @@ def send_pdf_email(request):
     """
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Метод не підтримується'})
+    
+    # Перевіряємо, чи це AJAX-запит
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    if not is_ajax:
+        return JsonResponse({'success': False, 'error': 'Тільки AJAX-запити підтримуються'})
     
     try:
         # Отримуємо email з запиту
@@ -1767,3 +1773,327 @@ def create_battery(request):
             return render(request, 'create_battery.html', context)
     
     return render(request, 'create_battery.html', context)
+
+@csrf_exempt
+def send_pdf_telegram(request):
+    """
+    Ендпоінт для генерації та відправки PDF звіту через Telegram
+    """
+    if request.method == 'POST':
+        try:
+            # Отримуємо дані з параметрів запиту
+            data = request.POST.dict()
+            print("Отримані дані для Telegram:", data)
+            param_o = request.POST.get('param-o', 'true')
+            param_k = request.POST.get('param-k', 'true')
+            param_e = request.POST.get('param-e', 'true')
+            param_r = request.POST.get('param-r', 'true')
+            param_usd = request.POST.get('param-usd', 'false')
+            
+            print(f"Параметри для Telegram PDF: O={param_o}, K={param_k}, E={param_e}, R={param_r}, USD={param_usd}")
+            
+            # Отримуємо параметри для включення datasheet
+            include_panel_ds = request.POST.get('include_panel_ds') == 'on'
+            include_inverter_ds = request.POST.get('include_inverter_ds') == 'on'
+            include_battery_ds = request.POST.get('include_battery_ds') == 'on'
+            
+            # Отримуємо дані з форми
+            panel_model_name = data.get('panel_model_name', '')
+            panel_length = float(data.get('panel_length', 0))
+            panel_width = float(data.get('panel_width', 0))
+            panel_height = float(data.get('panel_height', 0))
+            panel_arrangement = data.get('panel_arrangement', '')
+            panel_type = data.get('panel_type', '')
+            
+            # Отримуємо ідентифікатори моделей для datasheet
+            panel_model_id = data.get('panelModelId', '')
+            inverter_model_id = data.get('inverterModelId', '')
+            battery_model_id = data.get('batteryModelId', '')
+            
+            # Отримуємо дані про масиви панелей
+            panel_arrays = json.loads(data.get('panel_arrays', '[]'))
+            total_panels = int(data.get('total_panels', 0))
+            
+            # Розрахунок загальної кількості рядів для відображення в PDF
+            total_rows = sum(array['rows'] for array in panel_arrays)
+            
+            # Розрахунок середньої кількості панелей в ряді для відображення в PDF
+            avg_panels_per_row = total_panels / total_rows if total_rows > 0 else 0
+            
+            # Отримуємо схеми для кожного масиву, якщо вони є
+            panel_schemes = []
+            if 'panel_schemes' in data:
+                try:
+                    panel_schemes = json.loads(data.get('panel_schemes', '[]'))
+                except json.JSONDecodeError:
+                    print("Помилка декодування panel_schemes з JSON")
+            
+            # Створюємо списки для K11 і K12
+            K11_values = []
+            K12_values = {}
+            
+            # Збираємо всі наявні параметри K11_{length} та K12_{length}
+            for key, value in data.items():
+                if key.startswith('K11_') and value:
+                    length = key.replace('K11_', '')
+                    try:
+                        # Замінюємо кому на крапку перед перетворенням
+                        length = length.replace(',', '.')
+                        length_float = float(length)
+                        count = int(value)
+                        K11_values.append({"length": length_float, "count": count})
+                    except (ValueError, TypeError):
+                        print(f"Помилка при обробці {key}: {value}")
+                        
+                elif key.startswith('K12_') and value:
+                    length = key.replace('K12_', '')
+                    try:
+                        # Замінюємо кому на крапку перед перетворенням
+                        length = length.replace(',', '.')
+                        length_float = float(length)
+                        price = float(value)
+                        K12_values[length_float] = price
+                    except (ValueError, TypeError):
+                        print(f"Помилка при обробці {key}: {value}")
+            
+            # Збираємо динамічні рядки для кріплень (K10n, K11n, K12n, K13n для n=0,1,2,...)
+            dynamic_mounting = []
+            
+            # Перебираємо всі ключі, які починаються з K10, K11, K12, K13 і мають довжину 4 символи (для нового формату)
+            for key, value in data.items():
+                if (key.startswith('K10') or key.startswith('K11') or key.startswith('K12') or key.startswith('K13')) and len(key) == 4 and value:
+                    # Отримуємо індекс рядка (останній символ)
+                    row_index = key[3]
+                    
+                    # Перевіряємо, чи це назва елемента (K10n)
+                    if key.startswith('K10'):
+                        name = value
+                        # Шукаємо відповідні кількість, ціну та суму
+                        quantity_key = f'K11{row_index}'
+                        price_key = f'K12{row_index}'
+                        
+                        quantity = int(data.get(quantity_key, 0) or 0)
+                        price = float(data.get(price_key, 0) or 0.0)
+                        
+                        # Додаємо до списку динамічних рядків
+                        if name and quantity > 0:
+                            dynamic_mounting.append({
+                                'name': name,
+                                'quantity': quantity,
+                                'unit': 'шт',
+                                'price': price
+                            })
+                            print(f"Додано динамічний рядок: назва={name}, кількість={quantity}, ціна={price}")
+            
+            # Виведемо діагностичну інформацію
+            print("K11_values keys:", [key for key in data.keys() if key.startswith('K11_')])
+            
+            # Створюємо масив словників для профілів
+            k_values = []
+            for item in K11_values:
+                length = item["length"]
+                count = item["count"]
+                # Шукаємо відповідну ціну для цієї довжини
+                price = K12_values.get(length, 0)
+                
+                k_values.append({
+                    "length": length, 
+                    "count": count,
+                    "price": price
+                })
+                
+            print("K11_values:", K11_values)
+            print("K12_values:", K12_values)
+            print("k_values:", k_values)
+            
+            # Збираємо параметри для профілів каркасу (K71_*)
+            carcase_profiles = []
+            for key, value in data.items():
+                if key.startswith('K71_') and value:
+                    length = key.replace('K71_', '')
+                    try:
+                        # Шукаємо відповідну ціну для цієї довжини
+                        # Спочатку шукаємо з комою, як в оригінальному ключі
+                        price_key = f'K72_{key.replace("K71_", "")}'
+                        price = float(data.get(price_key, 0) or 0)
+                        print(f"Профіль120 {length}м: кількість={value}, ціна_ключ={price_key}, ціна={price}")
+                        carcase_profiles.append({
+                            "length": float(length.replace(',', '.')), 
+                            "count": int(value),
+                            "price": price
+                        })
+                    except (ValueError, TypeError):
+                        print(f"Помилка при обробці {key}: {value}")
+            
+            # Виведемо діагностичну інформацію для профілів каркасу
+            print("K71_* keys:", [key for key in data.keys() if key.startswith('K71_')])
+            print("carcase_profiles:", carcase_profiles)
+            print("carcase_material:", data.get('carcase_material', ''))
+            print("foundation_type_1:", data.get('foundation_type_1', ''))
+            
+            # Збираємо динамічно додані рядки для кожної категорії
+            dynamic_equipment = []
+            dynamic_mounting = []
+            dynamic_electrical = []
+            dynamic_work = []
+            dynamic_other = []  # Додаємо порожній список для dynamic_other
+            
+            # Обробляємо динамічні рядки для обладнання (O)
+            for key in sorted([k for k in data.keys() if k.startswith('O') and len(k) >= 3 and k[1:].isdigit() and int(k[1:]) > 3]):
+                row_num = key[1:-1]  # Отримуємо номер рядка (наприклад, з O41 отримуємо 4)
+                if key.endswith('0'):  # Поле назви
+                    name = data.get(key, '')
+                    quantity = int(data.get(f'O{row_num}1', 0) or 0)
+                    unit = data.get(f'O{row_num}unit', 'шт')
+                    price = float(data.get(f'O{row_num}2', 0) or 0.0)
+                    
+                    if name and quantity > 0:
+                        dynamic_equipment.append({
+                            'name': name,
+                            'quantity': quantity,
+                            'unit': unit,
+                            'price': price
+                        })
+            
+            # Обробляємо динамічні рядки для кріплення (K)
+            for key in sorted([k for k in data.keys() if k.startswith('K') and len(k) >= 3 and k[1:].isdigit() and int(k[1:]) > 7]):
+                row_num = key[1:-1]  # Отримуємо номер рядка
+                if key.endswith('0'):  # Поле назви
+                    name = data.get(key, '')
+                    quantity = int(data.get(f'K{row_num}1', 0) or 0)
+                    unit = data.get(f'K{row_num}unit', 'шт')
+                    price = float(data.get(f'K{row_num}2', 0) or 0.0)
+                    
+                    if name and quantity > 0:
+                        dynamic_mounting.append({
+                            'name': name,
+                            'quantity': quantity,
+                            'unit': unit,
+                            'price': price
+                        })
+            
+            # Обробляємо динамічні рядки для електрики (E)
+            for key in sorted([k for k in data.keys() if k.startswith('E') and len(k) >= 3 and k[1:].isdigit() and int(k[1:]) > 2]):
+                row_num = key[1:-1]  # Отримуємо номер рядка
+                if key.endswith('0'):  # Поле назви
+                    name = data.get(key, '')
+                    quantity = int(data.get(f'E{row_num}1', 0) or 0)
+                    unit = data.get(f'E{row_num}unit', 'шт')
+                    price = float(data.get(f'E{row_num}2', 0) or 0.0)
+                    
+                    if name and quantity > 0:
+                        dynamic_electrical.append({
+                            'name': name,
+                            'quantity': quantity,
+                            'unit': unit,
+                            'price': price
+                        })
+            
+            # Обробляємо динамічні рядки для роботи (R)
+            for key in sorted([k for k in data.keys() if k.startswith('R') and len(k) >= 3 and k[1:].isdigit() and int(k[1:]) > 3]):
+                row_num = key[1:-1]  # Отримуємо номер рядка
+                if key.endswith('0'):  # Поле назви
+                    name = data.get(key, '')
+                    quantity = int(data.get(f'R{row_num}1', 0) or 0)
+                    unit = data.get(f'R{row_num}unit', 'шт')
+                    price = float(data.get(f'R{row_num}2', 0) or 0.0)
+                    
+                    if name and quantity > 0:
+                        dynamic_work.append({
+                            'name': name,
+                            'quantity': quantity,
+                            'unit': unit,
+                            'price': price
+                        })
+
+            # Викликаємо функцію generate з отриманими даними
+            pdf_path = generate(
+                O=param_o, K=param_k, E=param_e, R=param_r,
+                O11=int(data.get('O11', 0) or 0), O12=float(data.get('O12', 0) or 0.0),
+                O21=int(data.get('O21', 0) or 0), O22=float(data.get('O22', 0) or 0.0),
+                O31=int(data.get('O31', 0) or 0), O32=float(data.get('O32', 0) or 0.0),
+                K1112= k_values,
+                K21=int(data.get('K21', 0) or 0), K22=float(data.get('K22', 0) or 0.0),
+                K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
+                K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
+                K51=int(data.get('K51', 0) or 0), K52=float(data.get('K52', 0) or 0.0),
+                K61=int(data.get('K61', 0) or 0), K62=float(data.get('K62', 0) or 0.0),
+                K71=carcase_profiles,
+                K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
+                K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
+                K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
+                K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
+                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
+                K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
+                K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
+                E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
+                E21=int(data.get('E21', 0) or 0), E22=float(data.get('E22', 0) or 0.0),
+                R11=int(data.get('R11', 0) or 0), R12=float(data.get('R12', 0) or 0.0),
+                R21=int(data.get('R21', 0) or 0), R22=float(data.get('R22', 0) or 0.0),
+                R31=int(data.get('R31', 0) or 0), R32=float(data.get('R32', 0) or 0.0),
+                scheme_image=normalize_path(str(data.get('scheme_image', ''))),
+                dynamic_equipment=dynamic_equipment,
+                dynamic_mounting=dynamic_mounting,
+                dynamic_electrical=dynamic_electrical,
+                dynamic_work=dynamic_work,
+                dynamic_other=dynamic_other,  # Додаємо порожній список для dynamic_other
+                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
+                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
+                screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
+                profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
+                current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
+                show_usd=param_usd,  # Додаємо параметр для відображення суми в доларах
+                panel_model_name=panel_model_name,  # Додаємо назву моделі панелі
+                panel_length=panel_length,  # Додаємо довжину панелі
+                panel_width=panel_width,  # Додаємо ширину панелі
+                panel_height=panel_height,  # Додаємо висоту панелі
+                panel_arrangement=panel_arrangement,  # Додаємо розташування панелі
+                panel_type=panel_type,  # Додаємо тип панелі
+                panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
+                total_panels=total_panels,  # Додаємо загальну кількість панелей
+                total_rows=total_rows,  # Додаємо загальну кількість рядів
+                avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
+                panel_schemes=panel_schemes,  # Додаємо список схем для кожного масиву
+                carcase_material=data.get('carcase_material', ''),  # Додаємо матеріал каркасу
+                foundation_type_1=data.get('foundation_type_1', ''),  # Додаємо тип основи
+                carcase_profiles=carcase_profiles,  # Додаємо профілі каркасу
+                include_panel_ds=include_panel_ds,  # Додаємо параметр для включення datasheet панелі
+                include_inverter_ds=include_inverter_ds,  # Додаємо параметр для включення datasheet інвертора
+                include_battery_ds=include_battery_ds,  # Додаємо параметр для включення datasheet батареї
+                panel_model_id=panel_model_id,  # ID моделі панелі для завантаження datasheet
+                inverter_model_id=inverter_model_id,  # ID моделі інвертора для завантаження datasheet
+                battery_model_id=battery_model_id  # ID моделі батареї для завантаження datasheet
+            )
+
+            # Нормалізуємо шлях до PDF
+            pdf_path = normalize_path(pdf_path)
+
+            # Перевіряємо, чи існує файл
+            if not os.path.exists(pdf_path):
+                return JsonResponse({'success': False, 'error': f'PDF файл не знайдено за шляхом: {pdf_path}'})
+            
+            # Створюємо директорію для результатів, якщо вона не існує
+            results_dir = os.path.join(settings.MEDIA_ROOT, 'results')
+            os.makedirs(results_dir, exist_ok=True)
+            
+            # Копіюємо файл в директорію results
+            filename = os.path.basename(pdf_path)
+            target_path = os.path.join(results_dir, filename)
+            shutil.copy2(pdf_path, target_path)
+            
+            # Запускаємо бота, якщо він ще не запущений
+            start_bot()
+            
+            # Відправляємо файл через Telegram
+            success = send_pdf_to_telegram(target_path)
+            
+            if success:
+                return JsonResponse({'success': True, 'message': 'PDF звіт успішно відправлено через Telegram'})
+            else:
+                return JsonResponse({'success': False, 'error': 'Помилка при відправці PDF через Telegram'})
+            
+        except Exception as e:
+            traceback.print_exc()
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Метод не підтримується'})
