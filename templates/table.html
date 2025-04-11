@@ -266,7 +266,19 @@
                         {% if data.batteryIsHead %}
                         <div class="parameter-row">
                             <div class="parameter-label">Наявність голови:</div>
-                            <div class="parameter-value">{{ data.batteryIsHead|yesno:"Так,Ні" }}</div>
+                            <div class="parameter-value">{{ data.batteryIsHead }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryIsStand8 %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Стійка 8:</div>
+                            <div class="parameter-value">{{ data.batteryIsStand8 }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryIsStand12 %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Стійка 12:</div>
+                            <div class="parameter-value">{{ data.batteryIsStand12 }}</div>
                         </div>
                         {% endif %}
                     </div>
@@ -552,8 +564,8 @@
                 </div>
             </div>
             <!-- Кнопка для очищення параметрів таблиці -->
-            <div class="clear-params-container" style="text-align: center; margin: 20px 0;">
-                <button type="button" id="clear-table-btn" class="clear-btn">
+            <div class="clear-params-container" style="text-align: left; margin: 20px 0;">
+                <button type="button" id="clear-table-btn" class="clear-btn" style="font-size: 0.9rem; padding: 6px 12px;">
                     <i class="fas fa-eraser"></i> Очистити параметри таблиці
                 </button>
             </div>
@@ -744,7 +756,7 @@
     <!-- Кнопка "Повернутись назад" внизу сторінки -->
     <div class="back-button-container" style="margin: 20px 0; text-align: center;">
         <a href="{% url 'calculator:index' %}" class="back-btn">
-            <i class="fas fa-arrow-left"></i> Повернутись назад
+            <i class="fas fa-arrow-left"></i> Повернутися назад
         </a>
     </div>
 </form>
