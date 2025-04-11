@@ -296,6 +296,51 @@ function calculatePercentage() {
     }
 }
 
+// Функція для збільшення кількості кріплень
+function increaseMountingQuantity() {
+    const mountingTable = document.getElementById('mounting-table');
+    if (!mountingTable) return;
+    
+    // Отримуємо коефіцієнт збільшення
+    const factor = parseFloat(document.getElementById('mounting-quantity-factor').value) || 1.2;
+    
+    // Проходимо по всіх рядках таблиці кріплень
+    const rows = mountingTable.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        // Знаходимо інпут для кількості (3-й символ == 1)
+        const inputs = row.querySelectorAll('input[type="number"]');
+        let quantityInput = null;
+        
+        inputs.forEach(input => {
+            const name = input.name;
+            // Перевіряємо, чи це інпут для кількості профілю (починається з K11_ або K71_)
+            if (name.startsWith('K11_') || name.startsWith('K71_')) {
+                quantityInput = input;
+            }
+            // Перевіряємо, чи це інпут для кількості (3-й символ == 1)
+            else if (name.length >= 3 && name.charAt(2) === '1' && !name.startsWith('Z')) {
+                quantityInput = input;
+            }
+        });
+        
+        // Якщо знайдено інпут для кількості, збільшуємо його значення
+        if (quantityInput) {
+            const currentValue = parseFloat(quantityInput.value) || 0;
+            const newValue = Math.ceil(currentValue * factor); // Округляємо вгору до цілого числа
+            quantityInput.value = newValue;
+            
+            // Викликаємо функцію обчислення суми для оновлення значень
+            calculateRowSum(row);
+        }
+    });
+    
+    // Перераховуємо загальну суму
+    calculateTotal();
+    
+    // Показуємо повідомлення про успішне застосування
+    alert(`Кількість кріплень збільшена в ${factor} рази`);
+}
+
 // Функція для додавання нових рядків
 function addNewRow(tableId, prefix, zIndex) {
     const table = document.getElementById(tableId + '-table');
@@ -939,6 +984,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (percentageValue) {
         percentageValue.addEventListener('input', calculatePercentage);
+    }
+    
+    // Додаємо обробники подій для чекбоксу збільшення кількості кріплень
+    const mountingCheckbox = document.getElementById('add-mounting-quantity-checkbox');
+    const mountingInputs = document.getElementById('mounting-quantity-inputs');
+    const applyMountingFactorBtn = document.getElementById('apply-mounting-factor-btn');
+    
+    if (mountingCheckbox && mountingInputs) {
+        mountingCheckbox.addEventListener('change', function() {
+            mountingInputs.style.display = mountingCheckbox.checked ? 'block' : 'none';
+        });
+    }
+    
+    if (applyMountingFactorBtn) {
+        applyMountingFactorBtn.addEventListener('click', increaseMountingQuantity);
     }
     
     // Перераховуємо загальну суму
