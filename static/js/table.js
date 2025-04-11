@@ -974,20 +974,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Отримуємо форму
                 const form = document.getElementById('pdf-form');
                 
-                // Створюємо приховане поле для email
-                const emailInput = document.createElement('input');
-                emailInput.type = 'hidden';
-                emailInput.name = 'email';
-                emailInput.value = email;
+                // Створюємо об'єкт FormData з форми
+                const formData = new FormData(form);
                 
-                // Додаємо поле до форми
-                form.appendChild(emailInput);
+                // Додаємо email до formData
+                formData.append('email', email);
                 
-                // Змінюємо action форми
-                form.action = '/calculator/send_pdf_to_email/';
+                // Показуємо повідомлення про відправку
+                const notificationDiv = document.createElement('div');
+                notificationDiv.className = 'notification';
+                notificationDiv.textContent = 'Відправка звіту на email...';
+                document.body.appendChild(notificationDiv);
                 
-                // Відправляємо форму
-                form.submit();
+                // Відправляємо AJAX-запит замість традиційної відправки форми
+                fetch('/calculator/send_pdf_email/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Видаляємо повідомлення про відправку
+                    document.body.removeChild(notificationDiv);
+                    
+                    // Закриваємо модальне вікно
+                    document.getElementById('email-modal').style.display = 'none';
+                    
+                    // Показуємо результат
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'notification success';
+                    resultDiv.textContent = data.message || 'PDF звіт успішно відправлено на email';
+                    document.body.appendChild(resultDiv);
+                    
+                    // Видаляємо повідомлення через 5 секунд
+                    setTimeout(() => {
+                        document.body.removeChild(resultDiv);
+                    }, 5000);
+                })
+                .catch(error => {
+                    // Видаляємо повідомлення про відправку
+                    document.body.removeChild(notificationDiv);
+                    
+                    // Закриваємо модальне вікно
+                    document.getElementById('email-modal').style.display = 'none';
+                    
+                    // Показуємо повідомлення про помилку
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'notification error';
+                    errorDiv.textContent = 'Помилка при відправці PDF на email';
+                    document.body.appendChild(errorDiv);
+                    
+                    // Видаляємо повідомлення через 5 секунд
+                    setTimeout(() => {
+                        document.body.removeChild(errorDiv);
+                    }, 5000);
+                    
+                    console.error('Помилка при відправці PDF на email:', error);
+                });
             } else {
                 alert('Будь ласка, введіть email-адресу');
             }
