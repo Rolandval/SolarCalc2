@@ -94,7 +94,7 @@ def draw_clamp(draw, x, y, width, height, clamp_type="middle"):
             width=1
         )
 
-def draw_profile(draw, x1, y1, x2, y2, color=(96, 165, 250)):
+def draw_profile(draw, x1, y1, x2, y2, color=(96, 165, 250), dashed=False, width=8):
     """
     Малює профіль (горизонтальну балку) для кріплення панелей
     
@@ -103,14 +103,41 @@ def draw_profile(draw, x1, y1, x2, y2, color=(96, 165, 250)):
         x1, y1: Початкова точка профілю
         x2, y2: Кінцева точка профілю
         color: Колір профілю
+        dashed: Чи малювати штрихпунктирну лінію
+        width: Ширина профілю в пікселях
     """
-    profile_height = 8  # Висота профілю в пікселях
+    profile_height = width  # Висота профілю в пікселях
     
-    # Малюємо профіль як прямокутник
+    if dashed:
+        # Малюємо штрихпунктирну лінію для профілю
+        dash_length = 10
+        gap_length = 5
+        total_length = x2 - x1
+        
+        current_x = x1
+        while current_x < x2:
+            end_x = min(current_x + dash_length, x2)
+            draw.line([(current_x, y1), (end_x, y2)], fill=color, width=profile_height)
+            current_x = end_x + gap_length
+    else:
+        # Малюємо суцільну лінію для профілю
+        draw.line([(x1, y1), (x2, y2)], fill=color, width=profile_height)
+
+def draw_profile_connection(draw, x, y, color=(150, 150, 150), size=8):
+    """
+    Малює з'єднання профілів
+    
+    Args:
+        draw: Об'єкт для малювання
+        x, y: Координати з'єднання
+        color: Колір з'єднання
+        size: Розмір з'єднання в пікселях
+    """
+    # Малюємо з'єднання як маленький прямокутник
     draw.rectangle(
-        [x1, y1 - profile_height/2, x2, y1 + profile_height/2],
+        [x - size, y - size/2, x + size, y + size/2],
         fill=color,
-        outline=(30, 64, 175),
+        outline=(0, 0, 0),
         width=1
     )
 
@@ -149,8 +176,8 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
     # Масштаб для перетворення метрів у пікселі
     scale = 100  # 1 метр = 100 пікселів
     
-    # Відступ між панелями в пікселях
-    panel_gap = 10
+    # Відступ між панелями в пікселях (2 см = 2 пікселі при масштабі 100)
+    panel_gap = 2
     
     # Визначаємо розміри панелі в залежності від орієнтації
     if orientation == 'альбомна':
@@ -191,6 +218,13 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
         offset_x = margin
         offset_y = margin
         
+        # Розраховуємо довжину одного профілю (з урахуванням виступів)
+        profile_length = row_width_px + 40  # Додаємо по 20 пікселів з кожного боку
+        
+        # Розраховуємо кількість з'єднань профілів (для довгих рядів)
+        # Припускаємо, що стандартна довжина профілю - 6 метрів (600 пікселів)
+        max_profile_length = 600
+        
         # Малюємо всі панелі
         for row in range(rows):
             # Позиції профілів для поточного ряду
@@ -216,28 +250,96 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
                 profile_y2
             )
             
+            # Додаємо з'єднання профілів, якщо довжина ряду перевищує максимальну довжину профілю
+            if profile_length > max_profile_length:
+                # Розраховуємо кількість з'єднань
+                num_connections = int(profile_length / max_profile_length)
+                
+                # Розраховуємо відстань між з'єднаннями
+                connection_spacing = profile_length / (num_connections + 1)
+                
+                # Додаємо з'єднання для обох профілів
+                for j in range(1, num_connections + 1):
+                    # Позиція з'єднання
+                    connection_x = offset_x - 20 + j * connection_spacing
+                    
+                    # Зміщуємо з'єднання від точок кріплення (на 15-20 см = 15-20 пікселів)
+                    # Знаходимо найближчу точку кріплення
+                    nearest_clamp_x = None
+                    min_distance = float('inf')
+                    
+                    # Перевіряємо відстань до кожної точки кріплення
+                    for p in range(panels_per_row + 1):
+                        clamp_x = offset_x + p * (panel_w * scale + panel_gap)
+                        distance = abs(connection_x - clamp_x)
+                        if distance < min_distance:
+                            min_distance = distance
+                            nearest_clamp_x = clamp_x
+                    
+                    # Якщо з'єднання занадто близько до точки кріплення, зміщуємо його
+                    if min_distance < 20:
+                        if connection_x < nearest_clamp_x:
+                            connection_x = nearest_clamp_x - 20
+                        else:
+                            connection_x = nearest_clamp_x + 20
+                    
+                    # Малюємо з'єднання для верхнього профілю
+                    draw_profile_connection(draw, connection_x, profile_y1)
+                    
+                    # Малюємо з'єднання для нижнього профілю
+                    draw_profile_connection(draw, connection_x, profile_y2)
+            
+            # Малюємо панелі в ряду
             for col in range(panels_per_row):
-                # Розраховуємо позицію панелі
-                x = offset_x + col * (panel_w * scale + panel_gap)
-                y = offset_y + row * (panel_h * scale + panel_gap)
+                panel_x = offset_x + col * (panel_w * scale + panel_gap)
+                panel_y = offset_y + row * (panel_h * scale + panel_gap)
                 
                 # Малюємо панель
-                draw_panel(draw, x, y, panel_w * scale, panel_h * scale)
+                draw_panel(
+                    draw,
+                    panel_x,
+                    panel_y,
+                    panel_w * scale,
+                    panel_h * scale
+                )
+                
+                # Малюємо профілі поверх панелей (штрихпунктирна лінія)
+                # Верхній профіль
+                draw_profile(
+                    draw,
+                    panel_x,
+                    profile_y1,
+                    panel_x + panel_w * scale,
+                    profile_y1,
+                    color=(96, 165, 250, 180),  # Напівпрозорий колір
+                    dashed=True,
+                    width=4  # Тонша лінія для видимості крізь панель
+                )
+                
+                # Нижній профіль
+                draw_profile(
+                    draw,
+                    panel_x,
+                    profile_y2,
+                    panel_x + panel_w * scale,
+                    profile_y2,
+                    color=(96, 165, 250, 180),  # Напівпрозорий колір
+                    dashed=True,
+                    width=4  # Тонша лінія для видимості крізь панель
+                )
                 
                 # Додаємо номер панелі
                 panel_number = row * panels_per_row + col + 1
-                text_x = x + (panel_w * scale) / 2
-                text_y = y + (panel_h * scale) / 2
+                text_x = panel_x + (panel_w * scale) / 2
+                text_y = panel_y + (panel_h * scale) / 2
                 
                 if font:
                     draw.text((text_x, text_y), str(panel_number), fill=(0, 0, 0), font=font, anchor="mm")
-                else:
-                    draw.text((text_x, text_y), str(panel_number), fill=(0, 0, 0), anchor="mm")
                 
                 # Додаємо міжпанельні затискачі на профілях (якщо не остання панель в ряду)
                 if col < panels_per_row - 1:
                     # Позиція для міжпанельного затискача
-                    clamp_x = x + panel_w * scale + panel_gap / 2
+                    clamp_x = panel_x + panel_w * scale + panel_gap / 2
                     
                     # Додаємо затискачі на обох профілях
                     draw_clamp(draw, clamp_x, profile_y1, panel_w * scale, panel_h * scale, "middle")
@@ -246,12 +348,12 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
                 # Додаємо крайові затискачі на профілях на початку і в кінці ряду
                 if col == 0:  # Лівий край
                     # Додаємо затискачі на обох профілях
-                    draw_clamp(draw, x, profile_y1, panel_w * scale, panel_h * scale, "edge")
-                    draw_clamp(draw, x, profile_y2, panel_w * scale, panel_h * scale, "edge")
+                    draw_clamp(draw, panel_x, profile_y1, panel_w * scale, panel_h * scale, "edge")
+                    draw_clamp(draw, panel_x, profile_y2, panel_w * scale, panel_h * scale, "edge")
                 
                 if col == panels_per_row - 1:  # Правий край
                     # Позиція для крайового затискача
-                    clamp_x = x + panel_w * scale
+                    clamp_x = panel_x + panel_w * scale
                     
                     # Додаємо затискачі на обох профілях
                     draw_clamp(draw, clamp_x, profile_y1, panel_w * scale, panel_h * scale, "edge")
@@ -314,17 +416,16 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
         
         # Додаємо легенду
         legend_y = img_height - margin / 2
+        legend_spacing = 150
         
-        # Малюємо елементи легенди
         legend_items = [
-            {"color": (220, 220, 220), "text": "Сонячна панель"},
-            {"color": (96, 165, 250), "text": "Профіль кріплення"},
-            {"color": (0, 128, 0), "text": "Крайовий затискач"},
-            {"color": (204, 0, 0), "text": "Міжпанельний затискач"}
+            {"color": (96, 165, 250), "text": "Профіль"},
+            {"color": (150, 150, 150), "text": "З'єднання профілів"},
+            {"color": (204, 0, 0), "text": "Міжпанельний затискач"},
+            {"color": (0, 128, 0), "text": "Крайовий затискач"}
         ]
         
         # Розраховуємо позиції для елементів легенди
-        legend_spacing = 200
         legend_start_x = img_width / 2 - (len(legend_items) * legend_spacing) / 2
         
         for idx, item in enumerate(legend_items):
