@@ -148,7 +148,15 @@
                         </div>
                         <div class="parameter-row">
                             <div class="parameter-label">Орієнтація:</div>
-                            <div class="parameter-value">{{ data.panel_arrangement }}</div>
+                            <div class="parameter-value">
+                                {% if data.panel_arrangement == 'альбомна' %}
+                                    альбомна
+                                {% elif data.panel_arrangement == 'портретна' %}
+                                    книжкова
+                                {% else %}
+                                    {{ data.panel_arrangement }}
+                                {% endif %}
+                            </div>
                         </div>
                         
                     </div>
@@ -158,11 +166,23 @@
                         <h3><i class="fas fa-th"></i> Параметри розміщення</h3>
                         <div class="parameter-row">
                             <div class="parameter-label">Кількість рядків:</div>
-                            <div class="parameter-value">{{ data.rows }}</div>
+                            <div class="parameter-value">
+                                {% for array in data.panel_arrays %}
+                                    {% if forloop.first %}
+                                        {{ array.rows }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="parameter-row">
                             <div class="parameter-label">Кількість панелей на рядок:</div>
-                            <div class="parameter-value">{{ data.panels_per_row }}</div>
+                            <div class="parameter-value">
+                                {% for array in data.panel_arrays %}
+                                    {% if forloop.first %}
+                                        {{ array.panels_per_row }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="parameter-row">
                             <div class="parameter-label">Загальна кількість панелей:</div>
@@ -181,6 +201,12 @@
                     <!-- Електричні параметри -->
                     <div class="parameter-section">
                         <h3><i class="fas fa-bolt"></i> Інвертор</h3>
+                        {% if data.inverterBrand %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд інвертора:</div>
+                            <div class="parameter-value">{{ data.inverterBrand }}</div>
+                        </div>
+                        {% endif %}
                         {% if data.inverterModel %}
                         <div class="parameter-row">
                             <div class="parameter-label">Модель інвертора:</div>
@@ -192,12 +218,6 @@
                                 </a>
                                 {% endif %}
                             </div>
-                        </div>
-                        {% endif %}
-                        {% if data.inverterBrand %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Бренд інвертора:</div>
-                            <div class="parameter-value">{{ data.inverterBrand }}</div>
                         </div>
                         {% endif %}
                         {% if data.inverterPower %}
@@ -218,6 +238,12 @@
                     <!-- Додаткові компоненти -->
                     <div class="parameter-section">
                         <h3><i class="fas fa-plug"></i> Акумулятор</h3>
+                        {% if data.batteryBrand %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд акумулятора:</div>
+                            <div class="parameter-value">{{ data.batteryBrand }}</div>
+                        </div>
+                        {% endif %}
                         {% if data.batteryModel %}
                         <div class="parameter-row">
                             <div class="parameter-label">Модель акумулятора:</div>
@@ -229,12 +255,6 @@
                                 </a>
                                 {% endif %}
                             </div>
-                        </div>
-                        {% endif %}
-                        {% if data.batteryBrand %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Бренд акумулятора:</div>
-                            <div class="parameter-value">{{ data.batteryBrand }}</div>
                         </div>
                         {% endif %}
                         {% if data.batteryPower %}

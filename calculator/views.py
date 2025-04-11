@@ -163,18 +163,21 @@ def calculate(request):
                     panel_width = float(panel.panel_width)
                     panel_height = float(panel.panel_height)
                     panel_model_name = f"{panel.brand} {panel.model}"  # Зберігаємо назву моделі
+                    panel_brand = panel.brand  # Додаємо бренд панелі
                 except Panels.DoesNotExist:
                     # Якщо панель не знайдена, використовуємо значення з форми
                     panel_length = float(data.get('panel_length', 0))
                     panel_width = float(data.get('panel_width', 0))
                     panel_height = float(data.get('panel_height', 0))
                     panel_model_name = data.get('custom_panel_model', '')  # Використовуємо введену назву
+                    panel_brand = data.get('panel_brand', '')  # Додаємо бренд панелі
             else:
                 # Якщо id моделі не вказано, використовуємо значення з форми
                 panel_length = float(data.get('panel_length', 0))
                 panel_width = float(data.get('panel_width', 0))
                 panel_height = float(data.get('panel_height', 0))
                 panel_model_name = data.get('custom_panel_model', '')  # Використовуємо введену назву
+                panel_brand = data.get('panel_brand', '')  # Додаємо бренд панелі
             
             # Ініціалізуємо змінні для наземного розміщення з значеннями за замовчуванням
             carcase_material = None
@@ -393,6 +396,7 @@ def calculate(request):
                     'usd_rate': usd_rate,  # Додаємо курс долара
                     'panel_data': {
                         'panel_model': panel_model_name,
+                        'panel_brand': panel_brand,  # Додаємо бренд панелі
                         'panel_length': panel_length,
                         'panel_width': panel_width,
                         'panel_height': panel_height,
@@ -767,8 +771,6 @@ def generate_pdf(request):
 
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-
-    return JsonResponse({'success': False, 'error': 'Метод не підтримується'})
 
 @csrf_exempt
 def send_pdf_telegram(request):
