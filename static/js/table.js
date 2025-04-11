@@ -247,6 +247,8 @@ function calculatePercentage() {
     const percentageInputs = document.getElementById('percentage-inputs');
     const percentageValue = document.getElementById('percentage-value');
     const totalWithPercentage = document.getElementById('total-with-percentage');
+    const profitWithPercentage = document.getElementById('profit-with-percentage');
+    const totalUsdWithPercentage = document.getElementById('total-usd-with-percentage');
     
     // Перевіряємо, чи всі елементи існують
     if (!checkbox || !percentageInputs || !percentageValue || !totalWithPercentage) {
@@ -259,13 +261,38 @@ function calculatePercentage() {
     // Якщо чекбокс активний, розраховуємо суму з відсотком
     if (checkbox.checked) {
         const totalSum = parseFloat(document.getElementById('total-sum').textContent) || 0;
+        const totalPurchase = parseFloat(document.getElementById('total-purchase').textContent) || 0;
         const percentage = parseFloat(percentageValue.value) || 0;
+        const usdRate = parseFloat(document.getElementById('usd-rate-input').value) || 42.5;
         
         // Розраховуємо суму з відсотком
         const sumWithPercentage = totalSum * (1 + percentage / 100);
         
+        // Розраховуємо заробіток з відсотком (сума з відсотком - закупка)
+        const profitWithPercentageValue = sumWithPercentage - totalPurchase;
+        
+        // Розраховуємо суму в доларах з відсотком
+        const usdWithPercentage = sumWithPercentage / usdRate;
+        
         // Оновлюємо відображення суми з відсотком
         totalWithPercentage.textContent = sumWithPercentage.toFixed(2);
+        
+        // Оновлюємо відображення заробітку з відсотком
+        if (profitWithPercentage) {
+            profitWithPercentage.textContent = profitWithPercentageValue.toFixed(2);
+            
+            // Змінюємо колір заробітку залежно від значення
+            if (profitWithPercentageValue < 0) {
+                profitWithPercentage.style.color = 'red'; // Червоний колір для від'ємного заробітку
+            } else {
+                profitWithPercentage.style.color = 'var(--secondary-color)'; // Зелений колір для додатного заробітку
+            }
+        }
+        
+        // Оновлюємо відображення суми в доларах з відсотком
+        if (totalUsdWithPercentage) {
+            totalUsdWithPercentage.textContent = usdWithPercentage.toFixed(2);
+        }
     }
 }
 
