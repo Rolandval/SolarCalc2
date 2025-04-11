@@ -817,6 +817,32 @@ function copyTableToClipboard() {
         });
 }
 
+// Функція для очищення параметрів таблиці
+function clearTableParameters() {
+    console.log('Функція clearTableParameters викликана');
+    
+    // Отримуємо всі числові інпути в таблицях
+    const numberInputs = document.querySelectorAll('table input[type="number"]');
+    
+    // Проходимо по всіх інпутах і встановлюємо значення 0 для всіх, крім кількості панелей
+    numberInputs.forEach(input => {
+        // Перевіряємо, чи це не інпут для кількості сонячних панелей
+        if (input.name === 'O31') {
+            // Залишаємо значення для кількості сонячних панелей незмінним
+            return;
+        }
+        
+        // Для всіх інших інпутів встановлюємо значення 0
+        input.value = '0';
+    });
+    
+    // Перераховуємо загальну суму
+    calculateTotal();
+    
+    // Показуємо повідомлення про успішне очищення
+    alert('Параметри таблиці очищено');
+}
+
 // Додаємо обробники подій для всіх інпутів
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM завантажено в table.js');
@@ -835,6 +861,12 @@ document.addEventListener('DOMContentLoaded', function() {
             addNewRow(tableId, prefix, zStart);
         });
     });
+    
+    // Додаємо обробник для кнопки очищення параметрів таблиці
+    const clearTableBtn = document.getElementById('clear-table-btn');
+    if (clearTableBtn) {
+        clearTableBtn.addEventListener('click', clearTableParameters);
+    }
     
     // Додаємо обробник для кнопки відправки на Telegram
     const telegramBtn = document.getElementById('send-telegram-btn');

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор сонячних панелей</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/base.css">
+    <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Калькулятор сонячних панелей</h1>
+            <p class="subheader">Розрахуйте оптимальні параметри для вашої сонячної електростанції</p>
+        </div>
+        
+        <div class="form-container">
+            <form id="calculator-form" action="{% url 'calculator:calculate' %}" method="post" onsubmit="return prepareFormData()">
+                {% csrf_token %}
+                
+                <!-- Додаткові компоненти (необов'язкові) -->
+                <div class="section-title"><i class="fas fa-plug"></i> Додаткові компоненти</div>
+                <div class="optional-fields-container">
+                    <div class="optional-field">
+                        <h3><i class="fas fa-bolt"></i> Інвертор (необов'язково)</h3>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label for="inverter_brand">Бренд інвертора:</label>
+                                <select id="inverter_brand" name="inverter_brand" onchange="updateInverterOptions()">
+                                    <option value="" disabled {% if not data.inverterBrand %}selected{% endif %}>Виберіть бренд</option>
+                                    {% for brand, models in inverter_brands.items %}
+                                    <option value="{{ brand }}" {% if data.inverterBrand == brand %}selected{% endif %}>{{ brand }}</option>
+                                    {% endfor %}
+                                    <option value="other" {% if data.inverterBrand and data.inverterBrand not in inverter_brands %}selected{% endif %}>Інший</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label for="inverter_model">Модель інвертора:</label>
+                                <select id="inverter_model" name="inverter_model" onchange="updateInverterDetails()">
+                                    <option value="" disabled {% if not data.inverterModel %}selected{% endif %}>Спочатку виберіть бренд</option>
+                                    <!-- Опції будуть додані через JavaScript -->
+                                </select>
+                                <!-- Поле для ручного введення моделі (з'являється при виборі "Інший") -->
+                                <div id="custom-inverter-container" style="display: none; margin-top: 10px;">
+                                    <input type="text" id="custom_inverter_model" name="custom_inverter_model" placeholder="Введіть модель інвертора" class="form-control" value="{{ data.inverterModelName }}">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <label for="inverter_power">Потужність (кВт):</label>
+                                <input type="number" id="inverter_power" name="inverter_power" placeholder="Потужність" step="0.1" min="0" value="{{ data.inverterPower }}">
+                            </div>
+                            <div class="form-col">
+                                <label for="inverter_phases">Кількість фаз:</label>
+                                <select id="inverter_phases" name="inverter_phases">
+                                    <option value="" {% if not data.inverterPhases %}selected{% endif %}>Виберіть</option>
+                                    <option value="1" {% if data.inverterPhases == "1" %}selected{% endif %}>1 фаза</option>
+                                    <option value="3" {% if data.inverterPhases == "3" %}selected{% endif %}>3 фази</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <div class="datasheet-container">
+                                    <button type="button" class="datasheet-btn" {% if not data.inverterModel %}disabled{% endif %} id="inverter-datasheet-btn" onclick="downloadInverterDatasheet()">
+                                        <i class="fas fa-file-pdf"></i> Завантажити datasheet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="optional-field">
+                        <h3><i class="fas fa-car-battery"></i> Акумулятор (необов'язково)</h3>
+                        <div class="form-row">
+                            <div class="form-col">
+                                <label for="battery_brand">Бренд батареї:</label>
+                                <select id="battery_brand" name="battery_brand" onchange="updateBatteryOptions()">
+                                    <option value="" disabled {% if not data.batteryBrand %}selected{% endif %}>Виберіть бренд</option>
+                                    {% for brand, models in battery_brands.items %}
+                                    <option value="{{ brand }}" {% if data.batteryBrand == brand %}selected{% endif %}>{{ brand }}</option>
+                                    {% endfor %}
+                                    <option value="other" {% if data.batteryBrand and data.batteryBrand not in battery_brands %}selected{% endif %}>Інший</option>
+                                </select>
+                            </div>
+                            <div class="form-col">
+                                <label for="battery_model">Модель батареї:</label>
+                                <select id="battery_model" name="battery_model" onchange="updateBatteryDetails()">
+                                    <option value="" disabled {% if not data.batteryModel %}selected{% endif %}>Спочатку виберіть бренд</option>
+                                    <!-- Опції будуть додані через JavaScript -->
+                                </select>
+                                <!-- Поле для ручного введення моделі (з'являється при виборі "Інший") -->
+                                <div id="custom-battery-container" style="display: none; margin-top: 10px;">
+                                    <input type="text" id="custom_battery_model" name="custom_battery_model" placeholder="Введіть модель батареї" class="form-control" value="{{ data.batteryModelName }}">
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <label for="battery_capacity">Ємність (кВт·год):</label>
+                                <input type="number" id="battery_capacity" name="battery_capacity" placeholder="Ємність" step="0.1" min="0" value="{{ data.batteryPower }}">
+                            </div>
+                            <div class="form-col">
+                                <div class="checkbox-group">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="battery_is_head" name="battery_is_head" {% if data.batteryIsHead == "Так" %}checked{% endif %}>
+                                        <label for="battery_is_head">Голова</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="battery_is_stand_8" name="battery_is_stand_8" {% if data.batteryIsStand8 == "Так" %}checked{% endif %}>
+                                        <label for="battery_is_stand_8">Стійка 8</label>
+                                    </div>
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" id="battery_is_stand_12" name="battery_is_stand_12" {% if data.batteryIsStand12 == "Так" %}checked{% endif %}>
+                                        <label for="battery_is_stand_12">Стійка 12</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-col">
+                                <div class="datasheet-container">
+                                    <button type="button" class="datasheet-btn" {% if not data.batteryModel %}disabled{% endif %} id="battery-datasheet-btn" onclick="downloadBatteryDatasheet()">
+                                        <i class="fas fa-file-pdf"></i> Завантажити datasheet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Параметри панелей -->
+                <div class="section-title"><i class="fas fa-solar-panel"></i> Параметри сонячних панелей</div>
+                <div class="form-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="panel_brand"><i class="fas fa-tag"></i> Бренд панелі:</label>
+                            <select id="panel_brand" name="panel_brand" required onchange="updateModelOptions()">
+                                <option value="" disabled {% if not data.panel_brand %}selected{% endif %}>Виберіть бренд</option>
+                                {% for brand, models in brands.items %}
+                                <option value="{{ brand }}" {% if data.panel_brand == brand %}selected{% endif %}>{{ brand }}</option>
+                                {% endfor %}
+                                <option value="other" {% if data.panel_brand and data.panel_brand not in brands %}selected{% endif %}>Інший</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="panel_model"><i class="fas fa-barcode"></i> Модель панелі:</label>
+                            <select id="panel_model" name="panel_model" required onchange="updatePanelDimensions()">
+                                <option value="" disabled {% if not data.panel_model_id %}selected{% endif %}>Спочатку виберіть бренд</option>
+                                <!-- Опції будуть додані через JavaScript -->
+                            </select>
+                            <!-- Поле для ручного введення моделі (з'являється при виборі "Інший") -->
+                            <div id="custom-model-container" style="display: none; margin-top: 10px;">
+                                <input type="text" id="custom_panel_model" name="custom_panel_model" placeholder="Введіть модель панелі" class="form-control" value="{{ data.panelModelName }}">
+                            </div>
+                            <div class="datasheet-container" style="margin-top: 10px;">
+                                <button type="button" class="datasheet-btn" {% if not data.panel_model_id %}disabled{% endif %} id="datasheet-btn" onclick="downloadDatasheet()">
+                                    <i class="fas fa-file-pdf"></i> Завантажити datasheet
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="panel_type"><i class="fas fa-layer-group"></i> Тип панелей:</label>
+                            <select id="panel_type" name="panel_type" required>
+                                <option value="одностороння" {% if data.panel_type == "одностороння" %}selected{% endif %}>Односторонні</option>
+                                <option value="двостороння" {% if data.panel_type == "двостороння" %}selected{% endif %}>Двосторонні</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="panel_length"><i class="fas fa-arrows-alt-v"></i> Довжина панелі (м):</label>
+                            <input type="number" id="panel_length" name="panel_length" value="{{ data.panel_length|default:'1.6' }}" required step="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label for="panel_width"><i class="fas fa-arrows-alt-h"></i> Ширина панелі (м):</label>
+                            <input type="number" id="panel_width" name="panel_width" value="{{ data.panel_width|default:'1' }}" required step="0.001">
+                        </div>
+                        <div class="form-group">
+                            <label for="panel_height"><i class="fas fa-arrows-alt"></i> Профіль панелі (мм):</label>
+                            <input type="number" id="panel_height" name="panel_height" value="{{ data.panel_height|default:'35' }}" required step="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="panel_arrangement"><i class="fas fa-expand"></i> Орієнтація:</label>
+                            <div class="orientation-container">
+                                <select id="orientation" name="panel_arrangement" required onchange="updateOrientationIcon()">
+                                    <option value="альбомна" {% if data.panel_arrangement == "альбомна" %}selected{% endif %}>Альбомна</option>
+                                    <option value="портретна" {% if data.panel_arrangement == "портретна" %}selected{% endif %}>Книжкова</option>
+                                </select>
+                                <div class="orientation-icon" id="orientation-icon" title="Схематичне зображення орієнтації панелі">
+                                    <div class="panel-icon">
+                                        <div class="panel-icon-inner"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Параметри розміщення -->
+                <div class="section-title"><i class="fas fa-th"></i> Параметри розміщення</div>
+                <div class="form-section">
+                    <div class="form-grid">
+                        <!-- Додаємо чекбокс для наземного розміщення -->
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="ground_mounting" name="ground_mounting" {% if data.ground_mounting %}checked{% endif %}>
+                                <label for="ground_mounting"><i class="fas fa-mountain"></i> Наземне розміщення</label>
+                            </div>
+                        </div>
+                    
+                        
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label><i class="fas fa-layer-group"></i> Масиви панелей:</label>
+                            <div id="panel-arrays-container">
+                                {% if data.panel_arrays %}
+                                    {% for array in data.panel_arrays %}
+                                        <div class="panel-array" data-array-id="{{ forloop.counter }}">
+                                            <div class="array-header">
+                                                <h4>Масив #{{ forloop.counter }}</h4>
+                                                <input type="text" class="array-name-input" id="array_name_{{ forloop.counter }}" name="array_name_{{ forloop.counter }}" placeholder="Назва масиву" value="">
+                                                <button type="button" class="remove-array-btn" onclick="removeArray(this)" {% if forloop.counter == 1 %}style="display: none;"{% endif %}>
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="array-content">
+                                                <div class="form-group">
+                                                    <label for="rows_{{ forloop.counter }}"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
+                                                    <input type="number" id="rows_{{ forloop.counter }}" name="rows_{{ forloop.counter }}" value="{{ array.rows }}" required min="1" onchange="calculateTotalPanels()">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="panels_per_row_{{ forloop.counter }}"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
+                                                    <input type="number" id="panels_per_row_{{ forloop.counter }}" name="panels_per_row_{{ forloop.counter }}" value="{{ array.panels_per_row }}" required min="1" onchange="calculateTotalPanels()">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
+                                                    <span class="array-total">{{ array.total }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="panel-array" data-array-id="1">
+                                        <div class="array-header">
+                                            <h4>Масив #1</h4>
+                                            <input type="text" class="array-name-input" id="array_name_1" name="array_name_1" placeholder="Назва масиву" value="">
+                                            <button type="button" class="remove-array-btn" onclick="removeArray(this)" style="display: none;">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <div class="array-content">
+                                            <div class="form-group">
+                                                <label for="rows_1"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
+                                                <input type="number" id="rows_1" name="rows_1" value="3" required min="1" onchange="calculateTotalPanels()">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="panels_per_row_1"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
+                                                <input type="number" id="panels_per_row_1" name="panels_per_row_1" value="4" required min="1" onchange="calculateTotalPanels()">
+                                            </div>
+                                            <div class="form-group">
+                                                <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
+                                                <span class="array-total">12</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="array-actions">
+                                <button type="button" class="add-array-btn" onclick="addNewArray()">
+                                    <i class="fas fa-plus"></i> Додати масив
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="total_panels"><i class="fas fa-calculator"></i> Загальна кількість панелей:</label>
+                            <input type="number" id="total_panels" name="total_panels" value="{{ data.total_panels|default:'12' }}" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile_lengths" style="white-space: nowrap;"><i class="fas fa-ruler-horizontal"></i> Доступні довжини профілів (м):</label>
+                            <input type="text" id="profile_lengths" name="profile_lengths" value="{{ data.profile_lengths|default:'2,3,4' }}" required placeholder="Введіть через кому, наприклад: 2,3,4">
+                        </div>
+                        <div class="form-group" id="profile_carcase_lengths_container" style="display: {% if data.ground_mounting %}block{% else %}none{% endif %};">
+                            <label for="profile_carcase_lengths" style="white-space: nowrap;"><i class="fas fa-ruler-horizontal"></i> Доступні довжини каркасу (м):</label>
+                            <input type="text" id="profile_carcase_lengths" name="profile_carcase_lengths" value="{{ data.profile120|default:'3,4,6' }}" placeholder="Введіть через кому, наприклад: 3,4,6">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile_material" style="white-space: nowrap;"><i class="fas fa-cubes"></i> Матеріал профілю:</label>
+                            <select id="profile_material" name="profile_material" required>
+                                <option value="алюміній" {% if data.profile_material == "алюміній" %}selected{% endif %}>Алюміній</option>
+                                <option value="оцинкований" {% if data.profile_material == "оцинкований" %}selected{% endif %}>Оцинкований</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="screw_material"><i class="fas fa-wrench"></i> Матеріал гвинт-шурупа:</label>
+                            <select id="screw_material" name="screw_material" required>
+                                <option value="оцинковані" {% if data.screw_material == "оцинковані" %}selected{% endif %}>Оцинковані</option>
+                                <option value="нержавійка" {% if data.screw_material == "нержавійка" %}selected{% endif %}>Нержавійка</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="string_count"><i class="fas fa-network-wired"></i> Кількість стрінгів:</label>
+                                    <input type="number" id="string_count" name="string_count" value="{{ data.string_count|default:'2' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="submit-container" style="text-align: center; margin: 30px 0;">
+                    <button type="submit" class="calc-btn">
+                        <i class="fas fa-table"></i> Зробити розрахунок
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Додаємо приховані поля для передачі даних в JavaScript -->
+    <script id="panels-data" type="application/json">{{ brands_json|safe }}</script>
+    <script id="inverters-data" type="application/json">{{ inverter_brands_json|safe }}</script>
+    <script id="batteries-data" type="application/json">{{ battery_brands_json|safe }}</script>
+
+    <script src="/static/js/index.js"></script>
+    <script>
+        // Додаємо функцію для ініціалізації форми з даними
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ініціалізуємо вибір моделей для панелей, інверторів та батарей
+            if (document.getElementById('panel_brand').value) {
+                updateModelOptions();
+                // Встановлюємо вибрану модель панелі
+                setTimeout(function() {
+                    const panelModelSelect = document.getElementById('panel_model');
+                    if (panelModelSelect) {
+                        panelModelSelect.value = "{{ data.panel_model_id }}";
+                        // Якщо модель не знайдена, можливо це користувацька модель
+                        if (panelModelSelect.value !== "{{ data.panel_model_id }}" && "{{ data.panel_model_id }}") {
+                            document.getElementById('panel_brand').value = 'other';
+                            updateModelOptions();
+                            document.getElementById('custom-model-container').style.display = 'block';
+                        }
+                    }
+                }, 100);
+            }
+            
+            if (document.getElementById('inverter_brand').value) {
+                updateInverterOptions();
+                // Встановлюємо вибрану модель інвертора
+                setTimeout(function() {
+                    const inverterModelSelect = document.getElementById('inverter_model');
+                    if (inverterModelSelect) {
+                        inverterModelSelect.value = "{{ data.inverterModel }}";
+                        // Якщо модель не знайдена, можливо це користувацька модель
+                        if (inverterModelSelect.value !== "{{ data.inverterModel }}" && "{{ data.inverterModel }}") {
+                            document.getElementById('inverter_brand').value = 'other';
+                            updateInverterOptions();
+                            document.getElementById('custom-inverter-container').style.display = 'block';
+                        }
+                    }
+                }, 100);
+            }
+            
+            if (document.getElementById('battery_brand').value) {
+                updateBatteryOptions();
+                // Встановлюємо вибрану модель батареї
+                setTimeout(function() {
+                    const batteryModelSelect = document.getElementById('battery_model');
+                    if (batteryModelSelect) {
+                        batteryModelSelect.value = "{{ data.batteryModel }}";
+                        // Якщо модель не знайдена, можливо це користувацька модель
+                        if (batteryModelSelect.value !== "{{ data.batteryModel }}" && "{{ data.batteryModel }}") {
+                            document.getElementById('battery_brand').value = 'other';
+                            updateBatteryOptions();
+                            document.getElementById('custom-battery-container').style.display = 'block';
+                        }
+                    }
+                }, 100);
+            }
+            
+            // Оновлюємо іконку орієнтації
+            updateOrientationIcon();
+            
+            // Оновлюємо відображення полів для наземного розміщення
+            const groundMounting = document.getElementById('ground_mounting');
+            if (groundMounting.checked) {
+                document.getElementById('profile_carcase_lengths_container').style.display = 'block';
+            }
+            
+            // Оновлюємо загальну кількість панелей
+            calculateTotalPanels();
+        });
+    </script>
+</body>
+</html>
