@@ -112,6 +112,115 @@
             
             <div class="parameters-content" id="parameters-content" style="display: none;">
                 <div class="parameters-grid">
+                    <!-- Електричні параметри -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-bolt"></i> Інвертор</h3>
+                        {% if data.inverterBrand %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд інвертора:</div>
+                            <div class="parameter-value">{{ data.inverterBrand }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterModel %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Модель інвертора:</div>
+                            <div class="parameter-value">
+                                {{ data.inverterModelName }}
+                                {% if data.inverterModelId %}
+                                <a href="{% url 'calculator:download_inverter_datasheet' data.inverterModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterPower %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Потужність інвертора (кВт):</div>
+                            <div class="parameter-value">{{ data.inverterPower }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterPhases %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Кількість фаз інвертора:</div>
+                            <div class="parameter-value">{{ data.inverterPhases }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.inverterVoltage %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Тип напруги інвертора:</div>
+                            <div class="parameter-value">
+                                {% if data.inverterVoltage == 'high' %}
+                                    Високовольтний
+                                {% else %}
+                                    Низьковольтний
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                    </div>
+                    
+                    <!-- Додаткові компоненти -->
+                    <div class="parameter-section">
+                        <h3><i class="fas fa-plug"></i> Акумулятор</h3>
+                        {% if data.batteryBrand %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Бренд акумулятора:</div>
+                            <div class="parameter-value">{{ data.batteryBrand }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryModel %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Модель акумулятора:</div>
+                            <div class="parameter-value">
+                                {{ data.batteryModelName }}
+                                {% if data.batteryModelId %}
+                                <a href="{% url 'calculator:download_battery_datasheet' data.batteryModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryPower %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Ємність акумулятора (кВт):</div>
+                            <div class="parameter-value">{{ data.batteryPower }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryVoltage %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Тип напруги акумулятора:</div>
+                            <div class="parameter-value">
+                                {% if data.batteryVoltage == 'high' %}
+                                    Високовольтний
+                                {% else %}
+                                    Низьковольтний
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryIsHead %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Наявність голови:</div>
+                            <div class="parameter-value">{{ data.batteryIsHead }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryIsStand8 %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Стійка 8:</div>
+                            <div class="parameter-value">{{ data.batteryIsStand8 }}</div>
+                        </div>
+                        {% endif %}
+                        {% if data.batteryIsStand12 %}
+                        <div class="parameter-row">
+                            <div class="parameter-label">Стійка 12:</div>
+                            <div class="parameter-value">{{ data.batteryIsStand12 }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
                     <!-- Параметри панелей -->
                     <div class="parameter-section">
                         <h3><i class="fas fa-solar-panel"></i> Параметри сонячних панелей</h3>
@@ -198,90 +307,6 @@
                         </div>
                     </div>
                     
-                    <!-- Електричні параметри -->
-                    <div class="parameter-section">
-                        <h3><i class="fas fa-bolt"></i> Інвертор</h3>
-                        {% if data.inverterBrand %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Бренд інвертора:</div>
-                            <div class="parameter-value">{{ data.inverterBrand }}</div>
-                        </div>
-                        {% endif %}
-                        {% if data.inverterModel %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Модель інвертора:</div>
-                            <div class="parameter-value">
-                                {{ data.inverterModelName }}
-                                {% if data.inverterModelId %}
-                                <a href="{% url 'calculator:download_inverter_datasheet' data.inverterModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
-                                    <i class="fas fa-file-pdf"></i>
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if data.inverterPower %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Потужність інвертора (кВт):</div>
-                            <div class="parameter-value">{{ data.inverterPower }}</div>
-                        </div>
-                        {% endif %}
-                        {% if data.inverterPhases %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Кількість фаз інвертора:</div>
-                            <div class="parameter-value">{{ data.inverterPhases }}</div>
-                        </div>
-                        {% endif %}
-                        
-                    </div>
-                    
-                    <!-- Додаткові компоненти -->
-                    <div class="parameter-section">
-                        <h3><i class="fas fa-plug"></i> Акумулятор</h3>
-                        {% if data.batteryBrand %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Бренд акумулятора:</div>
-                            <div class="parameter-value">{{ data.batteryBrand }}</div>
-                        </div>
-                        {% endif %}
-                        {% if data.batteryModel %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Модель акумулятора:</div>
-                            <div class="parameter-value">
-                                {{ data.batteryModelName }}
-                                {% if data.batteryModelId %}
-                                <a href="{% url 'calculator:download_battery_datasheet' data.batteryModelId %}" class="datasheet-btn-small" title="Завантажити datasheet">
-                                    <i class="fas fa-file-pdf"></i>
-                                </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                        {% endif %}
-                        {% if data.batteryPower %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Ємність акумулятора (кВт):</div>
-                            <div class="parameter-value">{{ data.batteryPower }}</div>
-                        </div>
-                        {% endif %}
-                        {% if data.batteryIsHead %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Наявність голови:</div>
-                            <div class="parameter-value">{{ data.batteryIsHead }}</div>
-                        </div>
-                        {% endif %}
-                        {% if data.batteryIsStand8 %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Стійка 8:</div>
-                            <div class="parameter-value">{{ data.batteryIsStand8 }}</div>
-                        </div>
-                        {% endif %}
-                        {% if data.batteryIsStand12 %}
-                        <div class="parameter-row">
-                            <div class="parameter-label">Стійка 12:</div>
-                            <div class="parameter-value">{{ data.batteryIsStand12 }}</div>
-                        </div>
-                        {% endif %}
-                    </div>
                 </div>
                 
                 <div class="parameters-actions">
@@ -426,15 +451,6 @@
                             <td><input type="number" name="K52" value="0"></td>
                             <td><input type="number" name="K53" value="0"></td>
                         </tr>
-                        <tr>
-                            <td>Комплект з'єднувача профілів (ВНУТРІШНІЙ)</td>
-                            <td><input type="number" name="K61" value="{{ data.inner_connectors }}"></td>
-                            <td>компл</td>
-                            <td><input type="number" name="Z11" value="0"></td>
-                            <td><input type="number" name="K62" value="0"></td>
-                            <td><input type="number" name="K63" value="0"></td>
-                        </tr>
-                        
                         {% if data.carcase_material %}
                         <!-- Додаткові рядки для наземного розміщення -->
                         {% for profile in data.grouped_carcase_profiles %}
@@ -465,12 +481,20 @@
                             <td><input type="number" name="K93" value="0"></td>
                         </tr>
                         <tr>
-                            <td>Кабель</td>
+                            <td>Кабель (червоний)</td>
                             <td><input type="number" name="K111" value="0"></td>
                             <td>м</td>
                             <td><input type="number" name="Z15" value="0"></td>
                             <td><input type="number" name="K121" value="0"></td>
                             <td><input type="number" name="K131" value="0"></td>
+                        </tr>
+                        <tr>
+                            <td>Кабель (чорний)</td>
+                            <td><input type="number" name="K211" value="0"></td>
+                            <td>м</td>
+                            <td><input type="number" name="Z16" value="0"></td>
+                            <td><input type="number" name="K221" value="0"></td>
+                            <td><input type="number" name="K231" value="0"></td>
                         </tr>
                     </tbody>
                 </table>

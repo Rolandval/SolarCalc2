@@ -421,10 +421,9 @@ button:hover {
 
 /* Стилі для орієнтації панелей */
 .orientation-icon.landscape .panel-icon {
-    /* Альбомна орієнтація */
-    transform: rotate(0deg);
     width: 40px;
     height: 30px;
+    transform: rotate(0deg);
 }
 
 .orientation-icon.landscape .panel-icon-inner {
@@ -433,8 +432,6 @@ button:hover {
 }
 
 .orientation-icon.portrait .panel-icon {
-    /* Книжкова орієнтація */
-    transform: rotate(90deg);
     width: 30px;
     height: 40px;
 }
@@ -443,7 +440,6 @@ button:hover {
     width: 20px;
     height: 30px;
 }
-
 /* Стилі для кнопки "Зробити розрахунок" */
 .calc-btn {
     background-color: var(--secondary-color);

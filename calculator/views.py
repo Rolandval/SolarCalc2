@@ -84,7 +84,8 @@ def index(request):
             'id': inverter.id,
             'model': inverter.model,
             'power': float(inverter.power),
-            'phases_count': inverter.phases_count
+            'phases_count': inverter.phases_count,
+            'voltage_type': inverter.voltage_type
         })
     
     # Згрупуємо батареї за брендами
@@ -97,7 +98,8 @@ def index(request):
             'model': battery.model,
             'capacity': float(battery.capacity),
             'is_head': battery.is_head,
-            'is_stand': battery.is_stand
+            'is_stand': battery.is_stand,
+            'voltage_type': battery.voltage_type
         })
     
     # Конвертуємо дані в JSON для використання в JavaScript
@@ -415,10 +417,12 @@ def calculate(request):
                         'inverterPower': data.get('inverter_power', ''),
                         'inverterPhases': data.get('inverter_phases', ''),
                         'inverterBrand': data.get('inverter_brand', ''),
+                        'inverterVoltage': data.get('inverter_voltage', ''),
                         'inverterModelId': data.get('inverter_model', ''),
                         'batteryModel': data.get('custom_battery_model', '') or data.get('battery_model', ''),
                         'batteryPower': data.get('battery_capacity', ''),
                         'batteryBrand': data.get('battery_brand', ''),
+                        'batteryVoltage': data.get('battery_voltage', ''),
                         'batteryModelId': data.get('battery_model', ''),
                         'batteryIsHead': 'Так' if data.get('battery_is_head') else 'Ні',
                         'batteryIsStand': 'Так' if data.get('battery_is_stand') else 'Ні',
@@ -709,13 +713,13 @@ def generate_pdf(request):
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
                 K51=int(data.get('K51', 0) or 0), K52=float(data.get('K52', 0) or 0.0),
-                K61=int(data.get('K61', 0) or 0), K62=float(data.get('K62', 0) or 0.0),
                 K71=carcase_profiles,
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
                 K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
-                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
+                K211=int(data.get('K211', 0) or 0), K221=float(data.get('K221', 0) or 0.0),
+                K212=int(data.get('K212', 0) or 0), K222=float(data.get('K222', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -1018,13 +1022,13 @@ def send_pdf_telegram(request):
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
                 K51=int(data.get('K51', 0) or 0), K52=float(data.get('K52', 0) or 0.0),
-                K61=int(data.get('K61', 0) or 0), K62=float(data.get('K62', 0) or 0.0),
                 K71=carcase_profiles,
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
                 K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
-                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
+                K211=int(data.get('K211', 0) or 0), K221=float(data.get('K221', 0) or 0.0),
+                K212=int(data.get('K212', 0) or 0), K222=float(data.get('K222', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -1357,13 +1361,13 @@ def send_pdf_email(request):
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
                 K51=int(data.get('K51', 0) or 0), K52=float(data.get('K52', 0) or 0.0),
-                K61=int(data.get('K61', 0) or 0), K62=float(data.get('K62', 0) or 0.0),
                 K71=carcase_profiles,
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
                 K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
-                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
+                K211=int(data.get('K211', 0) or 0), K221=float(data.get('K221', 0) or 0.0),
+                K212=int(data.get('K212', 0) or 0), K222=float(data.get('K222', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -1889,7 +1893,6 @@ def send_pdf_telegram(request):
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
                 K51=int(data.get('K51', 0) or 0), K52=float(data.get('K52', 0) or 0.0),
-                K61=int(data.get('K61', 0) or 0), K62=float(data.get('K62', 0) or 0.0),
                 K71=carcase_profiles,
                 K81=int(data.get('K81', 0) or 0), K82=float(data.get('K82', 0) or 0.0),
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),

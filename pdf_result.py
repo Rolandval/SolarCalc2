@@ -92,13 +92,13 @@ def generate(
         K31: int = 0, K32: float = 0.0,
         K41: int = 0, K42: float = 0.0,
         K51: int = 0, K52: float = 0.0,
-        K61: int = 0, K62: float = 0.0,
         K71: list = [],
         K81: int = 0, K82: float = 0.0,
         K91: int = 0, K92: float = 0.0,
         K111: int = 0, K121: float = 0.0,
         K112: int = 0, K122: float = 0.0,
-        K113: int = 0, K123: float = 0.0,
+        K211: int = 0, K221: float = 0.0,
+        K212: int = 0, K222: float = 0.0,
         K912: int = 0, K922: float = 0.0,
         K913: int = 0, K923: float = 0.0,
         E11: int = 0, E12: float = 0.0,
@@ -245,6 +245,7 @@ def generate(
         total = quantity * price
         
         equipment.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
+    print(equipment)
 
     # Створюємо базову структуру для mounting
     mounting = []
@@ -264,9 +265,9 @@ def generate(
         [f'Міжпанельні V-образні зажими ({panel_height} мм)', f'{K31}', 'компл.', f'{K32}', f'{K31 * K32}'],
         [f'Гвинт шуруп М10*200 комплект ({screw_material})', f'{K41}', 'компл.', f'{K42}', f'{K41 * K42}'],
         ['Комплект з\'єднувача профілів (ЗОВНІШНІЙ)', f'{K51}', 'компл.', f'{K52}', f'{K51 * K52}'],
-        ['Комплект з\'єднувача профілів (ВНУТРІШНІЙ)', f'{K61}', 'компл.', f'{K62}', f'{K61 * K62}'],
         ['Конектори МС4', f'{K91}', 'пара.', f'{K92}', f'{K91 * K92}'],
-        ['Кабель', f'{K111}', 'м.', f'{K121}', f'{K111 * K121}']
+        ['Кабель (червоний)', f'{K111}', 'м.', f'{K121}', f'{K111 * K121}'],
+        ['Кабель (чорний)', f'{K211}', 'м.', f'{K221}', f'{K211 * K221}']
     ])
     
     # Додаємо профілі каркасу та тип основи, якщо вказано матеріал каркасу
@@ -306,6 +307,7 @@ def generate(
         total = quantity * price
         
         mounting.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
+    print(mounting)
 
     electrical = [
         ['Коробки з автоматами', f'{E11}', 'компл.', f'{E12}', f'{E11 * E12}'],
@@ -323,6 +325,7 @@ def generate(
         price = item.get('price', 0)
         total = quantity * price
         electrical.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
+    print(electrical)
 
     work = [
         ['Монтаж', f'{R11}', 'шт.', f'{R12}', f'{R11 * R12}'],
@@ -339,6 +342,7 @@ def generate(
         total = quantity * price
         
         work.append([name, f'{quantity}', unit, f'{price}', f'{total}'])
+    print(work)
         
     # Додаємо динамічно створені рядки інших матеріалів
     other = []

@@ -174,3 +174,5 @@ class Batteries(models.Model):
     
     def get_datasheet_url(self):
         return self.datasheet_url
+
+

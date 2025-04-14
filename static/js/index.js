@@ -89,6 +89,7 @@ function updateInverterOptions() {
                 option.textContent = model.model;
                 option.dataset.power = model.power;
                 option.dataset.phases_count = model.phases_count;
+                option.dataset.voltage_type = model.voltage_type;
                 modelSelect.appendChild(option);
             });
         }
@@ -100,12 +101,21 @@ function updateInverterDetails() {
     const modelSelect = document.getElementById('inverter_model');
     const selectedOption = modelSelect.options[modelSelect.selectedIndex];
     const datasheetBtn = document.getElementById('inverter-datasheet-btn');
+    const voltageSelect = document.getElementById('inverter_voltage');
     
     if (selectedOption && selectedOption.value) {
         // Оновлюємо деталі інвертора
         document.getElementById('inverter_power').value = selectedOption.dataset.power;
         document.getElementById('inverter_power').readOnly = true;
         document.getElementById('inverter_phases').value = selectedOption.dataset.phases_count;
+        
+        // Оновлюємо напругу
+        if (selectedOption.dataset.voltage_type) {
+            voltageSelect.value = selectedOption.dataset.voltage_type;
+            voltageSelect.disabled = true;
+        } else {
+            voltageSelect.disabled = false;
+        }
         
         // Активуємо кнопку завантаження datasheet
         datasheetBtn.disabled = false;
@@ -116,6 +126,7 @@ function updateInverterDetails() {
         // Деактивуємо кнопку, якщо модель не вибрана
         datasheetBtn.disabled = true;
         document.getElementById('inverter_power').readOnly = false;
+        voltageSelect.disabled = false;
     }
 }
 
@@ -158,6 +169,7 @@ function updateBatteryOptions() {
                 option.dataset.capacity = model.capacity;
                 option.dataset.is_head = model.is_head;
                 option.dataset.is_stand = model.is_stand;
+                option.dataset.voltage_type = model.voltage_type;
                 modelSelect.appendChild(option);
             });
         }
@@ -169,6 +181,7 @@ function updateBatteryDetails() {
     const modelSelect = document.getElementById('battery_model');
     const selectedOption = modelSelect.options[modelSelect.selectedIndex];
     const datasheetBtn = document.getElementById('battery-datasheet-btn');
+    const voltageSelect = document.getElementById('battery_voltage');
     
     if (selectedOption && selectedOption.value) {
         // Оновлюємо деталі батареї
@@ -180,6 +193,14 @@ function updateBatteryDetails() {
         document.getElementById('battery_is_stand_8').checked = selectedOption.dataset.is_stand === 'true';
         document.getElementById('battery_is_stand_12').checked = selectedOption.dataset.is_stand === 'true';
         
+        // Оновлюємо напругу
+        if (selectedOption.dataset.voltage_type) {
+            voltageSelect.value = selectedOption.dataset.voltage_type;
+            voltageSelect.disabled = true;
+        } else {
+            voltageSelect.disabled = false;
+        }
+        
         // Активуємо кнопку завантаження datasheet незалежно від стану чекбоксів
         datasheetBtn.disabled = false;
         
@@ -189,6 +210,7 @@ function updateBatteryDetails() {
         // Деактивуємо кнопку, якщо модель не вибрана
         datasheetBtn.disabled = true;
         document.getElementById('battery_capacity').readOnly = false;
+        voltageSelect.disabled = false;
         
         // Скидаємо значення чекбоксів
         document.getElementById('battery_is_head').checked = false;
