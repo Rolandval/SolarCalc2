@@ -1518,34 +1518,19 @@ def create_panel(request):
                 context['error'] = 'Файл datasheet необхідний'
                 return render(request, 'create_panel.html', context)
             
-            # Обробка завантаженого файлу
-            datasheet_file = request.FILES['datasheet']
-            
-            # Створення унікального імені файлу
-            file_extension = os.path.splitext(datasheet_file.name)[1]
-            unique_filename = f"{uuid.uuid4()}{file_extension}"
-            
-            # Шлях для збереження файлу
-            datasheet_path = 'media/datasheets/' + unique_filename
-            
-            # Збереження файлу
-            with open(datasheet_path, 'wb+') as destination:
-                for chunk in datasheet_file.chunks():
-                    destination.write(chunk)
-            
-            # Збереження відносного шляху в БД
-            relative_path = 'datasheets/' + unique_filename
-            
             # Створення нової панелі
             panel = Panels(
                 brand=brand,
                 model=model,
                 panel_length=panel_length,
                 panel_width=panel_width,
-                panel_height=panel_height,
-                datasheet=relative_path
+                panel_height=panel_height
             )
             panel.save()
+            
+            # Завантаження файлу через метод upload_datasheet
+            datasheet_file = request.FILES['datasheet']
+            panel.upload_datasheet(datasheet_file)
             
             # Передаємо дані про успішне створення в контекст
             context['success'] = True
@@ -1559,106 +1544,6 @@ def create_panel(request):
             return render(request, 'create_panel.html', context)
     
     return render(request, 'create_panel.html', context)
-
-
-def download_datasheet(request, panel_id):
-    """
-    Завантажує datasheet для вибраної моделі панелі.
-    """
-    try:
-        # Отримуємо панель за id
-        panel = Panels.objects.get(id=panel_id)
-        
-        # Нормалізуємо шлях до файлу
-        panel_datasheet = normalize_path(panel.datasheet)
-        
-        # Формуємо повний шлях до файлу
-        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + panel_datasheet
-        
-        if os.path.exists(datasheet_path):
-            # Відкриваємо файл для читання в бінарному режимі
-            with open(datasheet_path, 'rb') as datasheet:
-                # Визначаємо тип файлу (припускаємо, що це PDF)
-                response = HttpResponse(datasheet.read(), content_type='application/pdf')
-                # Встановлюємо заголовок для завантаження файлу
-                response['Content-Disposition'] = f'attachment; filename="{panel.brand}_{panel.model}_datasheet.pdf"'
-                return response
-        else:
-            # Якщо файл не знайдено, повертаємо помилку 404
-            return HttpResponse(f"Datasheet не знайдено за шляхом: {datasheet_path}", status=404)
-    except Panels.DoesNotExist:
-        # Якщо панель не знайдена, повертаємо помилку 404
-        return HttpResponse("Панель не знайдена", status=404)
-    except Exception as e:
-        # Якщо сталася інша помилка, повертаємо помилку 500
-        return HttpResponse(f"Помилка: {str(e)}", status=500)
-
-
-def download_inverter_datasheet(request, inverter_id):
-    """
-    Завантажує datasheet для вибраного інвертора.
-    """
-    try:
-        # Отримуємо інвертор за id
-        inverter = Inverters.objects.get(id=inverter_id)
-        
-        # Нормалізуємо шлях до файлу
-        inverter_datasheet = normalize_path(inverter.datasheet)
-        
-        # Формуємо повний шлях до файлу
-        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + inverter_datasheet
-        
-        if os.path.exists(datasheet_path):
-            # Відкриваємо файл для читання в бінарному режимі
-            with open(datasheet_path, 'rb') as datasheet:
-                # Визначаємо тип файлу (припускаємо, що це PDF)
-                response = HttpResponse(datasheet.read(), content_type='application/pdf')
-                # Встановлюємо заголовок для завантаження файлу
-                response['Content-Disposition'] = f'attachment; filename="{inverter.brand}_{inverter.model}_datasheet.pdf"'
-                return response
-        else:
-            # Якщо файл не знайдено, повертаємо помилку 404
-            return HttpResponse(f"Datasheet не знайдено за шляхом: {datasheet_path}", status=404)
-    except Inverters.DoesNotExist:
-        # Якщо інвертор не знайдений, повертаємо помилку 404
-        return HttpResponse("Інвертор не знайдено", status=404)
-    except Exception as e:
-        # Якщо сталася інша помилка, повертаємо помилку 500
-        return HttpResponse(f"Помилка: {str(e)}", status=500)
-
-
-def download_battery_datasheet(request, battery_id):
-    """
-    Завантажує datasheet для вибраної батареї.
-    """
-    try:
-        # Отримуємо батарею за id
-        battery = Batteries.objects.get(id=battery_id)
-        
-        # Нормалізуємо шлях до файлу
-        battery_datasheet = normalize_path(battery.datasheet)
-        
-        # Формуємо повний шлях до файлу
-        datasheet_path = os.path.dirname(os.path.dirname(__file__)) + '/media/' + battery_datasheet
-        
-        if os.path.exists(datasheet_path):
-            # Відкриваємо файл для читання в бінарному режимі
-            with open(datasheet_path, 'rb') as datasheet:
-                # Визначаємо тип файлу (припускаємо, що це PDF)
-                response = HttpResponse(datasheet.read(), content_type='application/pdf')
-                # Встановлюємо заголовок для завантаження файлу
-                response['Content-Disposition'] = f'attachment; filename="{battery.brand}_{battery.model}_datasheet.pdf"'
-                return response
-        else:
-            # Якщо файл не знайдено, повертаємо помилку 404
-            return HttpResponse(f"Datasheet не знайдено за шляхом: {datasheet_path}", status=404)
-    except Batteries.DoesNotExist:
-        # Якщо батарея не знайдена, повертаємо помилку 404
-        return HttpResponse("Батарею не знайдено", status=404)
-    except Exception as e:
-        # Якщо сталася інша помилка, повертаємо помилку 500
-        return HttpResponse(f"Помилка: {str(e)}", status=500)
-
 
 @ensure_csrf_cookie
 def create_inverter(request):
@@ -1674,29 +1559,7 @@ def create_inverter(request):
             model = request.POST.get('model')
             power = float(request.POST.get('power'))
             phases_count = int(request.POST.get('phases_count'))
-            
-            # Перевірка наявності файлу
-            if 'datasheet' not in request.FILES:
-                context['error'] = 'Файл datasheet необхідний'
-                return render(request, 'create_inverter.html', context)
-            
-            # Обробка завантаженого файлу
-            datasheet_file = request.FILES['datasheet']
-            
-            # Створення унікального імені файлу
-            file_extension = os.path.splitext(datasheet_file.name)[1]
-            unique_filename = f"{uuid.uuid4()}{file_extension}"
-            
-            # Шлях для збереження файлу
-            datasheet_path = 'media/datasheets/' + unique_filename
-            
-            # Збереження файлу
-            with open(datasheet_path, 'wb+') as destination:
-                for chunk in datasheet_file.chunks():
-                    destination.write(chunk)
-            
-            # Збереження відносного шляху в БД
-            relative_path = 'datasheets/' + unique_filename
+            voltage_type = request.POST.get('voltage_type', '')
             
             # Створення нового інвертора
             inverter = Inverters(
@@ -1704,9 +1567,18 @@ def create_inverter(request):
                 model=model,
                 power=power,
                 phases_count=phases_count,
-                datasheet=relative_path
+                voltage_type=voltage_type
             )
             inverter.save()
+            
+            # Перевірка наявності файлу
+            if 'datasheet' not in request.FILES:
+                context['error'] = 'Файл datasheet необхідний'
+                return render(request, 'create_inverter.html', context)
+            
+            # Завантаження файлу через метод upload_datasheet
+            datasheet_file = request.FILES['datasheet']
+            inverter.upload_datasheet(datasheet_file)
             
             # Передаємо дані про успішне створення в контекст
             context['success'] = True
@@ -1720,7 +1592,6 @@ def create_inverter(request):
             return render(request, 'create_inverter.html', context)
     
     return render(request, 'create_inverter.html', context)
-
 
 @ensure_csrf_cookie
 def create_battery(request):
@@ -1737,29 +1608,7 @@ def create_battery(request):
             capacity = float(request.POST.get('capacity'))
             is_head = 'is_head' in request.POST
             is_stand = False
-            
-            # Перевірка наявності файлу
-            if 'datasheet' not in request.FILES:
-                context['error'] = 'Файл datasheet необхідний'
-                return render(request, 'create_battery.html', context)
-            
-            # Обробка завантаженого файлу
-            datasheet_file = request.FILES['datasheet']
-            
-            # Створення унікального імені файлу
-            file_extension = os.path.splitext(datasheet_file.name)[1]
-            unique_filename = f"{uuid.uuid4()}{file_extension}"
-            
-            # Шлях для збереження файлу
-            datasheet_path = 'media/datasheets/' + unique_filename
-            
-            # Збереження файлу
-            with open(datasheet_path, 'wb+') as destination:
-                for chunk in datasheet_file.chunks():
-                    destination.write(chunk)
-            
-            # Збереження відносного шляху в БД
-            relative_path = 'datasheets/' + unique_filename
+            voltage_type = request.POST.get('voltage_type')
             
             # Створення нової батареї
             battery = Batteries(
@@ -1768,9 +1617,18 @@ def create_battery(request):
                 capacity=capacity,
                 is_head=is_head,
                 is_stand=is_stand,
-                datasheet=relative_path
+                voltage_type=voltage_type
             )
             battery.save()
+            
+            # Перевірка наявності файлу
+            if 'datasheet' not in request.FILES:
+                context['error'] = 'Файл datasheet необхідний'
+                return render(request, 'create_battery.html', context)
+            
+            # Завантаження файлу через метод upload_datasheet
+            datasheet_file = request.FILES['datasheet']
+            battery.upload_datasheet(datasheet_file)
             
             # Передаємо дані про успішне створення в контекст
             context['success'] = True
@@ -2111,3 +1969,117 @@ def send_pdf_telegram(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Метод не підтримується'})
+
+def download_datasheet(request, panel_id):
+    """
+    Завантажує datasheet для вибраної моделі панелі.
+    """
+    try:
+        # Отримуємо панель за id
+        panel = Panels.objects.get(id=panel_id)
+        
+        # Перевіряємо, чи є URL файлу
+        if not panel.datasheet_url:
+            return HttpResponse("Файл не знайдено", status=404)
+            
+        # Отримуємо URL файлу
+        file_url = panel.datasheet_url
+        
+        # Відкриваємо URL через requests
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            # Створюємо відповідь з файлом
+            content_type = 'application/pdf'  # За замовчуванням PDF
+            if file_url.lower().endswith('.jpg') or file_url.lower().endswith('.jpeg'):
+                content_type = 'image/jpeg'
+            elif file_url.lower().endswith('.png'):
+                content_type = 'image/png'
+            
+            django_response = HttpResponse(response.content, content_type=content_type)
+            django_response['Content-Disposition'] = f'attachment; filename="{panel.datasheet_name}"'
+            return django_response
+        else:
+            return HttpResponse("Не вдалося завантажити файл", status=404)
+    
+    except Panels.DoesNotExist:
+        # Якщо панель не знайдена, повертаємо помилку 404
+        return HttpResponse("Панель не знайдена", status=404)
+    except Exception as e:
+        # Якщо сталася інша помилка, повертаємо помилку 500
+        return HttpResponse(f"Помилка: {str(e)}", status=500)
+
+def download_inverter_datasheet(request, inverter_id):
+    """
+    Завантажує datasheet для вибраного інвертора.
+    """
+    try:
+        # Отримуємо інвертор за id
+        inverter = Inverters.objects.get(id=inverter_id)
+        
+        # Перевіряємо, чи є URL файлу
+        if not inverter.datasheet_url:
+            return HttpResponse("Файл не знайдено", status=404)
+            
+        # Отримуємо URL файлу
+        file_url = inverter.datasheet_url
+        
+        # Відкриваємо URL через requests
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            # Створюємо відповідь з файлом
+            content_type = 'application/pdf'  # За замовчуванням PDF
+            if file_url.lower().endswith('.jpg') or file_url.lower().endswith('.jpeg'):
+                content_type = 'image/jpeg'
+            elif file_url.lower().endswith('.png'):
+                content_type = 'image/png'
+            
+            django_response = HttpResponse(response.content, content_type=content_type)
+            django_response['Content-Disposition'] = f'attachment; filename="{inverter.datasheet_name}"'
+            return django_response
+        else:
+            return HttpResponse("Не вдалося завантажити файл", status=404)
+    
+    except Inverters.DoesNotExist:
+        # Якщо інвертор не знайдений, повертаємо помилку 404
+        return HttpResponse("Інвертор не знайдено", status=404)
+    except Exception as e:
+        # Якщо сталася інша помилка, повертаємо помилку 500
+        return HttpResponse(f"Помилка: {str(e)}", status=500)
+
+def download_battery_datasheet(request, battery_id):
+    """
+    Завантажує datasheet для вибраної батареї.
+    """
+    try:
+        # Отримуємо батарею за id
+        battery = Batteries.objects.get(id=battery_id)
+        
+        # Перевіряємо, чи є URL файлу
+        if not battery.datasheet_url:
+            return HttpResponse("Файл не знайдено", status=404)
+            
+        # Отримуємо URL файлу
+        file_url = battery.datasheet_url
+        
+        # Відкриваємо URL через requests
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            # Створюємо відповідь з файлом
+            content_type = 'application/pdf'  # За замовчуванням PDF
+            if file_url.lower().endswith('.jpg') or file_url.lower().endswith('.jpeg'):
+                content_type = 'image/jpeg'
+            elif file_url.lower().endswith('.png'):
+                content_type = 'image/png'
+            
+            django_response = HttpResponse(response.content, content_type=content_type)
+            django_response['Content-Disposition'] = f'attachment; filename="{battery.datasheet_name}"'
+            return django_response
+        else:
+            return HttpResponse("Не вдалося завантажити файл", status=404)
+    
+    except Batteries.DoesNotExist:
+        # Якщо батарея не знайдена, повертаємо помилку 404
+        return HttpResponse("Батарею не знайдено", status=404)
+    except Exception as e:
+        # Якщо сталася інша помилка, повертаємо помилку 500
+        return HttpResponse(f"Помилка: {str(e)}", status=500)

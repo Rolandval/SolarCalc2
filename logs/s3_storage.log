@@ -1,0 +1,169 @@
+INFO 2025-04-14 10:37:39,203 autoreload 14300 404 Watching for file changes with StatReloader
+INFO 2025-04-14 10:38:10,545 basehttp 14300 11936 "GET / HTTP/1.1" 200 20868
+INFO 2025-04-14 10:38:10,635 basehttp 14300 3580 "GET /static/css/index.css HTTP/1.1" 304 0
+INFO 2025-04-14 10:38:10,636 basehttp 14300 11936 "GET /static/css/base.css HTTP/1.1" 304 0
+INFO 2025-04-14 10:38:10,644 basehttp 14300 9300 "GET /static/js/index.js HTTP/1.1" 304 0
+WARNING 2025-04-14 10:38:11,264 log 14300 9300 Not Found: /favicon.ico
+WARNING 2025-04-14 10:38:11,267 basehttp 14300 9300 "GET /favicon.ico HTTP/1.1" 404 5883
+INFO 2025-04-14 10:38:20,693 basehttp 14300 11296 "GET /panels/create/ HTTP/1.1" 200 2792
+INFO 2025-04-14 10:38:20,773 basehttp 14300 11296 "GET /static/css/create_panel.css HTTP/1.1" 304 0
+INFO 2025-04-14 10:38:35,966 basehttp 14300 6900 "POST /panels/create/ HTTP/1.1" 200 3608
+INFO 2025-04-14 10:43:26,673 autoreload 14300 404 C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\models.py changed, reloading.
+INFO 2025-04-14 10:43:35,257 autoreload 11628 14396 Watching for file changes with StatReloader
+INFO 2025-04-14 10:49:57,680 autoreload 11628 14396 C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\models.py changed, reloading.
+INFO 2025-04-14 10:50:07,984 autoreload 5756 1404 Watching for file changes with StatReloader
+INFO 2025-04-14 10:51:08,113 autoreload 5756 1404 C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py changed, reloading.
+INFO 2025-04-14 10:51:14,122 autoreload 7652 14740 Watching for file changes with StatReloader
+ERROR 2025-04-14 10:54:03,143 log 7652 8876 Internal Server Error: /panels/create/
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py", line 2106, in create_panel
+    form = PanelForm(request.POST, request.FILES)
+NameError: name 'PanelForm' is not defined
+ERROR 2025-04-14 10:54:03,186 basehttp 7652 8876 "POST /panels/create/ HTTP/1.1" 500 87876
+ERROR 2025-04-14 10:54:07,684 log 7652 4104 Internal Server Error: /panels/create/
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py", line 2117, in create_panel
+    form = PanelForm()
+NameError: name 'PanelForm' is not defined
+ERROR 2025-04-14 10:54:07,718 basehttp 7652 4104 "GET /panels/create/ HTTP/1.1" 500 85089
+WARNING 2025-04-14 10:54:11,757 log 7652 4104 Not Found: /panels/crea
+WARNING 2025-04-14 10:54:11,762 basehttp 7652 4104 "GET /panels/crea HTTP/1.1" 404 5883
+ERROR 2025-04-14 10:54:16,998 log 7652 12896 Internal Server Error: /panels/create/
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py", line 2117, in create_panel
+    form = PanelForm()
+NameError: name 'PanelForm' is not defined
+ERROR 2025-04-14 10:54:17,019 basehttp 7652 12896 "GET /panels/create/ HTTP/1.1" 500 85089
+ERROR 2025-04-14 10:54:23,798 log 7652 14480 Internal Server Error: /panels/create/
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py", line 2117, in create_panel
+    form = PanelForm()
+NameError: name 'PanelForm' is not defined
+ERROR 2025-04-14 10:54:23,816 basehttp 7652 14480 "GET /panels/create/ HTTP/1.1" 500 85226
+ERROR 2025-04-14 10:54:28,600 log 7652 14480 Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+psycopg2.errors.UndefinedColumn: column calculator_panels.datasheet_url does not exist
+LINE 1: ...panel_width", "calculator_panels"."panel_height", "calculato...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py", line 67, in index
+    for panel in panels:
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\query.py", line 400, in __iter__
+    self._fetch_all()
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+django.db.utils.ProgrammingError: column calculator_panels.datasheet_url does not exist
+LINE 1: ...panel_width", "calculator_panels"."panel_height", "calculato...
+                                                             ^
+
+ERROR 2025-04-14 10:54:28,682 basehttp 7652 14480 "GET / HTTP/1.1" 500 142252
+ERROR 2025-04-14 10:54:46,202 log 7652 8820 Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+psycopg2.errors.UndefinedColumn: column calculator_panels.datasheet_url does not exist
+LINE 1: ...panel_width", "calculator_panels"."panel_height", "calculato...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 188, in _view_wrapper
+    result = _process_exception(request, e)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\utils\decorators.py", line 186, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\calculator\views.py", line 67, in index
+    for panel in panels:
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\query.py", line 400, in __iter__
+    self._fetch_all()
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\models\sql\compiler.py", line 1574, in execute_sql
+    cursor.execute(sql, params)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\user\Desktop\SolarCalc2\SolarCalc2\venv\lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+django.db.utils.ProgrammingError: column calculator_panels.datasheet_url does not exist
+LINE 1: ...panel_width", "calculator_panels"."panel_height", "calculato...
+                                                             ^
+
+ERROR 2025-04-14 10:54:46,318 basehttp 7652 8820 "GET / HTTP/1.1" 500 142252
+INFO 2025-04-14 10:55:06,288 autoreload 7652 14740 C:\Users\user\Desktop\SolarCalc2\SolarCalc2\SolarCalc2\settings.py changed, reloading.
