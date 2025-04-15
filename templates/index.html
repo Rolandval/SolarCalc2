@@ -51,6 +51,10 @@
                                 <input type="number" id="inverter_power" name="inverter_power" placeholder="Потужність" step="0.1" min="0">
                             </div>
                             <div class="form-col">
+                                <label for="strings_count">Кількість стрінгів:</label>
+                                <input type="number" id="strings_count" name="strings_count" placeholder="Кількість стрінгів" step="1" min="0">
+                            </div>
+                            <div class="form-col">
                                 <label for="inverter_phases">Кількість фаз:</label>
                                 <select id="inverter_phases" name="inverter_phases">
                                     <option value="">Виберіть</option>
@@ -298,6 +302,47 @@
     <script id="panels-data" type="application/json">{{ brands_json|safe }}</script>
     <script id="inverters-data" type="application/json">{{ inverter_brands_json|safe }}</script>
     <script id="batteries-data" type="application/json">{{ battery_brands_json|safe }}</script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inverterBrand = document.getElementById('inverter_brand');
+            const inverterModel = document.getElementById('inverter_model');
+            const stringCount = document.getElementById('string_count');
+
+            function updateStringCountLimit() {
+                const brand = inverterBrand.value;
+                const model = inverterModel.value;
+                let stringsCount = null;
+                if (window.invertersData && window.invertersData[brand]) {
+                    const found = window.invertersData[brand].find(inv => inv.model === model);
+                    if (found && found.strings_count !== undefined && found.strings_count !== null) {
+                        stringsCount = found.strings_count;
+                    }
+                }
+                if (stringsCount !== null) {
+                    stringCount.value = stringsCount;
+                    stringCount.setAttribute('max', stringsCount);
+                } else {
+                    stringCount.removeAttribute('max');
+                }
+            }
+
+            if (inverterModel) {
+                inverterModel.addEventListener('change', updateStringCountLimit);
+            }
+            if (inverterBrand) {
+                inverterBrand.addEventListener('change', updateStringCountLimit);
+            }
+            if (stringCount) {
+                stringCount.addEventListener('input', function() {
+                    const max = parseInt(this.getAttribute('max'), 10);
+                    if (!isNaN(max) && parseInt(this.value, 10) > max) {
+                        this.value = max;
+                    }
+                });
+            }
+        });
+    </script>
 
     <script src="/static/js/index.js"></script>
 </body>

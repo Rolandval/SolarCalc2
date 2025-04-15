@@ -72,7 +72,8 @@ def index(request):
             'model': panel.model,
             'length': float(panel.panel_length),
             'width': float(panel.panel_width),
-            'height': float(panel.panel_height)
+            'height': float(panel.panel_height),
+            'panel_type': str(panel.panel_type),
         })
     
     # Згрупуємо інвертори за брендами
@@ -85,7 +86,9 @@ def index(request):
             'model': inverter.model,
             'power': float(inverter.power),
             'phases_count': inverter.phases_count,
-            'voltage_type': inverter.voltage_type
+            'voltage_type': inverter.voltage_type,
+            'strings_count': inverter.strings_count
+
         })
     
     # Згрупуємо батареї за брендами

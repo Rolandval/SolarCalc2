@@ -74,6 +74,7 @@ class Inverters(models.Model):
     power = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Максимальна потужність")
     phases_count = models.IntegerField(verbose_name="Кількість фаз")
     voltage_type = models.CharField(max_length=20, verbose_name="Тип напруги")
+    strings_count = models.IntegerField(verbose_name="Кількість стрінгів", blank=True, null=True)
     datasheet_url = models.URLField(verbose_name="URL датащиту", blank=True, null=True)
     datasheet_name = models.CharField(max_length=255, verbose_name="Назва файлу", blank=True, null=True)
     datasheet_last_updated = models.DateTimeField(verbose_name="Останнє оновлення", blank=True, null=True)
