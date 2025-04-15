@@ -849,7 +849,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Показуємо повідомлення про відправку
             const notificationDiv = document.createElement('div');
             notificationDiv.className = 'notification';
-            notificationDiv.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Відправка PDF через Telegram...</p>';
             document.body.appendChild(notificationDiv);
             
             // Відправляємо AJAX запит
@@ -868,12 +867,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Створюємо повідомлення про результат
                 const resultDiv = document.createElement('div');
                 resultDiv.className = 'notification ' + (data.success ? 'success' : 'error');
-                
-                if (data.success) {
-                    resultDiv.innerHTML = '<p><i class="fas fa-check-circle"></i> ' + (data.message || 'PDF успішно відправлено через Telegram') + '</p>';
-                } else {
-                    resultDiv.innerHTML = '<p><i class="fas fa-exclamation-circle"></i> ' + (data.error || 'Помилка при відправці PDF через Telegram') + '</p>';
-                }
                 
                 // Додаємо повідомлення на сторінку
                 document.body.appendChild(resultDiv);

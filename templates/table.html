@@ -856,7 +856,6 @@
     // Функція для завантаження PDF звіту
     document.getElementById('download-pdf-btn').addEventListener('click', function() {
         // Показуємо повідомлення про генерацію PDF
-        alert('Генерація PDF звіту...');
         
         // Відправляємо форму для завантаження PDF
         document.getElementById('pdf-form').submit();
@@ -865,7 +864,6 @@
     // Функція для відправки PDF звіту через Telegram
     document.getElementById('send-telegram-btn').addEventListener('click', function() {
         // Показуємо повідомлення про генерацію PDF
-        alert('Генерація PDF звіту та відправка в Telegram...');
         
         // Створюємо копію форми для відправки в Telegram
         var formData = new FormData(document.getElementById('pdf-form'));
@@ -876,16 +874,7 @@
             body: formData,
             credentials: 'same-origin'
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('PDF звіт успішно відправлено через Telegram!');
-            } 
-        })
-        .catch(error => {
-            console.error('Помилка:', error);
-            alert('Виникла помилка при відправці PDF через Telegram');
-        });
+
     });
     
     // Функція для відправки PDF звіту на Email
@@ -916,10 +905,7 @@
         
         // Закриваємо модальне вікно після відправки
         document.getElementById('email-modal').style.display = 'none';
-        
-        // Показуємо повідомлення про генерацію PDF
-        alert('Генерація PDF звіту та відправка на Email...');
-        
+                
         // Створюємо копію форми для відправки на Email
         var formData = new FormData(document.getElementById('pdf-form'));
         // Додаємо email до FormData
@@ -935,11 +921,7 @@
             }
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('PDF звіт успішно відправлено на ' + email);
-            }
-        })
+
     });
     
     // Функція для закриття модального вікна при натисканні на кнопку "Скасувати"
