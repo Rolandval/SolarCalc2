@@ -738,6 +738,9 @@
             <button type="button" id="copy-table-btn" class="copy-table-btn" style="margin-left: 15px;">
                 <i class="fas fa-copy"></i> Копіювати таблицю
             </button>
+            <button type="button" id="subscribe-telegram-btn" class="subscribe-telegram-btn telegram-bot-btn" style="margin-left: 15px;" url="https://t.me/SolarCalculyator_Bot">
+                <i class="fab fa-telegram-plane"></i> Телеграм бот
+            </button>
         </div>
         
         <!-- Модальне вікно для введення email -->
@@ -1180,6 +1183,11 @@
             });
         }
     });
+</script>
+<script>
+document.getElementById('subscribe-telegram-btn').onclick = function() {
+    window.open('https://t.me/SolarCalculyator_Bot', '_blank');
+};
 </script>
 </body>
 </html>
