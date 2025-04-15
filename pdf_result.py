@@ -733,8 +733,10 @@ def generate(
         except Exception as e:
             logger.error(f"Помилка при отриманні datasheet батареї: {e}")
     
-    # Шлях для збереження PDF
-    output_path = normalize_path(os.path.join(BASE_DIR, "report.pdf"))
+    # Формуємо ім'я файлу: Розрахунок СЕС - N панелей.pdf
+    panels_count = total_panels if total_panels else 0
+    output_filename = f"Розрахунок СЕС - {O11} панелей.pdf"
+    output_path = normalize_path(os.path.join(BASE_DIR, output_filename))
 
     # Зберігаємо PDF
     pdf.output(output_path)
