@@ -999,20 +999,19 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                equipmentRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
+                                equipmentRowsText += `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
                             textContent += '🔧 Обладнання\n';
-                            textContent += '-Назва-Кількість-Ціна-Сума\n';
                             textContent += equipmentRowsText;
                             const equipmentSumElement = document.getElementById('equipment-sum');
                             let equipmentSum = 0;
                             if (equipmentSumElement) {
                                 equipmentSum = parseFloat(equipmentSumElement.textContent) || 0;
                             }
-                            textContent += `Сума обладнання: ${equipmentSum.toFixed(2)} грн\n\n`;
+                            textContent += `🔹Сума обладнання: ${equipmentSum.toFixed(2)} грн\n\n`;
                             totalSum += equipmentSum;
                         }
                     }
@@ -1048,20 +1047,19 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                mountingRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
+                                mountingRowsText += `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
                             textContent += '⚙️ Кріплення\n';
-                            textContent += '-Назва-Кількість-Ціна-Сума\n';
                             textContent += mountingRowsText;
                             const mountingSumElement = document.getElementById('mounting-sum');
                             let mountingSum = 0;
                             if (mountingSumElement) {
                                 mountingSum = parseFloat(mountingSumElement.textContent) || 0;
                             }
-                            textContent += `Сума кріплення: ${mountingSum.toFixed(2)} грн\n\n`;
+                            textContent += `🔹Сума кріплення: ${mountingSum.toFixed(2)} грн\n\n`;
                             totalSum += mountingSum;
                         }
                     }
@@ -1097,20 +1095,19 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                electricalRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
+                                electricalRowsText += `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
                             textContent += '⚡️ Електрика\n';
-                            textContent += '-Назва-Кількість-Ціна-Сума\n';
                             textContent += electricalRowsText;
                             const electricalSumElement = document.getElementById('electrical-sum');
                             let electricalSum = 0;
                             if (electricalSumElement) {
                                 electricalSum = parseFloat(electricalSumElement.textContent) || 0;
                             }
-                            textContent += `Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
+                            textContent += `🔹Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
                             totalSum += electricalSum;
                         }
                     }
@@ -1146,20 +1143,19 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                workRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
+                                workRowsText +=  `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
                             textContent += '🛠 Робота\n';
-                            textContent += '-Назва-Кількість-Ціна-Сума\n';
                             textContent += workRowsText;
                             const workSumElement = document.getElementById('work-sum');
                             let workSum = 0;
                             if (workSumElement) {
                                 workSum = parseFloat(workSumElement.textContent) || 0;
                             }
-                            textContent += `Сума роботи: ${workSum.toFixed(2)} грн\n\n`;
+                            textContent += `🔹Сума роботи: ${workSum.toFixed(2)} грн\n\n`;
                             totalSum += workSum;
                         }
                     }
