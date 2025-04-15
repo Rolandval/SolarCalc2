@@ -137,7 +137,13 @@ def generate(
         total_usd: float = 0.0,  # Додаємо суму в доларах
         screw_material: str = 'оцинковані',  # Додаємо матеріал гвинтів
         profile_material: str = 'алюміній',  # Додаємо матеріал профілю
-        panel_arrays: list = []  # Додаємо дані про масиви панелей
+        panel_arrays: list = [],  # Додаємо дані про масиви панелей
+        panel_brand: str = '',  # Додаємо бренд панелі
+        panel_model: str = '',  # Додаємо модель панелі
+        inverter_brand: str = '',  # Додаємо бренд інвертора
+        inverter_model: str = '',  # Додаємо модель інвертора
+        battery_brand: str = '',  # Додаємо бренд батареї
+        battery_model: str = '',  # Додаємо модель батареї
         ):
     # Створюємо тимчасову директорію для шрифтів
     temp_font_dir = os.path.join(BASE_DIR, "temp_fonts")
@@ -222,11 +228,28 @@ def generate(
         # Додаємо відступ між таблицями
         pdf.ln(5)
 
+    # Функція для формування назв обладнання
+    def get_equipment_title(equip_type, brand, model):
+        if brand and model:
+            if equip_type == 'panel':
+                return f"Сонячна панель {brand} {model}"
+            elif equip_type == 'inverter':
+                return f"Інвертор {brand} {model}"
+            elif equip_type == 'battery':
+                return f"Акумулятор {brand} {model}"
+        else:
+            if equip_type == 'panel':
+                return "Сонячна панель"
+            elif equip_type == 'inverter':
+                return "Інвертор"
+            elif equip_type == 'battery':
+                return "Акумулятор"
+
     # Дані для таблиць
     equipment = [
-        ['Інвертор', f'{O11}', 'шт.', f'{O12}', f'{O11 * O12}'],
-        ['Акумулятор', f'{O21}', 'шт.', f'{O22}', f'{O21 * O22}'],
-        ['Сонячна панель', f'{O31}', 'шт.', f'{O32}', f'{O31 * O32}']
+        [get_equipment_title('panel', panel_brand, panel_model), f'{O11}', 'шт.', f'{O12}', f'{O11 * O12}'],
+        [get_equipment_title('inverter', inverter_brand, inverter_model), f'{O21}', 'шт.', f'{O22}', f'{O21 * O22}'],
+        [get_equipment_title('battery', battery_brand, battery_model), f'{O31}', 'шт.', f'{O32}', f'{O31 * O32}']
     ]
     
     # Додаємо стійки тільки якщо їх кількість більше 0

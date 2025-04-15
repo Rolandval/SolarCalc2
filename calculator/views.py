@@ -702,13 +702,39 @@ def generate_pdf(request):
                             'price': price
                         })
 
+            # --- Normalize brand/model extraction for panel ---
+            panel_brand = data.get('panel_brand', '')
+            panel_model = data.get('panel_model', '')
+            if panel_brand == 'other':
+                panel_brand = data.get('custom_panel_brand', '')
+            if panel_model == 'other':
+                panel_model = data.get('custom_panel_model', '')
+
+            # --- Normalize brand/model extraction for inverter ---
+            inverter_brand = data.get('inverter_brand', '')
+            inverter_model = data.get('inverter_model', '')
+            if inverter_brand == 'other':
+                inverter_brand = data.get('custom_inverter_brand', '')
+            if inverter_model == 'other':
+                inverter_model = data.get('custom_inverter_model', '')
+
+            # --- Normalize brand/model extraction for battery ---
+            battery_brand = data.get('battery_brand', '')
+            battery_model = data.get('battery_model', '')
+            if battery_brand == 'other':
+                battery_brand = data.get('custom_battery_brand', '')
+            if battery_model == 'other':
+                battery_model = data.get('custom_battery_model', '')
+
+            print(f"PDF: panel_brand={panel_brand}, panel_model={panel_model}, inverter_brand={inverter_brand}, inverter_model={inverter_model}, battery_brand={battery_brand}, battery_model={battery_model}")
+
             # Викликаємо функцію generate з отриманими даними
             pdf_path = generate(
                 O=param_o, K=param_k, E=param_e, R=param_r,
                 O11=int(data.get('O11', 0) or 0), O12=float(data.get('O12', 0) or 0.0),
                 O21=int(data.get('O21', 0) or 0), O22=float(data.get('O22', 0) or 0.0),
                 O31=int(data.get('O31', 0) or 0), O32=float(data.get('O32', 0) or 0.0),
-                K1112= k_values,
+                K1112=k_values,
                 K21=int(data.get('K21', 0) or 0), K22=float(data.get('K22', 0) or 0.0),
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
@@ -732,33 +758,39 @@ def generate_pdf(request):
                 dynamic_mounting=dynamic_mounting,
                 dynamic_electrical=dynamic_electrical,
                 dynamic_work=dynamic_work,
-                dynamic_other=dynamic_other,  # Додаємо порожній список для dynamic_other
-                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
-                profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
-                current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
-                show_usd=param_usd,  # Додаємо параметр для відображення суми в доларах
-                panel_model_name=panel_model_name,  # Додаємо назву моделі панелі
-                panel_length=panel_length,  # Додаємо довжину панелі
-                panel_width=panel_width,  # Додаємо ширину панелі
-                panel_height=panel_height,  # Додаємо висоту панелі
-                panel_arrangement=panel_arrangement,  # Додаємо розташування панелі
-                panel_type=panel_type,  # Додаємо тип панелі
-                panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
-                total_panels=total_panels,  # Додаємо загальну кількість панелей
-                total_rows=total_rows,  # Додаємо загальну кількість рядів
-                avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
-                panel_schemes=panel_schemes,  # Додаємо список схем для кожного масиву
-                carcase_material=data.get('carcase_material', ''),  # Додаємо матеріал каркасу
-                foundation_type_1=data.get('foundation_type_1', ''),  # Додаємо тип основи
-                carcase_profiles=carcase_profiles,  # Додаємо профілі каркасу
-                include_panel_ds=include_panel_ds,  # Додаємо параметр для включення datasheet панелі
-                include_inverter_ds=include_inverter_ds,  # Додаємо параметр для включення datasheet інвертора
-                include_battery_ds=include_battery_ds,  # Додаємо параметр для включення datasheet батареї
-                panel_model_id=panel_model_id,  # ID моделі панелі для завантаження datasheet
-                inverter_model_id=inverter_model_id,  # ID моделі інвертора для завантаження datasheet
-                battery_model_id=battery_model_id  # ID моделі батареї для завантаження datasheet
+                dynamic_other=dynamic_other,
+                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),
+                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),
+                screw_material=data.get('screw_material', 'оцинковані'),
+                profile_material=data.get('profile_material', 'алюміній'),
+                current_date=datetime.now().strftime('%d.%m.%Y'),
+                show_usd=param_usd,
+                panel_model_name=panel_model_name,
+                panel_length=panel_length,
+                panel_width=panel_width,
+                panel_height=panel_height,
+                panel_arrangement=panel_arrangement,
+                panel_type=panel_type,
+                panel_arrays=panel_arrays,
+                total_panels=total_panels,
+                total_rows=total_rows,
+                avg_panels_per_row=avg_panels_per_row,
+                panel_schemes=panel_schemes,
+                carcase_material=data.get('carcase_material', ''),
+                foundation_type_1=data.get('foundation_type_1', ''),
+                carcase_profiles=carcase_profiles,
+                include_panel_ds=include_panel_ds,
+                include_inverter_ds=include_inverter_ds,
+                include_battery_ds=include_battery_ds,
+                panel_model_id=panel_model_id,
+                inverter_model_id=inverter_model_id,
+                battery_model_id=battery_model_id,
+                panel_brand=panel_brand,
+                panel_model=panel_model,
+                inverter_brand=inverter_brand,
+                inverter_model=inverter_model,
+                battery_brand=battery_brand,
+                battery_model=battery_model,
             )
 
             # Нормалізуємо шлях до PDF
@@ -1011,13 +1043,39 @@ def send_pdf_telegram(request):
                             'price': price
                         })
 
+            # --- Normalize brand/model extraction for panel ---
+            panel_brand = data.get('panel_brand', '')
+            panel_model = data.get('panel_model', '')
+            if panel_brand == 'other':
+                panel_brand = data.get('custom_panel_brand', '')
+            if panel_model == 'other':
+                panel_model = data.get('custom_panel_model', '')
+
+            # --- Normalize brand/model extraction for inverter ---
+            inverter_brand = data.get('inverter_brand', '')
+            inverter_model = data.get('inverter_model', '')
+            if inverter_brand == 'other':
+                inverter_brand = data.get('custom_inverter_brand', '')
+            if inverter_model == 'other':
+                inverter_model = data.get('custom_inverter_model', '')
+
+            # --- Normalize brand/model extraction for battery ---
+            battery_brand = data.get('battery_brand', '')
+            battery_model = data.get('battery_model', '')
+            if battery_brand == 'other':
+                battery_brand = data.get('custom_battery_brand', '')
+            if battery_model == 'other':
+                battery_model = data.get('custom_battery_model', '')
+
+            print(f"PDF: panel_brand={panel_brand}, panel_model={panel_model}, inverter_brand={inverter_brand}, inverter_model={inverter_model}, battery_brand={battery_brand}, battery_model={battery_model}")
+
             # Викликаємо функцію generate з отриманими даними
             pdf_path = generate(
                 O=param_o, K=param_k, E=param_e, R=param_r,
                 O11=int(data.get('O11', 0) or 0), O12=float(data.get('O12', 0) or 0.0),
                 O21=int(data.get('O21', 0) or 0), O22=float(data.get('O22', 0) or 0.0),
                 O31=int(data.get('O31', 0) or 0), O32=float(data.get('O32', 0) or 0.0),
-                K1112= k_values,
+                K1112=k_values,
                 K21=int(data.get('K21', 0) or 0), K22=float(data.get('K22', 0) or 0.0),
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
@@ -1041,33 +1099,39 @@ def send_pdf_telegram(request):
                 dynamic_mounting=dynamic_mounting,
                 dynamic_electrical=dynamic_electrical,
                 dynamic_work=dynamic_work,
-                dynamic_other=dynamic_other,  # Додаємо порожній список для dynamic_other
-                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
-                profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
-                current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
-                show_usd=param_usd,  # Додаємо параметр для відображення суми в доларах
-                panel_model_name=panel_model_name,  # Додаємо назву моделі панелі
-                panel_length=panel_length,  # Додаємо довжину панелі
-                panel_width=panel_width,  # Додаємо ширину панелі
-                panel_height=panel_height,  # Додаємо висоту панелі
-                panel_arrangement=panel_arrangement,  # Додаємо розташування панелі
-                panel_type=panel_type,  # Додаємо тип панелі
-                panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
-                total_panels=total_panels,  # Додаємо загальну кількість панелей
-                total_rows=total_rows,  # Додаємо загальну кількість рядів
-                avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
-                panel_schemes=panel_schemes,  # Додаємо список схем для кожного масиву
-                carcase_material=data.get('carcase_material', ''),  # Додаємо матеріал каркасу
-                foundation_type_1=data.get('foundation_type_1', ''),  # Додаємо тип основи
-                carcase_profiles=carcase_profiles,  # Додаємо профілі каркасу
-                include_panel_ds=include_panel_ds,  # Додаємо параметр для включення datasheet панелі
-                include_inverter_ds=include_inverter_ds,  # Додаємо параметр для включення datasheet інвертора
-                include_battery_ds=include_battery_ds,  # Додаємо параметр для включення datasheet батареї
-                panel_model_id=panel_model_id,  # ID моделі панелі для завантаження datasheet
-                inverter_model_id=inverter_model_id,  # ID моделі інвертора для завантаження datasheet
-                battery_model_id=battery_model_id  # ID моделі батареї для завантаження datasheet
+                dynamic_other=dynamic_other,
+                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),
+                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),
+                screw_material=data.get('screw_material', 'оцинковані'),
+                profile_material=data.get('profile_material', 'алюміній'),
+                current_date=datetime.now().strftime('%d.%m.%Y'),
+                show_usd=param_usd,
+                panel_model_name=panel_model_name,
+                panel_length=panel_length,
+                panel_width=panel_width,
+                panel_height=panel_height,
+                panel_arrangement=panel_arrangement,
+                panel_type=panel_type,
+                panel_arrays=panel_arrays,
+                total_panels=total_panels,
+                total_rows=total_rows,
+                avg_panels_per_row=avg_panels_per_row,
+                panel_schemes=panel_schemes,
+                carcase_material=data.get('carcase_material', ''),
+                foundation_type_1=data.get('foundation_type_1', ''),
+                carcase_profiles=carcase_profiles,
+                include_panel_ds=include_panel_ds,
+                include_inverter_ds=include_inverter_ds,
+                include_battery_ds=include_battery_ds,
+                panel_model_id=panel_model_id,
+                inverter_model_id=inverter_model_id,
+                battery_model_id=battery_model_id,
+                panel_brand=panel_brand,
+                panel_model=panel_model,
+                inverter_brand=inverter_brand,
+                inverter_model=inverter_model,
+                battery_brand=battery_brand,
+                battery_model=battery_model,
             )
 
             # Нормалізуємо шлях до PDF
@@ -1350,6 +1414,32 @@ def send_pdf_email(request):
                         'price': price
                     })
 
+            # --- Normalize brand/model extraction for panel ---
+            panel_brand = data.get('panel_brand', '')
+            panel_model = data.get('panel_model', '')
+            if panel_brand == 'other':
+                panel_brand = data.get('custom_panel_brand', '')
+            if panel_model == 'other':
+                panel_model = data.get('custom_panel_model', '')
+
+            # --- Normalize brand/model extraction for inverter ---
+            inverter_brand = data.get('inverter_brand', '')
+            inverter_model = data.get('inverter_model', '')
+            if inverter_brand == 'other':
+                inverter_brand = data.get('custom_inverter_brand', '')
+            if inverter_model == 'other':
+                inverter_model = data.get('custom_inverter_model', '')
+
+            # --- Normalize brand/model extraction for battery ---
+            battery_brand = data.get('battery_brand', '')
+            battery_model = data.get('battery_model', '')
+            if battery_brand == 'other':
+                battery_brand = data.get('custom_battery_brand', '')
+            if battery_model == 'other':
+                battery_model = data.get('custom_battery_model', '')
+
+            print(f"PDF: panel_brand={panel_brand}, panel_model={panel_model}, inverter_brand={inverter_brand}, inverter_model={inverter_model}, battery_brand={battery_brand}, battery_model={battery_model}")
+
             # Викликаємо функцію generate з отриманими даними
             pdf_path = generate(
                 O=param_o, K=param_k, E=param_e, R=param_r,
@@ -1380,33 +1470,39 @@ def send_pdf_email(request):
                 dynamic_mounting=dynamic_mounting,
                 dynamic_electrical=dynamic_electrical,
                 dynamic_work=dynamic_work,
-                dynamic_other=dynamic_other,  # Додаємо порожній список для dynamic_other
-                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
-                profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
-                current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
-                show_usd=param_usd,  # Додаємо параметр для відображення суми в доларах
-                panel_model_name=panel_model_name,  # Додаємо назву моделі панелі
-                panel_length=panel_length,  # Додаємо довжину панелі
-                panel_width=panel_width,  # Додаємо ширину панелі
-                panel_height=panel_height,  # Додаємо висоту панелі
-                panel_arrangement=panel_arrangement,  # Додаємо розташування панелі
-                panel_type=panel_type,  # Додаємо тип панелі
-                panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
-                total_panels=total_panels,  # Додаємо загальну кількість панелей
-                total_rows=total_rows,  # Додаємо загальну кількість рядів
-                avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
-                panel_schemes=panel_schemes,  # Додаємо список схем для кожного масиву
-                carcase_material=data.get('carcase_material', ''),  # Додаємо матеріал каркасу
-                foundation_type_1=data.get('foundation_type_1', ''),  # Додаємо тип основи
-                carcase_profiles=carcase_profiles,  # Додаємо профілі каркасу
-                include_panel_ds=include_panel_ds,  # Додаємо параметр для включення datasheet панелі
-                include_inverter_ds=include_inverter_ds,  # Додаємо параметр для включення datasheet інвертора
-                include_battery_ds=include_battery_ds,  # Додаємо параметр для включення datasheet батареї
-                panel_model_id=panel_model_id,  # ID моделі панелі для завантаження datasheet
-                inverter_model_id=inverter_model_id,  # ID моделі інвертора для завантаження datasheet
-                battery_model_id=battery_model_id  # ID моделі батареї для завантаження datasheet
+                dynamic_other=dynamic_other,
+                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),
+                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),
+                screw_material=data.get('screw_material', 'оцинковані'),
+                profile_material=data.get('profile_material', 'алюміній'),
+                current_date=datetime.now().strftime('%d.%m.%Y'),
+                show_usd=param_usd,
+                panel_model_name=panel_model_name,
+                panel_length=panel_length,
+                panel_width=panel_width,
+                panel_height=panel_height,
+                panel_arrangement=panel_arrangement,
+                panel_type=panel_type,
+                panel_arrays=panel_arrays,
+                total_panels=total_panels,
+                total_rows=total_rows,
+                avg_panels_per_row=avg_panels_per_row,
+                panel_schemes=panel_schemes,
+                carcase_material=data.get('carcase_material', ''),
+                foundation_type_1=data.get('foundation_type_1', ''),
+                carcase_profiles=carcase_profiles,
+                include_panel_ds=include_panel_ds,
+                include_inverter_ds=include_inverter_ds,
+                include_battery_ds=include_battery_ds,
+                panel_model_id=panel_model_id,
+                inverter_model_id=inverter_model_id,
+                battery_model_id=battery_model_id,
+                panel_brand=panel_brand,
+                panel_model=panel_model,
+                inverter_brand=inverter_brand,
+                inverter_model=inverter_model,
+                battery_brand=battery_brand,
+                battery_model=battery_model,
             )
 
             # Нормалізуємо шлях до PDF
@@ -1882,13 +1978,39 @@ def send_pdf_telegram(request):
                             'price': price
                         })
 
+            # --- Normalize brand/model extraction for panel ---
+            panel_brand = data.get('panel_brand', '')
+            panel_model = data.get('panel_model', '')
+            if panel_brand == 'other':
+                panel_brand = data.get('custom_panel_brand', '')
+            if panel_model == 'other':
+                panel_model = data.get('custom_panel_model', '')
+
+            # --- Normalize brand/model extraction for inverter ---
+            inverter_brand = data.get('inverter_brand', '')
+            inverter_model = data.get('inverter_model', '')
+            if inverter_brand == 'other':
+                inverter_brand = data.get('custom_inverter_brand', '')
+            if inverter_model == 'other':
+                inverter_model = data.get('custom_inverter_model', '')
+
+            # --- Normalize brand/model extraction for battery ---
+            battery_brand = data.get('battery_brand', '')
+            battery_model = data.get('battery_model', '')
+            if battery_brand == 'other':
+                battery_brand = data.get('custom_battery_brand', '')
+            if battery_model == 'other':
+                battery_model = data.get('custom_battery_model', '')
+
+            print(f"PDF: panel_brand={panel_brand}, panel_model={panel_model}, inverter_brand={inverter_brand}, inverter_model={inverter_model}, battery_brand={battery_brand}, battery_model={battery_model}")
+
             # Викликаємо функцію generate з отриманими даними
             pdf_path = generate(
                 O=param_o, K=param_k, E=param_e, R=param_r,
                 O11=int(data.get('O11', 0) or 0), O12=float(data.get('O12', 0) or 0.0),
                 O21=int(data.get('O21', 0) or 0), O22=float(data.get('O22', 0) or 0.0),
                 O31=int(data.get('O31', 0) or 0), O32=float(data.get('O32', 0) or 0.0),
-                K1112= k_values,
+                K1112=k_values,
                 K21=int(data.get('K21', 0) or 0), K22=float(data.get('K22', 0) or 0.0),
                 K31=int(data.get('K31', 0) or 0), K32=float(data.get('K32', 0) or 0.0),
                 K41=int(data.get('K41', 0) or 0), K42=float(data.get('K42', 0) or 0.0),
@@ -1898,7 +2020,8 @@ def send_pdf_telegram(request):
                 K91=int(data.get('K91', 0) or 0), K92=float(data.get('K92', 0) or 0.0),
                 K111=int(data.get('K111', 0) or 0), K121=float(data.get('K121', 0) or 0.0),
                 K112=int(data.get('K112', 0) or 0), K122=float(data.get('K122', 0) or 0.0),
-                K113=int(data.get('K113', 0) or 0), K123=float(data.get('K123', 0) or 0.0),
+                K211=int(data.get('K211', 0) or 0), K221=float(data.get('K221', 0) or 0.0),
+                K212=int(data.get('K212', 0) or 0), K222=float(data.get('K222', 0) or 0.0),
                 K912=int(data.get('K912', 0) or 0), K922=float(data.get('K922', 0) or 0.0),
                 K913=int(data.get('K913', 0) or 0), K923=float(data.get('K923', 0) or 0.0),
                 E11=int(data.get('E11', 0) or 0), E12=float(data.get('E12', 0) or 0.0),
@@ -1911,33 +2034,39 @@ def send_pdf_telegram(request):
                 dynamic_mounting=dynamic_mounting,
                 dynamic_electrical=dynamic_electrical,
                 dynamic_work=dynamic_work,
-                dynamic_other=dynamic_other,  # Додаємо порожній список для dynamic_other
-                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),  # Замінюємо кому на крапку
-                screw_material=data.get('screw_material', 'оцинковані'),  # Додаємо матеріал гвинт-шурупа
-                profile_material=data.get('profile_material', 'алюміній'),  # Додаємо матеріал профілю
-                current_date=datetime.now().strftime('%d.%m.%Y'),  # Додаємо поточну дату
-                show_usd=param_usd,  # Додаємо параметр для відображення суми в доларах
-                panel_model_name=panel_model_name,  # Додаємо назву моделі панелі
-                panel_length=panel_length,  # Додаємо довжину панелі
-                panel_width=panel_width,  # Додаємо ширину панелі
-                panel_height=panel_height,  # Додаємо висоту панелі
-                panel_arrangement=panel_arrangement,  # Додаємо розташування панелі
-                panel_type=panel_type,  # Додаємо тип панелі
-                panel_arrays=panel_arrays,  # Додаємо дані про масиви панелей
-                total_panels=total_panels,  # Додаємо загальну кількість панелей
-                total_rows=total_rows,  # Додаємо загальну кількість рядів
-                avg_panels_per_row=avg_panels_per_row,  # Додаємо середню кількість панелей в ряді
-                panel_schemes=panel_schemes,  # Додаємо список схем для кожного масиву
-                carcase_material=data.get('carcase_material', ''),  # Додаємо матеріал каркасу
-                foundation_type_1=data.get('foundation_type_1', ''),  # Додаємо тип основи
-                carcase_profiles=carcase_profiles,  # Додаємо профілі каркасу
-                include_panel_ds=include_panel_ds,  # Додаємо параметр для включення datasheet панелі
-                include_inverter_ds=include_inverter_ds,  # Додаємо параметр для включення datasheet інвертора
-                include_battery_ds=include_battery_ds,  # Додаємо параметр для включення datasheet батареї
-                panel_model_id=panel_model_id,  # ID моделі панелі для завантаження datasheet
-                inverter_model_id=inverter_model_id,  # ID моделі інвертора для завантаження datasheet
-                battery_model_id=battery_model_id  # ID моделі батареї для завантаження datasheet
+                dynamic_other=dynamic_other,
+                usd_rate=float(data.get('usd_rate', '0').replace(',', '.') or 0.0),
+                total_usd=float(data.get('total_usd', '0').replace(',', '.') or 0.0),
+                screw_material=data.get('screw_material', 'оцинковані'),
+                profile_material=data.get('profile_material', 'алюміній'),
+                current_date=datetime.now().strftime('%d.%m.%Y'),
+                show_usd=param_usd,
+                panel_model_name=panel_model_name,
+                panel_length=panel_length,
+                panel_width=panel_width,
+                panel_height=panel_height,
+                panel_arrangement=panel_arrangement,
+                panel_type=panel_type,
+                panel_arrays=panel_arrays,
+                total_panels=total_panels,
+                total_rows=total_rows,
+                avg_panels_per_row=avg_panels_per_row,
+                panel_schemes=panel_schemes,
+                carcase_material=data.get('carcase_material', ''),
+                foundation_type_1=data.get('foundation_type_1', ''),
+                carcase_profiles=carcase_profiles,
+                include_panel_ds=include_panel_ds,
+                include_inverter_ds=include_inverter_ds,
+                include_battery_ds=include_battery_ds,
+                panel_model_id=panel_model_id,
+                inverter_model_id=inverter_model_id,
+                battery_model_id=battery_model_id,
+                panel_brand=panel_brand,
+                panel_model=panel_model,
+                inverter_brand=inverter_brand,
+                inverter_model=inverter_model,
+                battery_brand=battery_brand,
+                battery_model=battery_model,
             )
 
             # Нормалізуємо шлях до PDF
