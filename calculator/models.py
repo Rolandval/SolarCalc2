@@ -14,8 +14,8 @@ class Users(models.Model):
     
 
 class Panels(models.Model):
-    brand = models.CharField(max_length=20, verbose_name="Бренд")
-    model = models.CharField(max_length=20, verbose_name="Модель")
+    brand = models.CharField(max_length=255, verbose_name="Бренд")
+    model = models.CharField(max_length=255, verbose_name="Модель")
     panel_length = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Довжина")
     panel_width = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Ширина")
     panel_height = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Висота")
@@ -69,8 +69,8 @@ class Panels(models.Model):
 
 
 class Inverters(models.Model):
-    brand = models.CharField(max_length=20, verbose_name="Бренд")
-    model = models.CharField(max_length=20, verbose_name="Модель")
+    brand = models.CharField(max_length=255, verbose_name="Бренд")
+    model = models.CharField(max_length=255, verbose_name="Модель")
     power = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Максимальна потужність")
     phases_count = models.IntegerField(verbose_name="Кількість фаз")
     voltage_type = models.CharField(max_length=20, verbose_name="Тип напруги")
@@ -123,8 +123,8 @@ class Inverters(models.Model):
 
 
 class Batteries(models.Model):
-    brand = models.CharField(max_length=20, verbose_name="Бренд")
-    model = models.CharField(max_length=20, verbose_name="Модель")
+    brand = models.CharField(max_length=255, verbose_name="Бренд")
+    model = models.CharField(max_length=255, verbose_name="Модель")
     capacity = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Ємність")
     is_head = models.BooleanField(default=False, verbose_name="Head")
     is_stand = models.BooleanField(default=False, verbose_name="Стенд")
