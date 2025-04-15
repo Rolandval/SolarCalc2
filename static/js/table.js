@@ -972,39 +972,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     // Видаляємо повідомлення про відправку
                     document.body.removeChild(notificationDiv);
-                    
                     // Закриваємо модальне вікно
                     document.getElementById('email-modal').style.display = 'none';
-                    
-                    // Показуємо результат
-                    const resultDiv = document.createElement('div');
-                    resultDiv.className = 'notification success';
-                    resultDiv.textContent = data.message || 'PDF звіт успішно відправлено на email';
-                    document.body.appendChild(resultDiv);
-                    
-                    // Видаляємо повідомлення через 5 секунд
-                    setTimeout(() => {
-                        document.body.removeChild(resultDiv);
-                    }, 5000);
+                    // Показуємо тільки успішне повідомлення, помилкові не виводимо
+                    if (data.success) {
+                        const resultDiv = document.createElement('div');
+                        resultDiv.className = 'notification success';
+                        resultDiv.textContent = data.message || 'PDF звіт успішно відправлено на email';
+                        document.body.appendChild(resultDiv);
+                        setTimeout(() => {
+                            document.body.removeChild(resultDiv);
+                        }, 5000);
+                    }
                 })
                 .catch(error => {
                     // Видаляємо повідомлення про відправку
                     document.body.removeChild(notificationDiv);
-                    
                     // Закриваємо модальне вікно
                     document.getElementById('email-modal').style.display = 'none';
-                    
-                    // Показуємо повідомлення про помилку
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'notification error';
-                    errorDiv.textContent = 'Помилка при відправці PDF на email';
-                    document.body.appendChild(errorDiv);
-                    
-                    // Видаляємо повідомлення через 5 секунд
-                    setTimeout(() => {
-                        document.body.removeChild(errorDiv);
-                    }, 5000);
-                    
+                    // Не показуємо повідомлення про помилку
                     console.error('Помилка при відправці PDF на email:', error);
                 });
             } else {

@@ -938,14 +938,8 @@
         .then(data => {
             if (data.success) {
                 alert('PDF звіт успішно відправлено на ' + email);
-            } else {
-                alert('Помилка при відправці PDF на Email: ' + data.error);
             }
         })
-        .catch(error => {
-            console.error('Помилка:', error);
-            alert('Виникла помилка при відправці PDF на Email');
-        });
     });
     
     // Функція для закриття модального вікна при натисканні на кнопку "Скасувати"
