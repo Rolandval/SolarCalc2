@@ -1612,6 +1612,7 @@ def create_panel(request):
             panel_length = float(request.POST.get('panel_length'))
             panel_width = float(request.POST.get('panel_width'))
             panel_height = float(request.POST.get('panel_height'))
+            panel_type = request.POST.get('panel_type')
             
             # Перевірка наявності файлу
             if 'datasheet' not in request.FILES:
@@ -1624,7 +1625,8 @@ def create_panel(request):
                 model=model,
                 panel_length=panel_length,
                 panel_width=panel_width,
-                panel_height=panel_height
+                panel_height=panel_height,
+                panel_type=panel_type
             )
             panel.save()
             

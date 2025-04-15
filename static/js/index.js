@@ -39,6 +39,7 @@ function updateModelOptions() {
                 option.dataset.length = model.length;
                 option.dataset.width = model.width;
                 option.dataset.height = model.height;
+                option.dataset.panelType = model.panel_type;
                 modelSelect.appendChild(option);
             });
         }
@@ -256,9 +257,14 @@ function updatePanelDimensions() {
     
     if (selectedOption && selectedOption.value) {
         // Оновлюємо розміри панелі
-        document.getElementById('panel_length').value = selectedOption.dataset.length;
-        document.getElementById('panel_width').value = selectedOption.dataset.width;
-        document.getElementById('panel_height').value = selectedOption.dataset.height;
+        document.getElementById('panel_length').value = selectedOption.dataset.length || '';
+        document.getElementById('panel_width').value = selectedOption.dataset.width || '';
+        document.getElementById('panel_height').value = selectedOption.dataset.height || '';
+        
+        // Оновлюємо тип панелі
+        if (selectedOption.dataset.panelType) {
+            document.getElementById('panel_type').value = selectedOption.dataset.panelType;
+        }
         
         // Активуємо кнопку завантаження datasheet
         datasheetBtn.disabled = false;

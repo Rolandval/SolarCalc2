@@ -19,6 +19,7 @@ class Panels(models.Model):
     panel_length = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Довжина")
     panel_width = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Ширина")
     panel_height = models.DecimalField(max_digits=10, decimal_places=3, verbose_name="Висота")
+    panel_type = models.CharField(max_length=20, verbose_name="Тип", default="Односторонні")
     datasheet_url = models.URLField(verbose_name="URL датащиту", blank=True, null=True)
     datasheet_name = models.CharField(max_length=255, verbose_name="Назва файлу", blank=True, null=True)
     datasheet_last_updated = models.DateTimeField(verbose_name="Останнє оновлення", blank=True, null=True)
