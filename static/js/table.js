@@ -909,20 +909,26 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailBtn = document.getElementById('send-email-btn');
     if (emailBtn) {
         emailBtn.addEventListener('click', function() {
-            // Показуємо модальне вікно для введення email
-            document.getElementById('email-modal').style.display = 'block';
+            // Показуємо модальне вікно для email
+            const modal = document.getElementById('email-modal');
+            if (modal) {
+                modal.style.display = 'block';
+                // Автоматично фокусуємо поле email для зручності
+                setTimeout(() => {
+                    const input = document.getElementById('email-input');
+                    if (input) input.focus();
+                }, 100);
+            }
         });
     }
     
-    // Додаємо обробник для кнопки закриття модального вікна
-    const closeBtn = document.querySelector('.close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', function() {
+    // Додаємо обробник для закриття модального вікна (хрестик і кнопка "Скасувати")
+    const closeEmailModal = document.getElementById('close-email-modal');
+    if (closeEmailModal) {
+        closeEmailModal.addEventListener('click', function() {
             document.getElementById('email-modal').style.display = 'none';
         });
     }
-    
-    // Додаємо обробник для кнопки скасування в модальному вікні
     const cancelEmailBtn = document.getElementById('cancel-email-btn');
     if (cancelEmailBtn) {
         cancelEmailBtn.addEventListener('click', function() {
