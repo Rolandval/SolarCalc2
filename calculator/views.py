@@ -1664,7 +1664,8 @@ def create_inverter(request):
             model = request.POST.get('model')
             power = float(request.POST.get('power'))
             phases_count = int(request.POST.get('phases_count'))
-            voltage_type = request.POST.get('voltage_type', '')
+            voltage_type = request.POST.get('voltage', '')
+            strings_count = request.POST.get('strings_count')
             
             # Створення нового інвертора
             inverter = Inverters(
@@ -1672,7 +1673,8 @@ def create_inverter(request):
                 model=model,
                 power=power,
                 phases_count=phases_count,
-                voltage_type=voltage_type
+                voltage_type=voltage_type,
+                strings_count=strings_count if strings_count else None,
             )
             inverter.save()
             
@@ -1713,7 +1715,7 @@ def create_battery(request):
             capacity = float(request.POST.get('capacity'))
             is_head = 'is_head' in request.POST
             is_stand = False
-            voltage_type = request.POST.get('voltage_type')
+            voltage_type = request.POST.get('voltage')
             
             # Створення нової батареї
             battery = Batteries(

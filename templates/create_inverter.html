@@ -69,10 +69,15 @@
             
             <div class="mb-3">
                 <label for="id_voltage" class="form-label">Тип напруги</label>
-                <select class="form-select" id="id_voltage" name="voltage">
+                <select class="form-select" id="voltage" name="voltage">
                     <option value="high">Висококовольтний</option>
                     <option value="low">Низькоковольтний</option>
                 </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="id_strings_count" class="form-label">Кількість стрінгів <span style="font-weight: normal; color: #888;">(необов'язковий)</span>:</label>
+                <input type="number" id="id_strings_count" name="strings_count" min="0" class="form-control" placeholder="Введіть кількість стрінгів">
             </div>
             
             <div class="mb-3">

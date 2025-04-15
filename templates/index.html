@@ -112,15 +112,17 @@
                                         <input type="checkbox" id="battery_is_head" name="battery_is_head">
                                         <label for="battery_is_head">Голова</label>
                                     </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" id="battery_is_stand_8" name="battery_is_stand_8">
-                                        <label for="battery_is_stand_8">Стійка 8</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" id="battery_is_stand_12" name="battery_is_stand_12">
-                                        <label for="battery_is_stand_12">Стійка 12</label>
-                                    </div>
+            
                                 </div>
+                                <label for="battery_stand_type">Тип стійки</label>
+                                <select class="form-control" id="battery_stand_type" name="battery_stand_type" onchange="updateBatteryStandFields()">
+                                    <option value="none" selected>Без стійки</option>
+                                    <option value="battery_is_stand_8">Стійка 8 акум.</option>
+                                    <option value="battery_is_stand_12">Стійка 12 акум.</option>
+                                </select>
+                                <input type="hidden" id="battery_is_stand" name="battery_is_stand">
+                                <input type="hidden" id="battery_is_stand_8" name="battery_is_stand_8">
+                                <input type="hidden" id="battery_is_stand_12" name="battery_is_stand_12">
                             </div>
                             <div class="form-col">
                                 <label for="battery_voltage">Тип напруги</label>
@@ -342,6 +344,16 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        function updateBatteryStandFields() {
+            const standType = document.getElementById('battery_stand_type').value;
+            document.getElementById('battery_is_stand').value = (standType !== 'none') ? 'on' : '';
+            document.getElementById('battery_is_stand_8').value = (standType === 'battery_is_stand_8') ? 'on' : '';
+            document.getElementById('battery_is_stand_12').value = (standType === 'battery_is_stand_12') ? 'on' : '';
+        }
+        document.addEventListener('DOMContentLoaded', updateBatteryStandFields);
     </script>
 
     <script src="/static/js/index.js"></script>

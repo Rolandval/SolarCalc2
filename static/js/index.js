@@ -76,6 +76,8 @@ function updateInverterOptions() {
         document.getElementById('inverter_power').value = '';
         document.getElementById('inverter_power').readOnly = false;
         document.getElementById('inverter_phases').value = '1';
+        document.getElementById('strings_count').value = '';
+        document.getElementById('strings_count').removeAttribute('max');
     } else {
         customInverterContainer.style.display = 'none';
         modelSelect.disabled = false; // Активуємо стандартний select
@@ -91,6 +93,7 @@ function updateInverterOptions() {
                 option.dataset.power = model.power;
                 option.dataset.phases_count = model.phases_count;
                 option.dataset.voltage_type = model.voltage_type;
+                option.dataset.strings_count = model.strings_count;
                 modelSelect.appendChild(option);
             });
         }
@@ -103,6 +106,7 @@ function updateInverterDetails() {
     const selectedOption = modelSelect.options[modelSelect.selectedIndex];
     const datasheetBtn = document.getElementById('inverter-datasheet-btn');
     const voltageSelect = document.getElementById('inverter_voltage');
+    const stringsCountInput = document.getElementById('strings_count');
     
     if (selectedOption && selectedOption.value) {
         // Оновлюємо деталі інвертора
@@ -118,6 +122,15 @@ function updateInverterDetails() {
             voltageSelect.disabled = false;
         }
         
+        // Оновлюємо кількість стрінгів
+        if (selectedOption.dataset.strings_count && selectedOption.dataset.strings_count !== "null") {
+            stringsCountInput.value = selectedOption.dataset.strings_count;
+            stringsCountInput.max = selectedOption.dataset.strings_count;
+        } else {
+            stringsCountInput.value = '';
+            stringsCountInput.removeAttribute('max');
+        }
+        
         // Активуємо кнопку завантаження datasheet
         datasheetBtn.disabled = false;
         
@@ -128,6 +141,8 @@ function updateInverterDetails() {
         datasheetBtn.disabled = true;
         document.getElementById('inverter_power').readOnly = false;
         voltageSelect.disabled = false;
+        stringsCountInput.value = '';
+        stringsCountInput.removeAttribute('max');
     }
 }
 
