@@ -451,7 +451,12 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
                 )
         
         # Додаємо заголовок схеми з назвою масиву та орієнтацією
-        title = f"{array_name} ({rows}x{panels_per_row}, {orientation} орієнтація)"
+        if array.get('name') and array['name'].strip():
+            # Використовуємо назву масиву, яку задав користувач
+            title = f"{array['name']} ({rows}x{panels_per_row}, {orientation} орієнтація)"
+        else:
+            # Використовуємо стандартну назву, якщо користувач не задав свою
+            title = f"Масив {i+1} ({rows}x{panels_per_row}, {orientation} орієнтація)"
         
         if title_font:
             title_width = draw.textlength(title, font=title_font)
