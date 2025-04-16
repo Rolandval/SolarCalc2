@@ -566,10 +566,8 @@ function toggleTableSection(sectionId) {
     const section = document.getElementById(sectionId + '-section');
     const checkbox = document.getElementById('show-' + sectionId);
     
-    if (checkbox.checked) {
-        section.style.display = 'block';
-    } else {
-        section.style.display = 'none';
+    if (section && checkbox) {
+        section.style.display = checkbox.checked ? 'block' : 'none';
     }
 }
 
@@ -672,8 +670,8 @@ function copyTableToClipboard() {
         }
     }
     // Перевіряємо, чи відображається секція електрики
-    if (document.getElementById('electrical-section').style.display !== 'none') {
-        let electricalRows = document.querySelectorAll('#electrical-table tbody tr');
+    if (document.getElementById('electricity-section').style.display !== 'none') {
+        let electricalRows = document.querySelectorAll('#electricity-table tbody tr');
         let electricalRowsText = '';
         let nonZeroRows = 0;
         electricalRows.forEach(row => {
@@ -711,7 +709,7 @@ function copyTableToClipboard() {
             textContent += '**Електрика**\n';
             textContent += '-Назва-Кількість-Ціна-Сума\n';
             textContent += electricalRowsText;
-            const electricalSum = parseFloat(document.getElementById('electrical-sum').textContent);
+            const electricalSum = parseFloat(document.getElementById('electricity-sum').textContent);
             textContent += `Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
             totalSum += electricalSum;
         }
@@ -811,9 +809,22 @@ function clearTableParameters() {
     alert('Параметри таблиці очищено');
 }
 
+// Функція для ініціалізації видимості секцій при завантаженні сторінки
+function initializeTableSections() {
+    // Перевіряємо стан чекбоксів і приховуємо відповідні секції
+    const sections = ['equipment', 'mounting', 'electricity', 'work'];
+    
+    sections.forEach(section => {
+        toggleTableSection(section);
+    });
+}
+
 // Додаємо обробники подій для всіх інпутів
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM завантажено в table.js');
+    
+    // Ініціалізуємо видимість секцій при завантаженні сторінки
+    initializeTableSections();
     
     // Додаємо обробники для всіх інпутів типу number
     document.querySelectorAll('input[type="number"]').forEach(input => {
