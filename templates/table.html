@@ -1016,22 +1016,24 @@
                             }
                             if (name && parseFloat(quantity) > 0) {
                                 if (link) {
-                                    equipmentRowsText += `▪️${name} (${link}) ${quantity}шт х ${price} = ${sum}\n`;
+                                    equipmentRowsText += `▪️[${name}](${link}) ${quantity}шт х ${price}грн = ${sum}грн\n`;
                                 } else {
-                                    equipmentRowsText += `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
+                                    equipmentRowsText += `▪️${name} ${quantity}шт х ${price}грн = ${sum}грн\n`;
                                 }
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
-                            textContent += '🔧 Обладнання\n';
+                            textContent += '🔧 **ОБЛАДНАННЯ**\n\n';
                             textContent += equipmentRowsText;
                             const equipmentSumElement = document.getElementById('equipment-sum');
                             let equipmentSum = 0;
                             if (equipmentSumElement) {
                                 equipmentSum = parseFloat(equipmentSumElement.textContent) || 0;
                             }
-                            textContent += `🔹Сума обладнання: ${equipmentSum.toFixed(2)} грн\n\n`;
+                            // Видаляємо .00 з суми, якщо сума ціла
+                            const formattedSum = equipmentSum % 1 === 0 ? equipmentSum.toFixed(0) : equipmentSum.toFixed(2);
+                            textContent += `\n🔹**Сума обладнання: ${formattedSum} грн**\n\n`;
                             totalSum += equipmentSum;
                         }
                     }
@@ -1067,28 +1069,30 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                mountingRowsText += `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
+                                mountingRowsText += `▪️${name} ${quantity}шт х ${price}грн = ${sum}грн\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
-                            textContent += '⚙️ Кріплення\n';
+                            textContent += '⚙️ **КРІПЛЕННЯ**\n\n';
                             textContent += mountingRowsText;
                             const mountingSumElement = document.getElementById('mounting-sum');
                             let mountingSum = 0;
                             if (mountingSumElement) {
                                 mountingSum = parseFloat(mountingSumElement.textContent) || 0;
                             }
-                            textContent += `🔹Сума кріплення: ${mountingSum.toFixed(2)} грн\n\n`;
+                            // Видаляємо .00 з суми, якщо сума ціла
+                            const formattedSum = mountingSum % 1 === 0 ? mountingSum.toFixed(0) : mountingSum.toFixed(2);
+                            textContent += `\n🔹**Сума кріплення: ${formattedSum} грн**\n\n`;
                             totalSum += mountingSum;
                         }
                     }
                     // Електрика
                     if (paramE) {
-                        let electricalRows = document.querySelectorAll('#electrical-table tbody tr');
-                        let electricalRowsText = '';
+                        let electricityRows = document.querySelectorAll('#electricity-table tbody tr');
+                        let electricityRowsText = '';
                         let nonZeroRows = 0;
-                        electricalRows.forEach(row => {
+                        electricityRows.forEach(row => {
                             const cells = row.querySelectorAll('td');
                             let name = '';
                             let quantity = '';
@@ -1115,20 +1119,22 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                electricalRowsText += `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
+                                electricityRowsText += `▪️${name} ${quantity}шт х ${price}грн = ${sum}грн\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
-                            textContent += '⚡️ Електрика\n';
-                            textContent += electricalRowsText;
-                            const electricalSumElement = document.getElementById('electrical-sum');
-                            let electricalSum = 0;
-                            if (electricalSumElement) {
-                                electricalSum = parseFloat(electricalSumElement.textContent) || 0;
+                            textContent += '⚡️ **ЕЛЕКТРИКА**\n\n';  
+                            textContent += electricityRowsText;
+                            const electricitySumElement = document.getElementById('electricity-sum');
+                            let electricitySum = 0;
+                            if (electricitySumElement) {
+                                electricitySum = parseFloat(electricitySumElement.textContent) || 0;
                             }
-                            textContent += `🔹Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
-                            totalSum += electricalSum;
+                            // Видаляємо .00 з суми, якщо сума ціла
+                            const formattedSum = electricitySum % 1 === 0 ? electricitySum.toFixed(0) : electricitySum.toFixed(2);
+                            textContent += `\n🔹**Сума електрики: ${formattedSum} грн**\n\n`;
+                            totalSum += electricitySum;
                         }
                     }
                     // Робота
@@ -1163,58 +1169,96 @@
                                 sum = cells[5].textContent.trim();
                             }
                             if (name && parseFloat(quantity) > 0) {
-                                workRowsText +=  `▪️${name} ${quantity}шт х ${price} = ${sum}\n`;
+                                workRowsText +=  `▪️${name} ${quantity}шт х ${price}грн = ${sum}грн\n`;
                                 nonZeroRows++;
                             }
                         });
                         if (nonZeroRows > 0) {
-                            textContent += '🛠 Робота\n';
+                            textContent += '🛠 **РОБОТА**\n\n'; 
                             textContent += workRowsText;
                             const workSumElement = document.getElementById('work-sum');
                             let workSum = 0;
                             if (workSumElement) {
                                 workSum = parseFloat(workSumElement.textContent) || 0;
                             }
-                            textContent += `🔹Сума роботи: ${workSum.toFixed(2)} грн\n\n`;
+                            // Видаляємо .00 з суми, якщо сума ціла
+                            const formattedSum = workSum % 1 === 0 ? workSum.toFixed(0) : workSum.toFixed(2);
+                            textContent += `\n🔹**Сума роботи: ${formattedSum} грн**\n\n`;
                             totalSum += workSum;
                         }
                     }
                     // Додаємо загальну суму
-                    textContent += `💰 Загальна сума: ${totalSum.toFixed(2)} грн`;
+                    // Видаляємо .00 з суми, якщо сума ціла
+                    const formattedTotalSum = totalSum % 1 === 0 ? totalSum.toFixed(0) : totalSum.toFixed(2);
+                    textContent += `\n💰 **ЗАГАЛЬНА СУМА: ${formattedTotalSum} грн**`;  
                     
                     console.log('Текст для копіювання:', textContent);
                     
-                    // Копіюємо текст у буфер обміну
-                    navigator.clipboard.writeText(textContent)
-                        .then(() => {
-                            // Показуємо повідомлення про успішне копіювання
-                            const copyBtn = document.getElementById('copy-table-btn');
-                            const originalText = copyBtn.innerHTML;
-                            copyBtn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
-                            
-                            // Повертаємо оригінальний текст через 2 секунди
-                            setTimeout(() => {
-                                copyBtn.innerHTML = originalText;
-                            }, 2000);
-                            
-                            console.log('Таблицю скопійовано у буфер обміну');
-                        })
-                        .catch(err => {
-                            console.error('Помилка при копіюванні таблиці: ', err);
-                            alert('Помилка при копіюванні таблиці. Спробуйте ще раз.');
-                        });
+                    return textContent;
                 }
                 
-                // Викликаємо функцію копіювання
-                copyTableToClipboard();
+                // Викликаємо функцію копіювання і отримуємо текст
+                const textToCopy = copyTableToClipboard();
+                
+                // Копіюємо текст у буфер обміну
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        // Показуємо повідомлення про успішне копіювання
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
+                        
+                        // Повертаємо оригінальний текст через 2 секунди
+                        setTimeout(function() {
+                            copyBtn.innerHTML = originalText;
+                        }, 2000);
+                        
+                        console.log('Таблицю скопійовано у буфер обміну');
+                    })
+                    .catch(err => {
+                        console.error('Помилка при копіюванні таблиці: ', err);
+                        alert('Помилка при копіюванні таблиці. Спробуйте ще раз.');
+                    });
             });
         }
     });
-</script>
-<script>
-document.getElementById('subscribe-telegram-btn').onclick = function() {
-    window.open('https://t.me/SolarCalculyator_Bot', '_blank');
-};
+
+    // Функція для отримання URL даташиту за типом і ID
+    function getDatasheetUrl(type, id) {
+        if (!type || !id) return null;
+        
+        let url = '';
+        if (type === 'panel') {
+            url = `/calculator/download_datasheet/${id}/`;
+        } else if (type === 'inverter') {
+            url = `/calculator/download_inverter_datasheet/${id}/`;
+        } else if (type === 'battery') {
+            url = `/calculator/download_battery_datasheet/${id}/`;
+        }
+        return url;
+    }
+    
+    // Функція для отримання даних моделі за типом, брендом і моделлю
+    function getModelData(type, brand, model) {
+        // Отримуємо дані з прихованих полів або з іншого джерела
+        if (!type || !brand || !model) return null;
+        
+        // Шукаємо відповідні дані в DOM
+        const elements = document.querySelectorAll(`[data-type="${type}"][data-brand="${brand}"][data-model="${model}"]`);
+        if (elements.length > 0) {
+            const element = elements[0];
+            return {
+                id: element.getAttribute('data-id'),
+                brand: brand,
+                model: model
+            };
+        }
+        
+        return null;
+    }
+
+    document.getElementById('subscribe-telegram-btn').onclick = function() {
+        window.open('https://t.me/SolarCalculyator_Bot', '_blank');
+    };
 </script>
 </body>
 </html>

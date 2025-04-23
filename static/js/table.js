@@ -571,241 +571,20 @@ function toggleTableSection(sectionId) {
     }
 }
 
-// Функція для копіювання таблиці у буфер обміну в текстовому форматі
-function copyTableToClipboard() {
-    console.log('Функція copyTableToClipboard викликана');
-    
-    // Створюємо текстовий вміст для копіювання
-    let textContent = '';
-    let totalSum = 0;
-    
-    // Перевіряємо, чи відображається секція обладнання
-    if (document.getElementById('equipment-section').style.display !== 'none') {
-        let equipmentRows = document.querySelectorAll('#equipment-table tbody tr');
-        let equipmentRowsText = '';
-        let nonZeroRows = 0;
-        equipmentRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            let name = '';
-            let quantity = '';
-            let price = '';
-            let sum = '';
-            if (cells[0].querySelector('input[type="text"]')) {
-                name = cells[0].querySelector('input[type="text"]').value;
-            } else {
-                name = cells[0].textContent.trim();
-            }
-            if (cells[1].querySelector('input[type="number"]')) {
-                quantity = cells[1].querySelector('input[type="number"]').value;
-            } else {
-                quantity = cells[1].textContent.trim();
-            }
-            if (cells[4].querySelector('input[type="number"]')) {
-                price = cells[4].querySelector('input[type="number"]').value;
-            } else {
-                price = cells[4].textContent.trim();
-            }
-            if (cells[5].querySelector('input[type="number"]')) {
-                sum = cells[5].querySelector('input[type="number"]').value;
-            } else {
-                sum = cells[5].textContent.trim();
-            }
-            if (name && parseFloat(quantity) > 0) {
-                equipmentRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
-                nonZeroRows++;
-            }
-        });
-        if (nonZeroRows > 0) {
-            textContent += '**Обладнання**\n';
-            textContent += '-Назва-Кількість-Ціна-Сума\n';
-            textContent += equipmentRowsText;
-            const equipmentSum = parseFloat(document.getElementById('equipment-sum').textContent);
-            textContent += `Сума обладнання: ${equipmentSum.toFixed(2)} грн\n\n`;
-            totalSum += equipmentSum;
-        }
-    }
-    // Перевіряємо, чи відображається секція кріплення
-    if (document.getElementById('mounting-section').style.display !== 'none') {
-        let mountingRows = document.querySelectorAll('#mounting-table tbody tr');
-        let mountingRowsText = '';
-        let nonZeroRows = 0;
-        mountingRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            let name = '';
-            let quantity = '';
-            let price = '';
-            let sum = '';
-            if (cells[0].querySelector('input[type="text"]')) {
-                name = cells[0].querySelector('input[type="text"]').value;
-            } else {
-                name = cells[0].textContent.trim();
-            }
-            if (cells[1].querySelector('input[type="number"]')) {
-                quantity = cells[1].querySelector('input[type="number"]').value;
-            } else {
-                quantity = cells[1].textContent.trim();
-            }
-            if (cells[4].querySelector('input[type="number"]')) {
-                price = cells[4].querySelector('input[type="number"]').value;
-            } else {
-                price = cells[4].textContent.trim();
-            }
-            if (cells[5].querySelector('input[type="number"]')) {
-                sum = cells[5].querySelector('input[type="number"]').value;
-            } else {
-                sum = cells[5].textContent.trim();
-            }
-            if (name && parseFloat(quantity) > 0) {
-                mountingRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
-                nonZeroRows++;
-            }
-        });
-        if (nonZeroRows > 0) {
-            textContent += '**Кріплення**\n';
-            textContent += '-Назва-Кількість-Ціна-Сума\n';
-            textContent += mountingRowsText;
-            const mountingSum = parseFloat(document.getElementById('mounting-sum').textContent);
-            textContent += `Сума кріплення: ${mountingSum.toFixed(2)} грн\n\n`;
-            totalSum += mountingSum;
-        }
-    }
-    // Перевіряємо, чи відображається секція електрики
-    if (document.getElementById('electricity-section').style.display !== 'none') {
-        let electricalRows = document.querySelectorAll('#electricity-table tbody tr');
-        let electricalRowsText = '';
-        let nonZeroRows = 0;
-        electricalRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            let name = '';
-            let quantity = '';
-            let price = '';
-            let sum = '';
-            if (cells[0].querySelector('input[type="text"]')) {
-                name = cells[0].querySelector('input[type="text"]').value;
-            } else {
-                name = cells[0].textContent.trim();
-            }
-            if (cells[1].querySelector('input[type="number"]')) {
-                quantity = cells[1].querySelector('input[type="number"]').value;
-            } else {
-                quantity = cells[1].textContent.trim();
-            }
-            if (cells[4].querySelector('input[type="number"]')) {
-                price = cells[4].querySelector('input[type="number"]').value;
-            } else {
-                price = cells[4].textContent.trim();
-            }
-            if (cells[5].querySelector('input[type="number"]')) {
-                sum = cells[5].querySelector('input[type="number"]').value;
-            } else {
-                sum = cells[5].textContent.trim();
-            }
-            if (name && parseFloat(quantity) > 0) {
-                electricalRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
-                nonZeroRows++;
-            }
-        });
-        if (nonZeroRows > 0) {
-            textContent += '**Електрика**\n';
-            textContent += '-Назва-Кількість-Ціна-Сума\n';
-            textContent += electricalRowsText;
-            const electricalSum = parseFloat(document.getElementById('electricity-sum').textContent);
-            textContent += `Сума електрики: ${electricalSum.toFixed(2)} грн\n\n`;
-            totalSum += electricalSum;
-        }
-    }
-    // Перевіряємо, чи відображається секція роботи
-    if (document.getElementById('work-section').style.display !== 'none') {
-        let workRows = document.querySelectorAll('#work-table tbody tr');
-        let workRowsText = '';
-        let nonZeroRows = 0;
-        workRows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            let name = '';
-            let quantity = '';
-            let price = '';
-            let sum = '';
-            if (cells[0].querySelector('input[type="text"]')) {
-                name = cells[0].querySelector('input[type="text"]').value;
-            } else {
-                name = cells[0].textContent.trim();
-            }
-            if (cells[1].querySelector('input[type="number"]')) {
-                quantity = cells[1].querySelector('input[type="number"]').value;
-            } else {
-                quantity = cells[1].textContent.trim();
-            }
-            if (cells[4].querySelector('input[type="number"]')) {
-                price = cells[4].querySelector('input[type="number"]').value;
-            } else {
-                price = cells[4].textContent.trim();
-            }
-            if (cells[5].querySelector('input[type="number"]')) {
-                sum = cells[5].querySelector('input[type="number"]').value;
-            } else {
-                sum = cells[5].textContent.trim();
-            }
-            if (name && parseFloat(quantity) > 0) {
-                workRowsText += `-${name}-${quantity}-${price}-${sum}\n`;
-                nonZeroRows++;
-            }
-        });
-        if (nonZeroRows > 0) {
-            textContent += '**Робота**\n';
-            textContent += '-Назва-Кількість-Ціна-Сума\n';
-            textContent += workRowsText;
-            const workSum = parseFloat(document.getElementById('work-sum').textContent);
-            textContent += `Сума роботи: ${workSum.toFixed(2)} грн\n\n`;
-            totalSum += workSum;
-        }
-    }
-    // Додаємо загальну суму
-    textContent += `**Загальна сума: ${totalSum.toFixed(2)} грн**`;
-    
-    // Копіюємо текст у буфер обміну
-    navigator.clipboard.writeText(textContent)
-        .then(() => {
-            // Показуємо повідомлення про успішне копіювання
-            const copyBtn = document.getElementById('copy-table-btn');
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
-            
-            // Повертаємо оригінальний текст через 2 секунди
-            setTimeout(() => {
-                copyBtn.innerHTML = originalText;
-            }, 2000);
-            
-            console.log('Таблицю скопійовано у буфер обміну');
-        })
-        .catch(err => {
-            console.error('Помилка при копіюванні таблиці: ', err);
-            alert('Помилка при копіюванні таблиці. Спробуйте ще раз.');
-        });
-}
-
 // Функція для очищення параметрів таблиці
 function clearTableParameters() {
-    console.log('Функція clearTableParameters викликана');
-    
-    // Отримуємо всі числові інпути в таблицях
-    const numberInputs = document.querySelectorAll('table input[type="number"]');
-    
-    // Проходимо по всіх інпутах і встановлюємо значення 0 для всіх, крім кількості панелей
-    numberInputs.forEach(input => {
-        // Перевіряємо, чи це не інпут для кількості сонячних панелей
-        if (input.name === 'O31') {
-            // Залишаємо значення для кількості сонячних панелей незмінним
-            return;
+    // Очищаємо всі інпути типу number, крім кількості
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        const name = input.name;
+        // Не очищаємо інпути для кількості (3-й символ == 1)
+        if (!(name.length >= 3 && name.charAt(2) === '1')) {
+            input.value = 0;
         }
-        
-        // Для всіх інших інпутів встановлюємо значення 0
-        input.value = '0';
     });
     
     // Перераховуємо загальну суму
     calculateTotal();
     
-    // Показуємо повідомлення про успішне очищення
     alert('Параметри таблиці очищено');
 }
 
@@ -831,12 +610,12 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('input', calculateTotal);
     });
     
-    // Додаємо обробники для кнопок додавання рядків
+    // Додаємо обробники подій для кнопок додавання рядків
     document.querySelectorAll('.add-row-btn').forEach(button => {
         button.addEventListener('click', function() {
             const tableId = this.getAttribute('data-table');
             const prefix = this.getAttribute('data-prefix');
-            const zStart = parseInt(this.getAttribute('data-z-start'));
+            const zStart = parseInt(this.getAttribute('data-z-start')) || 0;
             addNewRow(tableId, prefix, zStart);
         });
     });
@@ -849,65 +628,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Додаємо обробник для кнопки відправки на Telegram
     const telegramBtn = document.getElementById('send-telegram-btn');
-    if (telegramBtn) {
-        telegramBtn.addEventListener('click', function() {
-            // Отримуємо форму
-            const form = document.getElementById('pdf-form');
-            
-            // Створюємо об'єкт FormData з форми
-            const formData = new FormData(form);
-            
-            // Показуємо повідомлення про відправку
-            const notificationDiv = document.createElement('div');
-            notificationDiv.className = 'notification';
-            document.body.appendChild(notificationDiv);
-            
-            // Відправляємо AJAX запит
-            fetch('/calculator/send_pdf_to_telegram/', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Видаляємо повідомлення про відправку
-                document.body.removeChild(notificationDiv);
-                
-                // Створюємо повідомлення про результат
-                const resultDiv = document.createElement('div');
-                resultDiv.className = 'notification ' + (data.success ? 'success' : 'error');
-                
-                // Додаємо повідомлення на сторінку
-                document.body.appendChild(resultDiv);
-                
-                // Видаляємо повідомлення через 5 секунд
-                setTimeout(() => {
-                    document.body.removeChild(resultDiv);
-                }, 5000);
-            })
-            .catch(error => {
-                // Видаляємо повідомлення про відправку
-                document.body.removeChild(notificationDiv);
-                
-                // Створюємо повідомлення про помилку
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'notification error';
-                errorDiv.innerHTML = '<p><i class="fas fa-exclamation-circle"></i> Помилка при відправці PDF через Telegram</p>';
-                
-                // Додаємо повідомлення на сторінку
-                document.body.appendChild(errorDiv);
-                
-                // Видаляємо повідомлення через 5 секунд
-                setTimeout(() => {
-                    document.body.removeChild(errorDiv);
-                }, 5000);
-                
-                console.error('Помилка при відправці PDF через Telegram:', error);
-            });
-        });
-    }
     
     // Додаємо обробник для кнопки відправки на Email
     const emailBtn = document.getElementById('send-email-btn');
@@ -944,74 +664,51 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmEmailBtn = document.getElementById('confirm-email-btn');
     if (confirmEmailBtn) {
         confirmEmailBtn.addEventListener('click', function() {
-            // Отримуємо введений email
-            const email = document.getElementById('email-input').value;
+            // Отримуємо форму
+            const form = document.getElementById('pdf-form');
             
-            // Перевіряємо, чи введено email
-            if (email) {
-                // Отримуємо форму
-                const form = document.getElementById('pdf-form');
-                
-                // Створюємо об'єкт FormData з форми
-                const formData = new FormData(form);
-                
-                // Додаємо email до formData
-                formData.append('email', email);
-                
-                // Показуємо повідомлення про відправку
-                const notificationDiv = document.createElement('div');
-                notificationDiv.className = 'notification';
-                notificationDiv.textContent = 'Відправка звіту на email...';
-                document.body.appendChild(notificationDiv);
-                
-                // Відправляємо AJAX-запит замість традиційної відправки форми
-                fetch('/calculator/send_pdf_email/', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Видаляємо повідомлення про відправку
-                    document.body.removeChild(notificationDiv);
-                    // Закриваємо модальне вікно
-                    document.getElementById('email-modal').style.display = 'none';
-                    // Показуємо тільки успішне повідомлення, помилкові не виводимо
-                    if (data.success) {
-                        const resultDiv = document.createElement('div');
-                        resultDiv.className = 'notification success';
-                        resultDiv.textContent = data.message || 'PDF звіт успішно відправлено на email';
-                        document.body.appendChild(resultDiv);
-                        setTimeout(() => {
-                            document.body.removeChild(resultDiv);
-                        }, 5000);
-                    }
-                })
-                .catch(error => {
-                    // Видаляємо повідомлення про відправку
-                    document.body.removeChild(notificationDiv);
-                    // Закриваємо модальне вікно
-                    document.getElementById('email-modal').style.display = 'none';
-                    // Не показуємо повідомлення про помилку
-                    console.error('Помилка при відправці PDF на email:', error);
-                });
-            } else {
-                alert('Будь ласка, введіть email-адресу');
-            }
-        });
-    }
-    
-    // Додаємо обробник події для кнопки копіювання таблиці
-    const copyBtn = document.getElementById('copy-table-btn');
-    console.log('Кнопка копіювання в table.js:', copyBtn);
-    
-    if (copyBtn) {
-        console.log('Додаємо обробник для кнопки копіювання в table.js');
-        copyBtn.addEventListener('click', function() {
-            console.log('Кнопка копіювання натиснута в table.js');
-            copyTableToClipboard();
+            // Створюємо об'єкт FormData з форми
+            const formData = new FormData(form);
+            
+            // Показуємо повідомлення про відправку
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            notificationDiv.textContent = 'Відправка звіту на email...';
+            document.body.appendChild(notificationDiv);
+            
+            // Відправляємо AJAX-запит замість традиційної відправки форми
+            fetch('/calculator/send_pdf_email/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Видаляємо повідомлення про відправку
+                document.body.removeChild(notificationDiv);
+                // Закриваємо модальне вікно
+                document.getElementById('email-modal').style.display = 'none';
+                // Показуємо тільки успішне повідомлення, помилкові не виводимо
+                if (data.success) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'notification success';
+                    resultDiv.textContent = data.message || 'PDF звіт успішно відправлено на email';
+                    document.body.appendChild(resultDiv);
+                    setTimeout(() => {
+                        document.body.removeChild(resultDiv);
+                    }, 5000);
+                }
+            })
+            .catch(error => {
+                // Видаляємо повідомлення про відправку
+                document.body.removeChild(notificationDiv);
+                // Закриваємо модальне вікно
+                document.getElementById('email-modal').style.display = 'none';
+                // Не показуємо повідомлення про помилку
+                console.error('Помилка при відправці PDF на email:', error);
+            });
         });
     }
     
