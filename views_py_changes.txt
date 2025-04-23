@@ -1,0 +1,50 @@
+Зміни для файлу calculator/views.py:
+
+1. Видалити перевірку глобального параметра panel_arrangement (приблизно рядки 238-242):
+
+```python
+# Видалити ці рядки
+panel_arrangement = data.get('panel_arrangement', '')
+if panel_arrangement == '':
+    return JsonResponse({'success': False, 'error': 'Необхідно вибрати розташування профілів'})
+```
+
+2. Додати перевірку наявності орієнтації для кожного масиву (після перевірки загальної кількості панелей):
+
+```python
+# Перевіряємо, чи задана орієнтація для кожного масиву
+for array in panel_arrays:
+    if 'orientation' not in array or not array['orientation']:
+        return JsonResponse({'success': False, 'error': f'Необхідно вибрати орієнтацію панелей для масиву {array["id"]}'})
+```
+
+3. Змінити виклики функцій generate_panel_scheme та generate_panel_schemes (приблизно рядки 359-369):
+
+```python
+# Генеруємо схему
+scheme_image = generate_panel_scheme(
+    panel_length, panel_width, panel_height,
+    panel_arrays,
+    None, available_lengths  # Замінити panel_arrangement на None
+)
+
+# Генеруємо окремі схеми для кожного масиву
+panel_schemes = generate_panel_schemes(
+    panel_length, panel_width, panel_height,
+    panel_arrays,
+    None, available_lengths  # Замінити panel_arrangement на None
+)
+```
+
+4. Видалити глобальний параметр panel_arrangement з даних, які передаються в шаблон (приблизно рядки 400-450, знайти де формується context):
+
+```python
+# Знайти у контексті ключ 'panel_arrangement' і видалити його або замінити на None
+context = {
+    ...
+    # 'panel_arrangement': panel_arrangement,  # Видалити цей рядок
+    ...
+}
+```
+
+Також потрібно перевірити, чи є інші місця, де використовується змінна panel_arrangement, і замінити її на використання array['orientation'].

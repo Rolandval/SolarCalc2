@@ -141,7 +141,7 @@ def draw_profile_connection(draw, x, y, color=(150, 150, 150), size=8):
         width=1
     )
 
-def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays, orientation, available_profiles=None):
+def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays, orientation=None, available_profiles=None):
     """
     Генерує схеми розміщення панелей для кожного масиву.
     
@@ -149,8 +149,8 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
         panel_length (float): Довжина панелі в метрах
         panel_width (float): Ширина панелі в метрах
         panel_height (float): Висота профілю панелі в міліметрах (не використовується в новій версії)
-        panel_arrays (list): Список масивів панелей (кожен масив - словник з rows, panels_per_row, name)
-        orientation (str): Орієнтація панелей ('альбомна' або 'книжкова')
+        panel_arrays (list): Список масивів панелей (кожен масив - словник з rows, panels_per_row, name, orientation)
+        orientation (str): Орієнтація панелей ('альбомна' або 'портретна') - використовується як запасний варіант
         available_profiles (list): Доступні довжини профілів у метрах (не використовується в новій версії)
     
     Returns:
@@ -179,21 +179,23 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
     # Відступ між панелями в пікселях (2 см = 2 пікселі при масштабі 100)
     panel_gap = 2
     
-    # Визначаємо розміри панелі в залежності від орієнтації
-    if orientation == 'альбомна':
-        # Альбомна орієнтація - панель розташована горизонтально
-        panel_w = panel_length
-        panel_h = panel_width
-    else:
-        # Книжкова орієнтація - панель розташована вертикально
-        panel_w = panel_width
-        panel_h = panel_length
-    
     # Обробляємо кожен масив
     for i, array in enumerate(panel_arrays):
         rows = array['rows']
         panels_per_row = array['panels_per_row']
         array_name = array.get('name', f'Масив #{i+1}')
+        # Використовуємо орієнтацію масиву, якщо вона є, інакше використовуємо загальну орієнтацію
+        array_orientation = array.get('orientation', orientation or 'альбомна')
+        
+        # Визначаємо розміри панелі в залежності від орієнтації
+        if array_orientation == 'альбомна':
+            # Альбомна орієнтація - панель розташована горизонтально
+            panel_w = panel_length
+            panel_h = panel_width
+        else:
+            # Книжкова орієнтація - панель розташована вертикально
+            panel_w = panel_width
+            panel_h = panel_length
         
         # Розраховуємо ширину ряду та висоту масиву в метрах
         row_width_m = panel_w * panels_per_row + (panel_gap / scale) * (panels_per_row - 1)
@@ -453,10 +455,10 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
         # Додаємо заголовок схеми з назвою масиву та орієнтацією
         if array.get('name') and array['name'].strip():
             # Використовуємо назву масиву, яку задав користувач
-            title = f"{array['name']} ({rows}x{panels_per_row}, {orientation} орієнтація)"
+            title = f"{array['name']} ({rows}x{panels_per_row}, {array_orientation} орієнтація)"
         else:
             # Використовуємо стандартну назву, якщо користувач не задав свою
-            title = f"Масив {i+1} ({rows}x{panels_per_row}, {orientation} орієнтація)"
+            title = f"Масив {i+1} ({rows}x{panels_per_row}, {array_orientation} орієнтація)"
         
         if title_font:
             title_width = draw.textlength(title, font=title_font)
@@ -489,7 +491,7 @@ def generate_panel_schemes(panel_length, panel_width, panel_height, panel_arrays
             'rows': rows,
             'panels_per_row': panels_per_row,
             'total_panels': rows * panels_per_row,
-            'orientation': orientation,
+            'orientation': array_orientation,
             'image_base64': img_str
         })
     

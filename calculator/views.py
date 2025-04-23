@@ -215,6 +215,7 @@ def calculate(request):
                 rows = int(data.get(f'rows_{array_index}', 0))
                 panels_per_row = int(data.get(f'panels_per_row_{array_index}', 0))
                 array_name = data.get(f'array_name_{array_index}', f'Масив #{array_index}')
+                array_orientation = data.get(f'array_orientation_{array_index}', 'альбомна')
                 
                 if rows > 0 and panels_per_row > 0:
                     panel_arrays.append({
@@ -222,7 +223,8 @@ def calculate(request):
                         'rows': rows,
                         'panels_per_row': panels_per_row,
                         'total': rows * panels_per_row,
-                        'name': array_name
+                        'name': array_name,
+                        'orientation': array_orientation
                     })
                     total_panels += rows * panels_per_row
                 
@@ -254,7 +256,7 @@ def calculate(request):
                 panels_per_row = array['panels_per_row']
                 
                 array_profil_len = 0
-                if panel_arrangement == 'альбомна':
+                if array['orientation'] == 'альбомна':
                     array_profil_len = (((panel_length * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows) * 2
                     if carcase_material == 'оцинкований' or carcase_material == 'алюміній' or carcase_material == 'залізо':
                         vertical_profile_len = (panel_width * rows) - 0.12
@@ -266,7 +268,7 @@ def calculate(request):
                         total_carcase_len += carcase_profile
                         total_carcase_count += N * 2
 
-                elif panel_arrangement == 'портретна':
+                elif array['orientation'] == 'портретна':
                     array_profil_len = (((panel_width * panels_per_row) + (0.002*(panels_per_row - 1)) + 0.01) * rows) * 2
                     if carcase_material == 'оцинкований' or carcase_material == 'алюміній' or carcase_material == 'залізо':
                         vertical_profile_len = (panel_length * rows) - 0.12
@@ -296,6 +298,7 @@ def calculate(request):
             # Підрахунок кількості кожного типу профілю
             profile_counts = {length: profiles.count(length) for length in set(profiles)}
             grouped_profiles = [{'length': length, 'count': count} for length, count in profile_counts.items()]
+            profiles_count = sum(profile_counts.values())
 
 
 
@@ -337,19 +340,15 @@ def calculate(request):
                 total_m_sh += array_m_sh
             
             # Розрахунок загальної кількості фронтальних конекторів для всіх масивів
-            total_front_connectors = 0
-            for array in panel_arrays:
-                array_front_connectors = (array['panels_per_row'] - 1) * array['rows']
-                array['front_connectors'] = array_front_connectors
-                total_front_connectors += array_front_connectors
+            total_front_connectors = profiles_count - 1
             
             # Розрахунок загальної кількості конекторів для всіх масивів
             total_connectors = 0
             for array in panel_arrays:
                 array_connectors = 0
-                if panel_arrangement == 'альбомна':
+                if array['orientation'] == 'альбомна':
                     array_connectors += (strings * 2) + 1
-                elif panel_arrangement == 'портретна':
+                elif array['orientation'] == 'портретна':
                     array_connectors += ((strings * 2) + 1) + array['rows']
                 array['connectors'] = array_connectors
                 total_connectors += array_connectors

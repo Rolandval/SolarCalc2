@@ -330,265 +330,98 @@ function addNewArray() {
     const groundMountingEnabled = document.getElementById('ground_mounting') && 
                                  document.getElementById('ground_mounting').checked;
     
-    // Створюємо новий масив
-    const newArray = document.createElement('div');
-    newArray.className = 'panel-array';
-    newArray.dataset.arrayId = newArrayId;
+    // Створюємо HTML для нового масиву
+    const newArrayHTML = `
+        <div class="panel-array" data-array-id="${newArrayId}">
+            <div class="array-header">
+                <h4>Масив #${newArrayId}</h4>
+                <input type="text" class="array-name-input" id="array_name_${newArrayId}" name="array_name_${newArrayId}" placeholder="Назва масиву" value="">
+                <button type="button" class="remove-array-btn" onclick="removeArray(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="array-content">
+                <div class="form-group">
+                    <label for="rows_${newArrayId}"><i class="fas fa-grip-lines"></i> Кількість рядів:</label>
+                    <input type="number" id="rows_${newArrayId}" name="rows_${newArrayId}" value="3" required min="1" onchange="calculateTotalPanels()">
+                </div>
+                <div class="form-group">
+                    <label for="panels_per_row_${newArrayId}"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
+                    <input type="number" id="panels_per_row_${newArrayId}" name="panels_per_row_${newArrayId}" value="4" required min="1" onchange="calculateTotalPanels()">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-calculator"></i> Панелей у масиві:</label>
+                    <span class="array-total" id="array_total_${newArrayId}">12</span>
+                </div>
+                <div class="form-group">
+                    <label for="array_orientation_${newArrayId}"><i class="fas fa-arrows-alt"></i> Орієнтація панелей:</label>
+                    <select id="array_orientation_${newArrayId}" name="array_orientation_${newArrayId}" required>
+                        <option value="альбомна">Альбомна</option>
+                        <option value="портретна">Портретна</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
     
-    // Створюємо заголовок масиву
-    const arrayHeader = document.createElement('div');
-    arrayHeader.className = 'array-header';
-    
-    const arrayTitle = document.createElement('h4');
-    arrayTitle.textContent = `Масив #${newArrayId}`;
-    arrayHeader.appendChild(arrayTitle);
-    
-    // Додаємо поле для назви масиву
-    const arrayNameInput = document.createElement('input');
-    arrayNameInput.type = 'text';
-    arrayNameInput.className = 'array-name-input';
-    arrayNameInput.id = `array_name_${newArrayId}`;
-    arrayNameInput.name = `array_name_${newArrayId}`;
-    arrayNameInput.placeholder = 'Назва масиву';
-    arrayNameInput.value = '';
-    arrayHeader.appendChild(arrayNameInput);
-    
-    const removeButton = document.createElement('button');
-    removeButton.type = 'button';
-    removeButton.name = 'remove-array-btn';
-    removeButton.setAttribute('onclick', 'removeArray(this)');
-    removeButton.innerHTML = '<i class="fas fa-times"></i>';
-    arrayHeader.appendChild(removeButton);
-    
-    newArray.appendChild(arrayHeader);
-    
-    // Створюємо контент масиву
-    const arrayContent = document.createElement('div');
-    arrayContent.className = 'array-content';
-    
-    // Додаємо поля для кількості рядів
-    const rowsGroup = document.createElement('div');
-    rowsGroup.className = 'form-group';
-    
-    const rowsLabel = document.createElement('label');
-    rowsLabel.setAttribute('for', `rows_${newArrayId}`);
-    rowsLabel.innerHTML = '<i class="fas fa-grip-lines"></i> Кількість рядів:';
-    rowsGroup.appendChild(rowsLabel);
-    
-    const rowsInput = document.createElement('input');
-    rowsInput.type = 'number';
-    rowsInput.id = `rows_${newArrayId}`;
-    rowsInput.name = `rows_${newArrayId}`;
-    rowsInput.value = '2';
-    rowsInput.required = true;
-    rowsInput.min = '1';
-    rowsInput.setAttribute('onchange', 'calculateTotalPanels()');
-    rowsGroup.appendChild(rowsInput);
-    
-    arrayContent.appendChild(rowsGroup);
-    
-    // Додаємо поля для кількості панелей на ряд
-    const panelsGroup = document.createElement('div');
-    panelsGroup.className = 'form-group';
-    
-    const panelsLabel = document.createElement('label');
-    panelsLabel.setAttribute('for', `panels_per_row_${newArrayId}`);
-    panelsLabel.innerHTML = '<i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:';
-    panelsGroup.appendChild(panelsLabel);
-    
-    const panelsInput = document.createElement('input');
-    panelsInput.type = 'number';
-    panelsInput.id = `panels_per_row_${newArrayId}`;
-    panelsInput.name = `panels_per_row_${newArrayId}`;
-    panelsInput.value = '3';
-    panelsInput.required = true;
-    panelsInput.min = '1';
-    panelsInput.setAttribute('onchange', 'calculateTotalPanels()');
-    panelsGroup.appendChild(panelsInput);
-    
-    arrayContent.appendChild(panelsGroup);
-    
-    // Додаємо поле для відображення загальної кількості панелей у масиві
-    const totalGroup = document.createElement('div');
-    totalGroup.className = 'form-group';
-    
-    const totalLabel = document.createElement('label');
-    totalLabel.innerHTML = '<i class="fas fa-calculator"></i> Панелей у масиві:';
-    totalGroup.appendChild(totalLabel);
-    
-    const totalSpan = document.createElement('span');
-    totalSpan.className = 'array-total';
-    totalSpan.textContent = '6';
-    totalGroup.appendChild(totalSpan);
-    
-    arrayContent.appendChild(totalGroup);
+    // Додаємо новий масив до контейнера
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = newArrayHTML.trim();
+    const newArrayElement = tempDiv.firstChild;
+    container.appendChild(newArrayElement);
     
     // Якщо активовано наземне розміщення, додаємо поля для параметрів
     if (groundMountingEnabled) {
-        // Створюємо контейнер для полів наземного розміщення
-        const groundMountingWrapper = document.createElement('div');
-        groundMountingWrapper.className = 'ground-mounting-wrapper';
-        
-        // Створюємо контейнер для полів
-        const groundMountingContainer = document.createElement('div');
-        groundMountingContainer.className = 'ground-mounting-container';
-        
-        // Створюємо заголовок
-        const title = document.createElement('div');
-        title.className = 'ground-mounting-title';
-        title.innerHTML = '<i class="fas fa-mountain"></i> Параметри наземного розміщення';
-        groundMountingContainer.appendChild(title);
-        
-        // Створюємо контейнер для полів
-        const fieldsContainer = document.createElement('div');
-        fieldsContainer.className = 'ground-mounting-fields';
-        
-        // Додаємо поля
-        // 1. Висота конструкції
-        const heightGroup = document.createElement('div');
-        heightGroup.className = 'form-group';
-        
-        const heightLabel = document.createElement('label');
-        heightLabel.htmlFor = `mounting_height_${newArrayId}`;
-        heightLabel.innerHTML = '<i class="fas fa-arrows-alt-v"></i> Висота конструкції (м):';
-        heightGroup.appendChild(heightLabel);
-        
-        const heightInput = document.createElement('input');
-        heightInput.type = 'number';
-        heightInput.id = `mounting_height_${newArrayId}`;
-        heightInput.name = `mounting_height_${newArrayId}`;
-        heightInput.value = '1';
-        heightInput.min = '0.1';
-        heightInput.step = '0.1';
-        heightGroup.appendChild(heightInput);
-        
-        fieldsContainer.appendChild(heightGroup);
-        
-        // 2. Кут нахилу
-        const angleGroup = document.createElement('div');
-        angleGroup.className = 'form-group';
-        
-        const angleLabel = document.createElement('label');
-        angleLabel.htmlFor = `mounting_angle_${newArrayId}`;
-        angleLabel.innerHTML = '<i class="fas fa-ruler-combined"></i> Кут нахилу (градусів):';
-        angleGroup.appendChild(angleLabel);
-        
-        const angleInput = document.createElement('input');
-        angleInput.type = 'number';
-        angleInput.id = `mounting_angle_${newArrayId}`;
-        angleInput.name = `mounting_angle_${newArrayId}`;
-        angleInput.value = '30';
-        angleInput.min = '0';
-        angleInput.max = '90';
-        angleInput.step = '1';
-        angleGroup.appendChild(angleInput);
-        
-        fieldsContainer.appendChild(angleGroup);
-        
-        // 3. Відстань між стовпцями
-        const distanceGroup = document.createElement('div');
-        distanceGroup.className = 'form-group';
-        
-        const distanceLabel = document.createElement('label');
-        distanceLabel.htmlFor = `column_distance_${newArrayId}`;
-        distanceLabel.innerHTML = '<i class="fas fa-arrows-alt-h"></i> Відстань між стовпцями (м):';
-        distanceGroup.appendChild(distanceLabel);
-        
-        const distanceInput = document.createElement('input');
-        distanceInput.type = 'number';
-        distanceInput.id = `column_distance_${newArrayId}`;
-        distanceInput.name = `column_distance_${newArrayId}`;
-        distanceInput.value = '2';
-        distanceInput.min = '0.5';
-        distanceInput.step = '0.1';
-        distanceGroup.appendChild(distanceInput);
-        
-        fieldsContainer.appendChild(distanceGroup);
-        
-        // 4. Матеріал каркасу
-        const materialGroup = document.createElement('div');
-        materialGroup.className = 'form-group';
-        
-        const materialLabel = document.createElement('label');
-        materialLabel.htmlFor = `frame_material_${newArrayId}`;
-        materialLabel.innerHTML = '<i class="fas fa-cubes"></i> Матеріал каркасу:';
-        materialGroup.appendChild(materialLabel);
-        
-        const materialSelect = document.createElement('select');
-        materialSelect.id = `frame_material_${newArrayId}`;
-        materialSelect.name = `frame_material_${newArrayId}`;
-        
-        const materialOption1 = document.createElement('option');
-        materialOption1.value = 'оцинкований';
-        materialOption1.textContent = 'Оцинкований';
-        materialSelect.appendChild(materialOption1);
-        
-        const materialOption2 = document.createElement('option');
-        materialOption2.value = 'алюміній';
-        materialOption2.textContent = 'Алюміній';
-        materialSelect.appendChild(materialOption2);
-        
-        const materialOption3 = document.createElement('option');
-        materialOption3.value = 'залізо';
-        materialOption3.textContent = 'Залізо';
-        materialSelect.appendChild(materialOption3);
-        
-        materialGroup.appendChild(materialSelect);
-        fieldsContainer.appendChild(materialGroup);
-        
-        // 5. Тип основи
-        const foundationGroup = document.createElement('div');
-        foundationGroup.className = 'form-group';
-        
-        const foundationLabel = document.createElement('label');
-        foundationLabel.htmlFor = `foundation_type_${newArrayId}`;
-        foundationLabel.innerHTML = '<i class="fas fa-hammer"></i> Тип основи:';
-        foundationGroup.appendChild(foundationLabel);
-        
-        const foundationSelect = document.createElement('select');
-        foundationSelect.id = `foundation_type_${newArrayId}`;
-        foundationSelect.name = `foundation_type_${newArrayId}`;
-        
-        const foundationOption1 = document.createElement('option');
-        foundationOption1.value = 'забивна палка';
-        foundationOption1.textContent = 'Забивна палка';
-        foundationSelect.appendChild(foundationOption1);
-        
-        const foundationOption2 = document.createElement('option');
-        foundationOption2.value = 'геошуруп';
-        foundationOption2.textContent = 'Геошуруп';
-        foundationSelect.appendChild(foundationOption2);
-        
-        const foundationOption3 = document.createElement('option');
-        foundationOption3.value = 'бетонування';
-        foundationOption3.textContent = 'Бетонування';
-        foundationSelect.appendChild(foundationOption3);
-        
-        foundationGroup.appendChild(foundationSelect);
-        fieldsContainer.appendChild(foundationGroup);
-        
-        // Додаємо контейнер полів до контейнера наземного розміщення
-        groundMountingContainer.appendChild(fieldsContainer);
-        
-        // Додаємо контейнер наземного розміщення до обгортки
-        groundMountingWrapper.appendChild(groundMountingContainer);
-        
-        // Додаємо обгортку до контенту масиву
-        arrayContent.appendChild(groundMountingWrapper);
+        addGroundMountingFields(newArrayId);
     }
     
-    newArray.appendChild(arrayContent);
-    container.appendChild(newArray);
-    
-    // Показуємо кнопку видалення для першого масиву, якщо тепер є більше одного масиву
-    if (arrays.length === 1) {
-        const firstArrayRemoveBtn = arrays[0].querySelector('.remove-array-btn');
-        if (firstArrayRemoveBtn) {
-            firstArrayRemoveBtn.style.display = 'block';
-        }
-    }
-    
+    // Оновлюємо загальну кількість панелей
     calculateTotalPanels();
+}
+
+// Функція для додавання полів наземного розміщення до масиву
+function addGroundMountingFields(arrayId) {
+    const arrayContent = document.querySelector(`.panel-array[data-array-id="${arrayId}"] .array-content`);
+    
+    // Створюємо HTML для полів наземного розміщення
+    const groundMountingHTML = `
+        <div class="ground-mounting-fields">
+            <div class="form-group">
+                <label for="mounting_height_${arrayId}"><i class="fas fa-arrows-alt-v"></i> Висота конструкції (м):</label>
+                <input type="number" id="mounting_height_${arrayId}" name="mounting_height_${arrayId}" value="1" min="0.1" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="mounting_angle_${arrayId}"><i class="fas fa-ruler-combined"></i> Кут нахилу (°):</label>
+                <input type="number" id="mounting_angle_${arrayId}" name="mounting_angle_${arrayId}" value="30" min="0" max="90" step="1">
+            </div>
+            <div class="form-group">
+                <label for="column_distance_${arrayId}"><i class="fas fa-arrows-alt-h"></i> Відстань між стовпцями (м):</label>
+                <input type="number" id="column_distance_${arrayId}" name="column_distance_${arrayId}" value="2" min="0.5" step="0.1">
+            </div>
+            <div class="form-group">
+                <label for="frame_material_${arrayId}"><i class="fas fa-cubes"></i> Матеріал каркасу:</label>
+                <select id="frame_material_${arrayId}" name="frame_material_${arrayId}">
+                    <option value="оцинкований">Оцинкований</option>
+                    <option value="алюміній">Алюміній</option>
+                    <option value="залізо">Залізо</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="foundation_type_${arrayId}"><i class="fas fa-mountain"></i> Тип основи:</label>
+                <select id="foundation_type_${arrayId}" name="foundation_type_${arrayId}">
+                    <option value="забивна палка">Забивна палка</option>
+                    <option value="бетонний фундамент">Бетонний фундамент</option>
+                    <option value="гвинтова паля">Гвинтова паля</option>
+                </select>
+            </div>
+        </div>
+    `;
+    
+    // Додаємо поля наземного розміщення до масиву
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = groundMountingHTML.trim();
+    const groundMountingFields = tempDiv.firstChild;
+    arrayContent.appendChild(groundMountingFields);
 }
 
 function removeArray(button) {
@@ -701,7 +534,7 @@ function downloadBatteryDatasheet() {
     }
 }
 
-// Функція для оновлення іконки орієнтації панелей
+// Функція для оновлення іконки орієнтації
 function updateOrientationIcon() {
     const orientationSelect = document.getElementById('orientation');
     const orientationIcon = document.getElementById('orientation-icon');
@@ -1038,3 +871,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ініціалізуємо загальну кількість панелей
     calculateTotalPanels();
 });
+
+// Функція для оновлення іконки орієнтації масиву
+function updateArrayOrientationIcon(arrayId) {
+    const orientationSelect = document.getElementById(`array_orientation_${arrayId}`);
+    const orientationIcon = document.getElementById(`orientation-icon-${arrayId}`);
+    
+    if (orientationSelect && orientationIcon) {
+        // Встановлюємо клас в залежності від обраної орієнтації
+        if (orientationSelect.value === 'альбомна') {
+            orientationIcon.className = 'orientation-icon landscape';
+            orientationIcon.style.width = '30px';
+            orientationIcon.style.height = '20px';
+        } else {
+            orientationIcon.className = 'orientation-icon portrait';
+            orientationIcon.style.width = '20px';
+            orientationIcon.style.height = '30px';
+        }
+    }
+}
+
+function calculateArrayTotal(arrayId) {
+    const rows = parseInt(document.getElementById(`rows_${arrayId}`).value) || 0;
+    const panelsPerRow = parseInt(document.getElementById(`panels_per_row_${arrayId}`).value) || 0;
+    return rows * panelsPerRow;
+}
