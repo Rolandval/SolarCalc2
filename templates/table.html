@@ -313,19 +313,6 @@
                             <div class="parameter-label">Висота панелі (мм):</div>
                             <div class="parameter-value">{{ data.panel_height }}</div>
                         </div>
-                        <div class="parameter-row">
-                            <div class="parameter-label">Орієнтація:</div>
-                            <div class="parameter-value">
-                                {% if data.panel_arrangement == 'альбомна' %}
-                                    альбомна
-                                {% elif data.panel_arrangement == 'портретна' %}
-                                    книжкова
-                                {% else %}
-                                    {{ data.panel_arrangement }}
-                                {% endif %}
-                            </div>
-                        </div>
-                        
                     </div>
                     
                     <!-- Параметри розміщення -->

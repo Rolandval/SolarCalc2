@@ -419,6 +419,27 @@ button:hover {
     transition: width 0.3s ease, height 0.3s ease;
 }
 
+.panel-icon_1 {
+    width: 40px;
+    height: 30px;
+    border: 2px solid var(--primary-color);
+    border-radius: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(96, 165, 250, 0.1);
+    position: relative;
+    transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+.panel-icon-inner_1 {
+    width: 30px;
+    height: 20px;
+    background-color: rgba(96, 165, 250, 0.3);
+    border: 1px solid var(--primary-color);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
 /* Стилі для орієнтації панелей */
 .orientation-icon.landscape .panel-icon {
     width: 40px;
@@ -440,6 +461,27 @@ button:hover {
     width: 20px;
     height: 30px;
 }
+
+.orientation-icon.landscape .panel-icon_1 {
+    width: 40px;
+    height: 30px;
+}
+
+.orientation-icon.landscape .panel-icon-inner_1 {
+    width: 30px;
+    height: 20px;
+}
+
+.orientation-icon.portrait .panel-icon_1 {
+    width: 30px;
+    height: 40px;
+}
+
+.orientation-icon.portrait .panel-icon-inner_1 {
+    width: 20px;
+    height: 30px;
+}
+
 /* Стилі для кнопки "Зробити розрахунок" */
 .calc-btn {
     background-color: var(--secondary-color);

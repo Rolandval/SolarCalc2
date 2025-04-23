@@ -190,7 +190,7 @@
                             <label for="panel_height"><i class="fas fa-arrows-alt"></i> Профіль панелі (мм):</label>
                             <input type="number" id="panel_height" name="panel_height" value="35" required step="1">
                         </div>
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <label for="panel_arrangement"><i class="fas fa-expand"></i> Орієнтація:</label>
                             <div class="orientation-container">
                                 <select id="orientation" name="panel_arrangement" required onchange="updateOrientationIcon()">
@@ -203,7 +203,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         
                     </div>
                 </div>
@@ -248,10 +248,17 @@
                                         <!-- Додаємо вибір орієнтації для кожного масиву -->
                                         <div class="form-group">
                                             <label for="array_orientation_1"><i class="fas fa-arrows-alt"></i> Орієнтація панелей:</label>
-                                            <select id="array_orientation_1" name="array_orientation_1" required>
-                                                <option value="альбомна">Альбомна</option>
-                                                <option value="портретна">Портретна</option>
-                                            </select>
+                                            <div class="orientation-container">
+                                                <select id="array_orientation_1" name="array_orientation_1" required onchange="updateOrientationIcon()">
+                                                    <option value="альбомна">Альбомна</option>
+                                                    <option value="портретна">Книжкова</option>
+                                                </select>
+                                                <div class="orientation-icon" id="orientation-icon" title="Схематичне зображення орієнтації панелі">
+                                                    <div class="panel-icon_1">
+                                                        <div class="panel-icon-inner_1"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                         <!-- Поля для наземного розміщення будуть додані динамічно через JavaScript -->
                                     </div>

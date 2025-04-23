@@ -355,10 +355,17 @@ function addNewArray() {
                 </div>
                 <div class="form-group">
                     <label for="array_orientation_${newArrayId}"><i class="fas fa-arrows-alt"></i> Орієнтація панелей:</label>
-                    <select id="array_orientation_${newArrayId}" name="array_orientation_${newArrayId}" required>
-                        <option value="альбомна">Альбомна</option>
-                        <option value="портретна">Портретна</option>
-                    </select>
+                    <div class="orientation-container">
+                        <select id="array_orientation_${newArrayId}" name="array_orientation_${newArrayId}" required onchange="updateOrientationIcon()">
+                            <option value="альбомна">Альбомна</option>
+                            <option value="портретна">Портретна</option>
+                        </select>
+                        <div class="orientation-icon" id="orientation-icon-${newArrayId}" title="Схематичне зображення орієнтації панелі">
+                            <div class="panel-icon_${newArrayId}">
+                                <div class="panel-icon-inner_${newArrayId}"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -377,51 +384,72 @@ function addNewArray() {
     
     // Оновлюємо загальну кількість панелей
     calculateTotalPanels();
+    
+    // Додаємо стилі для нових класів panel-icon та panel-icon-inner
+    addOrientationIconStyles(newArrayId);
+    
+    // Ініціалізуємо іконку орієнтації
+    setTimeout(() => {
+        updateOrientationIcon();
+    }, 100);
 }
 
-// Функція для додавання полів наземного розміщення до масиву
-function addGroundMountingFields(arrayId) {
-    const arrayContent = document.querySelector(`.panel-array[data-array-id="${arrayId}"] .array-content`);
+// Функція для додавання стилів для іконки орієнтації
+function addOrientationIconStyles(arrayId) {
+    // Перевіряємо, чи існує вже стиль для цього arrayId
+    const styleId = `orientation-icon-styles-${arrayId}`;
+    if (document.getElementById(styleId)) {
+        return;
+    }
     
-    // Створюємо HTML для полів наземного розміщення
-    const groundMountingHTML = `
-        <div class="ground-mounting-fields">
-            <div class="form-group">
-                <label for="mounting_height_${arrayId}"><i class="fas fa-arrows-alt-v"></i> Висота конструкції (м):</label>
-                <input type="number" id="mounting_height_${arrayId}" name="mounting_height_${arrayId}" value="1" min="0.1" step="0.1">
-            </div>
-            <div class="form-group">
-                <label for="mounting_angle_${arrayId}"><i class="fas fa-ruler-combined"></i> Кут нахилу (°):</label>
-                <input type="number" id="mounting_angle_${arrayId}" name="mounting_angle_${arrayId}" value="30" min="0" max="90" step="1">
-            </div>
-            <div class="form-group">
-                <label for="column_distance_${arrayId}"><i class="fas fa-arrows-alt-h"></i> Відстань між стовпцями (м):</label>
-                <input type="number" id="column_distance_${arrayId}" name="column_distance_${arrayId}" value="2" min="0.5" step="0.1">
-            </div>
-            <div class="form-group">
-                <label for="frame_material_${arrayId}"><i class="fas fa-cubes"></i> Матеріал каркасу:</label>
-                <select id="frame_material_${arrayId}" name="frame_material_${arrayId}">
-                    <option value="оцинкований">Оцинкований</option>
-                    <option value="алюміній">Алюміній</option>
-                    <option value="залізо">Залізо</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="foundation_type_${arrayId}"><i class="fas fa-mountain"></i> Тип основи:</label>
-                <select id="foundation_type_${arrayId}" name="foundation_type_${arrayId}">
-                    <option value="забивна палка">Забивна палка</option>
-                    <option value="бетонний фундамент">Бетонний фундамент</option>
-                    <option value="гвинтова паля">Гвинтова паля</option>
-                </select>
-            </div>
-        </div>
+    // Створюємо новий елемент style
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+        .panel-icon_${arrayId} {
+            width: 40px;
+            height: 30px;
+            border: 2px solid var(--primary-color);
+            border-radius: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(96, 165, 250, 0.1);
+            position: relative;
+            transition: transform 0.3s ease, width 0.3s ease, height 0.3s ease;
+        }
+        
+        .panel-icon-inner_${arrayId} {
+            width: 30px;
+            height: 20px;
+            background-color: rgba(96, 165, 250, 0.3);
+            border: 1px solid var(--primary-color);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+        
+        .orientation-icon.landscape .panel-icon_${arrayId} {
+            width: 40px;
+            height: 30px;
+        }
+        
+        .orientation-icon.landscape .panel-icon-inner_${arrayId} {
+            width: 30px;
+            height: 20px;
+        }
+        
+        .orientation-icon.portrait .panel-icon_${arrayId} {
+            width: 30px;
+            height: 40px;
+        }
+        
+        .orientation-icon.portrait .panel-icon-inner_${arrayId} {
+            width: 20px;
+            height: 30px;
+        }
     `;
     
-    // Додаємо поля наземного розміщення до масиву
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = groundMountingHTML.trim();
-    const groundMountingFields = tempDiv.firstChild;
-    arrayContent.appendChild(groundMountingFields);
+    // Додаємо стиль до head
+    document.head.appendChild(style);
 }
 
 function removeArray(button) {
@@ -536,15 +564,107 @@ function downloadBatteryDatasheet() {
 
 // Функція для оновлення іконки орієнтації
 function updateOrientationIcon() {
-    const orientationSelect = document.getElementById('orientation');
-    const orientationIcon = document.getElementById('orientation-icon');
+    // Знаходимо всі селектори орієнтації на сторінці
+    let orientationSelects = document.querySelectorAll('select[id^="array_orientation_"], select#orientation');
     
-    // Встановлюємо клас в залежності від обраної орієнтації
-    if (orientationSelect.value === 'альбомна') {
-        orientationIcon.className = 'orientation-icon landscape';
-    } else {
-        orientationIcon.className = 'orientation-icon portrait';
-    }
+    // Обробляємо кожен знайдений селектор
+    orientationSelects.forEach(orientationSelect => {
+        let orientationIcon;
+        let arrayId = '';
+        
+        // Визначаємо ID іконки в залежності від ID селектора
+        if (orientationSelect.id === 'orientation') {
+            // Для основного селектора орієнтації
+            orientationIcon = document.getElementById('orientation-icon');
+        } else {
+            // Для селекторів масивів, отримуємо ID масиву з ID селектора
+            arrayId = orientationSelect.id.replace('array_orientation_', '');
+            orientationIcon = document.getElementById(`orientation-icon-${arrayId}`);
+            
+            // Якщо не знайдено іконку з ID orientation-icon-{arrayId}, спробуємо знайти основну іконку
+            if (!orientationIcon && arrayId === '1') {
+                orientationIcon = document.getElementById('orientation-icon');
+            }
+        }
+        
+        // Перевіряємо чи знайдена іконка
+        if (orientationIcon) {
+            // Встановлюємо клас в залежності від обраної орієнтації
+            if (orientationSelect.value === 'альбомна') {
+                orientationIcon.className = 'orientation-icon landscape';
+                orientationIcon.style.width = '30px';
+                orientationIcon.style.height = '20px';
+                
+                // Оновлюємо стилі для внутрішніх елементів
+                let panelIcon;
+                let panelIconInner;
+                
+                if (arrayId) {
+                    // Для масивів використовуємо класи з суфіксом _arrayId
+                    panelIcon = orientationIcon.querySelector(`.panel-icon_${arrayId}`);
+                    panelIconInner = orientationIcon.querySelector(`.panel-icon-inner_${arrayId}`);
+                    
+                    // Якщо не знайдено, спробуємо знайти без суфікса
+                    if (!panelIcon) {
+                        panelIcon = orientationIcon.querySelector('.panel-icon');
+                    }
+                    if (!panelIconInner) {
+                        panelIconInner = orientationIcon.querySelector('.panel-icon-inner');
+                    }
+                } else {
+                    // Для основного селектора використовуємо класи без суфікса
+                    panelIcon = orientationIcon.querySelector('.panel-icon');
+                    panelIconInner = orientationIcon.querySelector('.panel-icon-inner');
+                }
+                
+                if (panelIcon) {
+                    panelIcon.style.width = '40px';
+                    panelIcon.style.height = '30px';
+                }
+                
+                if (panelIconInner) {
+                    panelIconInner.style.width = '30px';
+                    panelIconInner.style.height = '20px';
+                }
+            } else {
+                orientationIcon.className = 'orientation-icon portrait';
+                orientationIcon.style.width = '20px';
+                orientationIcon.style.height = '30px';
+                
+                // Оновлюємо стилі для внутрішніх елементів
+                let panelIcon;
+                let panelIconInner;
+                
+                if (arrayId) {
+                    // Для масивів використовуємо класи з суфіксом _arrayId
+                    panelIcon = orientationIcon.querySelector(`.panel-icon_${arrayId}`);
+                    panelIconInner = orientationIcon.querySelector(`.panel-icon-inner_${arrayId}`);
+                    
+                    // Якщо не знайдено, спробуємо знайти без суфікса
+                    if (!panelIcon) {
+                        panelIcon = orientationIcon.querySelector('.panel-icon');
+                    }
+                    if (!panelIconInner) {
+                        panelIconInner = orientationIcon.querySelector('.panel-icon-inner');
+                    }
+                } else {
+                    // Для основного селектора використовуємо класи без суфікса
+                    panelIcon = orientationIcon.querySelector('.panel-icon');
+                    panelIconInner = orientationIcon.querySelector('.panel-icon-inner');
+                }
+                
+                if (panelIcon) {
+                    panelIcon.style.width = '30px';
+                    panelIcon.style.height = '40px';
+                }
+                
+                if (panelIconInner) {
+                    panelIconInner.style.width = '20px';
+                    panelIconInner.style.height = '30px';
+                }
+            }
+        }
+    });
 }
 
 // Функція для відображення/приховування параметрів наземного розміщення
@@ -856,6 +976,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const orientationElement = document.getElementById('orientation');
     if (orientationElement) {
         orientationElement.addEventListener('change', updateOrientationIcon);
+    }
+    
+    // Додаємо обробник для array_orientation_1
+    const arrayOrientationElement = document.getElementById('array_orientation_1');
+    if (arrayOrientationElement) {
+        arrayOrientationElement.addEventListener('change', updateOrientationIcon);
     }
     
     // Додаємо обробник для чекбоксу наземного розміщення
