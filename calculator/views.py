@@ -238,7 +238,7 @@ def calculate(request):
             if total_panels != int(data.get('total_panels', 0)):
                 return JsonResponse({'success': False, 'error': 'Загальна кількість панелей не співпадає з сумою панелей у масивах'})
             
-            panel_arrangement = data.get('panel_arrangement', '')
+            panel_arrangement = "альбомна"
             if panel_arrangement == '':
                 return JsonResponse({'success': False, 'error': 'Необхідно вибрати розташування профілів'})
             panel_type = data.get('panel_type', '')

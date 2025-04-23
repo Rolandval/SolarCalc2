@@ -346,7 +346,7 @@ function addNewArray() {
                     <input type="number" id="rows_${newArrayId}" name="rows_${newArrayId}" value="3" required min="1" onchange="calculateTotalPanels()">
                 </div>
                 <div class="form-group">
-                    <label for="panels_per_row_${newArrayId}"><i class="fas fa-grip-lines-vertical"></i> Кількість панелей на ряд:</label>
+                    <label for="panels_per_row_${newArrayId}"><i class="fas fa-grip-lines-vertical"></i> К-сть панелей на ряд:</label>
                     <input type="number" id="panels_per_row_${newArrayId}" name="panels_per_row_${newArrayId}" value="4" required min="1" onchange="calculateTotalPanels()">
                 </div>
                 <div class="form-group">
