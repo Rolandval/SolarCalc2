@@ -358,7 +358,7 @@ function addNewArray() {
                     <div class="orientation-container">
                         <select id="array_orientation_${newArrayId}" name="array_orientation_${newArrayId}" required onchange="updateOrientationIcon()">
                             <option value="альбомна">Альбомна</option>
-                            <option value="портретна">Портретна</option>
+                            <option value="портретна">Книжкова</option>
                         </select>
                         <div class="orientation-icon" id="orientation-icon-${newArrayId}" title="Схематичне зображення орієнтації панелі">
                             <div class="panel-icon_${newArrayId}">
