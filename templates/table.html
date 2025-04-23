@@ -145,6 +145,13 @@
             <p>Детальна інформація про необхідні матеріали та їх вартість</p>
         </div>
         
+        <!-- Кнопка "Додому" зверху сторінки зліва -->
+        <div class="home-button-container" style="position: absolute; top: 20px; left: 20px;">
+            <a href="{% url 'calculator:index' %}" class="home-btn" style="display: inline-flex; align-items: center; justify-content: center; background-color: #1e293b; color: white; border-radius: 50%; width: 40px; height: 40px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: all 0.3s ease;">
+                <i class="fas fa-home" style="font-size: 1.2rem;"></i>
+            </a>
+        </div>
+        
         <!-- Кнопка "Повернутись назад" зверху сторінки -->
         <div class="back-button-container">
             <a href="{% url 'calculator:index' %}" class="back-btn">
