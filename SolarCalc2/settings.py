@@ -30,11 +30,11 @@ SECRET_KEY = 'django-insecure-kmx+oh1i_k8ub5(um226ddrb#jcpb5it!6sf$w-_5!vyx)0k4h
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.100', 'solarcalc2.onrender.com']
+ALLOWED_HOSTS = ['*']
 PORT = 8000
 
 # Додаємо CSRF_TRUSTED_ORIGINS для вирішення проблеми з CSRF на Render
-CSRF_TRUSTED_ORIGINS = ['https://solarcalc2.onrender.com']
+CSRF_TRUSTED_ORIGINS = ['https://solarcalc2.onrender.com', 'http://172.20.10.115']
 
 # Application definition
 
